@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Kaushan+Script&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg:          #F5F4F1;
+  --surface:     #FFFFFF;
+  --surface2:    #F8F7F4;
+  --surface3:    #EEECEA;
+  --border:      #E2DFD8;
+  --border2:     #CCC9C0;
+  --orange:      #C85000;
+  --orange-dim:  #FCEEE6;
+  --orange-glow: rgba(200,80,0,0.08);
+  --slate:       #6B6B72;
+  --muted:       #9B9B9B;
+  --text:        #1A1A1A;
+  --text-dim:    #4A4A4A;
+  --white:       #111111;
+  --green:       #166534;
+  --green-dim:   rgba(22,101,52,0.08);
+  --amber:       #92400E;
+  --red:         #991B1B;
+  --mono:        'IBM Plex Mono', monospace;
+  --sans:        'Inter', sans-serif;
+  --wine:        #4D0C22;
+  --wine-light:  #63132D;
+}

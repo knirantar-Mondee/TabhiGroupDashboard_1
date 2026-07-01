@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MICC · Market Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F5F4F1;
+      --surface:     #FFFFFF;
+      --surface2:    #F8F7F4;
+      --surface3:    #EEECEA;
+      --border:      #E2DFD8;
+      --border2:     #CCC9C0;
+      --orange:      #C85000;
+      --orange-dim:  #FCEEE6;
+      --orange-glow: rgba(200,80,0,0.08);
+      --slate:       #6B6B72;
+      --muted:       #9B9B9B;
+      --text:        #1A1A1A;
+      --text-dim:    #4A4A4A;
+      --white:       #111111;
+      --green:       #166534;
+      --green-dim:   rgba(22,101,52,0.08);
+      --amber:       #92400E;
+      --red:         #991B1B;
+      --mono:        'IBM Plex Mono', monospace;
+      --sans:        'Inter', sans-serif;
+    }
+
+    html { font-size: 14px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── TICKER BAR ───────────────────────────── */
+    .ticker-wrap {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .ticker-label {
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      padding: 0 14px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker-scroll 60s linear infinite;
+      will-change: transform;
+    }
+
+    .ticker-track:hover { animation-play-state: paused; }
+
+    .ticker-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #555;
+      padding: 0 32px 0 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ticker-item .t-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    .ticker-item .t-co {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── HEADER ───────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 28px;
+      height: 28px;
+      background: var(--orange);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-mark svg {
+      width: 14px;
+      height: 14px;
+      fill: #fff;
+    }
+
+    .logo-text {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+
+    .logo-sub {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--slate);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 20px;
+      padding: 3px 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.08em;
+    }
+
+    .header-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── NAV TABS ─────────────────────────────── */
+    .nav-tabs {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+
+    .nav-tab {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 12px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .nav-tab.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+    }
+
+    .nav-tab:hover:not(.active) { color: var(--text-dim); }
+
+    /* ── PAGE LAYOUT ──────────────────────────── */
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 32px 60px;
+    }
+
+    /* ── PAGE HERO ────────────────────────────── */
+    .page-hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero-left h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .page-hero-left p {
+      font-size: 13px;
+      color: var(--slate);
+      margin-top: 4px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-chip {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .filter-chip:hover, .filter-chip.active {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* ── STATS STRIP ──────────────────────────── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .stat-cell {
+      background: var(--surface);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat-value span {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--green);
+      margin-left: 6px;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--slate);
+    }
+
+    /* ── SECTION HEADER ───────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      margin-top: 36px;
+    }
+
+    .section-header:first-of-type { margin-top: 0; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-eyebrow {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.14em;
+      color: var(--orange);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .section-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .section-count {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 7px;
+    }
+
+    .section-link {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--slate);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: color 0.15s;
+      text-decoration: none;
+    }
+
+    .section-link:hover { color: var(--orange); }
+
+    /* ── THREE-COLUMN GRID ────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ── NEWS CARD ────────────────────────────── */
+    .news-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+
+    .news-card:hover { border-color: var(--border2); }
+
+    .news-card-top {
+      padding: 14px 16px;
+    }
+
+    .news-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .news-company-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .company-logo {
+      width: 20px;
+      height: 20px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--mono);
+      font-size: 8px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .company-name {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    .news-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .news-headline {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.5;
+      margin-bottom: 8px;
+    }
+
+    .news-summary {
+      font-size: 12px;
+      color: var(--slate);
+      line-height: 1.55;
+    }
+
+    .news-card-footer {
+      padding: 8px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface2);
+    }
+
+    .news-tags {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .tag-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(232,93,4,0.25); }
+    .tag-slate  { background: var(--surface3); color: var(--slate); border: 1px solid var(--border); }
+    .tag-green  { background: rgba(34,197,94,0.08); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .tag-amber  { background: rgba(245,158,11,0.08); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+    .tag-red    { background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+
+    .news-source {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    /* ── CARD STACKS (per section col) ───────── */
+    .card-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* ── NEW ENTRANTS COL ─────────────────────── */
+    .entrant-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+
+    .entrant-card:hover { border-color: var(--orange-dim); }
+
+    .entrant-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .entrant-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .entrant-stage {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 3px;
+      padding: 2px 7px;
+      letter-spacing: 0.06em;
+    }
+
+    .entrant-desc {
+      font-size: 12px;
+      color: var(--slate);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .entrant-signals {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .entrant-signal {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+    }
+
+    .signal-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    .entrant-card .news-card-footer {
+      margin: 12px -16px -14px;
+      border-radius: 0 0 8px 8px;
+    }
+
+    /* ── INSIGHT BANNER ───────────────────────── */
+    .insight-banner {
+      background: var(--orange-glow);
+      border: 1px solid rgba(232,93,4,0.2);
+      border-left: 3px solid var(--orange);
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+    }
+
+    .insight-icon {
+      font-size: 14px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .insight-text {
+      font-size: 12px;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    .insight-text strong {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* ── SECTION DIVIDER ──────────────────────── */
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 32px 0;
+    }
+
+    /* ── VIDEO CAROUSEL ───────────────────────── */
+    .video-section {
+      margin-top: 36px;
+    }
+
+    .video-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .video-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .video-card:hover {
+      border-color: var(--border2);
+      transform: translateY(-2px);
+    }
+
+    .video-thumb {
+      position: relative;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+    }
+
+    .video-thumb-bg {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      position: relative;
+    }
+
+    .video-thumb-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 40%, rgba(0,0,0,0.45) 100%);
+    }
+
+    .video-play {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(232,93,4,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, transform 0.15s;
+    }
+
+    .video-card:hover .video-play {
+      background: var(--orange);
+      transform: translate(-50%, -50%) scale(1.08);
+    }
+
+    .video-play svg {
+      width: 14px;
+      height: 14px;
+      fill: white;
+      margin-left: 2px;
+    }
+
+    .video-duration {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.65);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 3px;
+    }
+
+    .video-type-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      font-family: var(--mono);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .video-body {
+      padding: 12px 14px;
+    }
+
+    .video-company {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .video-company-name {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--slate);
+      font-weight: 500;
+    }
+
+    .video-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .video-meta {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* ── COMPETITOR SECTION ACCENT ────────────── */
+    .col-header-accent {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .col-header-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── SCROLLABLE SECTION ───────────────────── */
+    .scroll-more {
+      text-align: center;
+      padding: 10px;
+    }
+
+    .scroll-more button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .scroll-more button:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* ── MINI COMPANY LOGO COLORS ─────────────── */
+    .logo-anthropic { background: #CC785C; }
+    .logo-openai    { background: #10A37F; }
+    .logo-google    { background: #4285F4; }
+    .logo-meta      { background: #0866FF; }
+    .logo-microsoft { background: #00A4EF; }
+    .logo-amazon    { background: #FF9900; }
+    .logo-navan     { background: #8B5CF6; }
+    .logo-brex      { background: #F97316; }
+    .logo-amex      { background: #1A6BDB; }
+    .logo-sap       { background: #0D7EBF; }
+    .logo-default   { background: #4B5563; }
+
+    /* ── GRID COLUMN WRAPPERS ─────────────────── */
+    .grid-col-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .grid-col-heading {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .grid-col-heading-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .col-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: var(--orange-glow);
+      border: 1px solid rgba(232,93,4,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .col-subtitle {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .col-count-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--orange);
+      background: var(--orange-glow);
+      border: 1px solid rgba(232,93,4,0.2);
+      border-radius: 3px;
+      padding: 2px 7px;
+    }
+
+    .grid-col-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* flat card inside col body */
+    .flat-card {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+      transition: border-color 0.15s;
+      cursor: pointer;
+    }
+
+    .flat-card:hover { border-color: var(--border2); }
+
+    .flat-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .flat-card-company {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .flat-card-headline {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .flat-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* ── TREND PILL ───────────────────────────── */
+    .trend-up   { color: var(--green); }
+    .trend-down { color: var(--red); }
+    .trend-neutral { color: var(--amber); }
+
+    /* ── FOOTER ───────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      margin-top: 60px;
+    }
+
+    .footer-left {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-right a { color: var(--muted); text-decoration: none; }
+    .footer-right a:hover { color: var(--orange); }
+
+    /* ── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 1100px) {
+      .main-grid { grid-template-columns: 1fr 1fr; }
+      .main-grid > *:nth-child(3) { grid-column: 1 / -1; }
+      .video-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .main-grid > *:nth-child(3) { grid-column: auto; }
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .video-grid { grid-template-columns: 1fr; }
+      header { padding: 0 16px; }
+      .page { padding: 20px 16px 60px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .ticker-track { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── TICKER ───────────────────────────────── -->
+  <div class="ticker-wrap">
+    <div class="ticker-label">LIVE SIGNALS</div>
+    <div style="overflow:hidden;flex:1">
+      <div class="ticker-track" id="ticker">
+        <!-- duplicated for seamless loop via JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HEADER ───────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 16 16"><path d="M8 1L14 4.5V11.5L8 15L2 11.5V4.5L8 1Z"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">MIRAEE · MICC</div>
+        <div class="logo-sub">Intelligence Command Center</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="header-badge">LIVE FEED</div>
+      <div class="header-time" id="clock">-</div>
+    </div>
+  </header>
+
+  <!-- ── NAV TABS ─────────────────────────────── -->
+  <nav class="nav-tabs">
+    <div class="nav-tab active" data-tab="overview">OVERVIEW</div>
+    <div class="nav-tab" data-tab="growth-marketing">GROWTH & MARKETING</div>
+    <div class="nav-tab" data-tab="product-strategy">PRODUCT & STRATEGY</div>
+  </nav>
+
+  <!-- ── PAGE ─────────────────────────────────── -->
+  <main class="page">
+
+    <!-- ── OVERVIEW TAB VIEW ────────────────────── -->
+    <div id="view-overview" class="tab-view">
+      <!-- Hero row -->
+      <div class="page-hero">
+      <div class="page-hero-left">
+        <h1>Market Intelligence Overview</h1>
+        <p>AI, travel-tech &amp; competitive signals - updated continuously from public sources</p>
+      </div>
+      <div class="filter-row">
+        <div class="filter-chip active">ALL</div>
+        <div class="filter-chip">TODAY</div>
+        <div class="filter-chip">7D</div>
+        <div class="filter-chip">30D</div>
+      </div>
+    </div>
+
+    <!-- Stats strip -->
+    <div class="stats-strip">
+      <div class="stat-cell">
+        <div class="stat-label">Signals today</div>
+        <div class="stat-value">34 <span>↑ 12</span></div>
+        <div class="stat-sub">Across all sources</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Active campaigns</div>
+        <div class="stat-value">7</div>
+        <div class="stat-sub">Competitor campaigns live</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">New entrants</div>
+        <div class="stat-value">3 <span>↑ 1</span></div>
+        <div class="stat-sub">Flagged this week</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-label">Top theme</div>
+        <div class="stat-value" style="font-size:15px;padding-top:3px;">AI Agents</div>
+        <div class="stat-sub">4 of 5 majors this month</div>
+      </div>
+    </div>
+
+    <!-- ── MAIN THREE-COLUMN GRID ──────────────── -->
+    <div class="main-grid">
+
+      <!-- COL 1: INDUSTRY LEADERS -->
+      <div class="grid-col-inner">
+        <div class="grid-col-heading">
+          <div class="grid-col-heading-left">
+            <div class="col-icon">🏛️</div>
+            <div>
+              <div class="col-title">Industry Leaders</div>
+              <div class="col-subtitle">Anthropic · OpenAI · Google · Meta · Microsoft</div>
+            </div>
+          </div>
+          <div class="col-count-badge">8 NEW</div>
+        </div>
+        <div class="grid-col-body">
+
+          <div class="insight-banner">
+            <div class="insight-icon">🧠</div>
+            <div class="insight-text"><strong>Pattern:</strong> 4 of 5 major AI labs released agentic tooling or agent-focused APIs this week - signals a cross-industry pivot toward autonomous workflows.</div>
+          </div>
+
+          <!-- Card -->
+          <div class="flat-card" onclick="openDrawer(0)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-anthropic">An</div>
+                <span class="company-name">ANTHROPIC</span>
+              </div>
+              <span class="news-time">2h ago</span>
+            </div>
+            <div class="flat-card-headline">Claude 4 Opus launches with extended thinking and 1M token context - claims best-in-class reasoning on enterprise benchmarks</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">MODEL RELEASE</span>
+                <span class="tag tag-slate">ENTERPRISE</span>
+              </div>
+              <span class="news-source">TechCrunch</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(1)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-openai">OA</div>
+                <span class="company-name">OPENAI</span>
+              </div>
+              <span class="news-time">5h ago</span>
+            </div>
+            <div class="flat-card-headline">OpenAI releases Realtime API for voice agents - enables sub-300ms latency conversational AI in third-party apps</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">API LAUNCH</span>
+                <span class="tag tag-slate">VOICE</span>
+              </div>
+              <span class="news-source">The Verge</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(2)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-google">G</div>
+                <span class="company-name">GOOGLE DEEPMIND</span>
+              </div>
+              <span class="news-time">9h ago</span>
+            </div>
+            <div class="flat-card-headline">Gemini 2.5 Flash now available on Vertex AI with built-in tool use and function calling for enterprise applications</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">PLATFORM</span>
+                <span class="tag tag-green">FREE TIER</span>
+              </div>
+              <span class="news-source">Google Blog</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(3)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-meta">Me</div>
+                <span class="company-name">META AI</span>
+              </div>
+              <span class="news-time">Yesterday</span>
+            </div>
+            <div class="flat-card-headline">Meta releases Llama 3.2 with multimodal capabilities and on-device model optimised for mobile - fully open weights</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-green">OPEN SOURCE</span>
+                <span class="tag tag-slate">MULTIMODAL</span>
+              </div>
+              <span class="news-source">Meta Blog</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(4)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-microsoft">Ms</div>
+                <span class="company-name">MICROSOFT</span>
+              </div>
+              <span class="news-time">2 days ago</span>
+            </div>
+            <div class="flat-card-headline">Microsoft Copilot Studio adds travel expense automation templates using Azure AI Foundry - targeting enterprise procurement</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">PRODUCT</span>
+                <span class="tag tag-amber">TRAVEL ADJACENT</span>
+              </div>
+              <span class="news-source">MS Tech Blog</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(5)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-amazon">AW</div>
+                <span class="company-name">AWS</span>
+              </div>
+              <span class="news-time">3 days ago</span>
+            </div>
+            <div class="flat-card-headline">Amazon Bedrock adds new agent memory capabilities enabling persistent context across multi-session enterprise workflows</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">AGENTS</span>
+                <span class="tag tag-slate">PLATFORM</span>
+              </div>
+              <span class="news-source">AWS Blog</span>
+            </div>
+          </div>
+
+          <div class="scroll-more"><button onclick="showMore(this,'leaders')">SHOW 4 MORE ↓</button></div>
+        </div>
+      </div>
+
+      <!-- COL 2: COMPETITORS -->
+      <div class="grid-col-inner">
+        <div class="grid-col-heading">
+          <div class="grid-col-heading-left">
+            <div class="col-icon">🎯</div>
+            <div>
+              <div class="col-title">Competitors</div>
+              <div class="col-subtitle">Navan · Brex · Amex GBT · SAP Concur</div>
+            </div>
+          </div>
+          <div class="col-count-badge">6 NEW</div>
+        </div>
+        <div class="grid-col-body">
+
+          <div class="insight-banner">
+            <div class="insight-icon">⚠️</div>
+            <div class="insight-text"><strong>Watch:</strong> Navan's AI Travel Assistant campaign is now 45 days old across Meta, LinkedIn &amp; YouTube - the longest single campaign they've run. Signals conviction, not testing.</div>
+          </div>
+
+          <!-- Navan -->
+          <div class="flat-card" onclick="openDrawer(6)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-navan">Na</div>
+                <span class="company-name">NAVAN</span>
+              </div>
+              <span class="news-time">6h ago</span>
+            </div>
+            <div class="flat-card-headline">Navan AI Concierge goes live for enterprise customers - autonomous booking, approval, and policy compliance in one workflow</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-red">DIRECT THREAT</span>
+                <span class="tag tag-orange">AI PRODUCT</span>
+              </div>
+              <span class="news-source">TechCrunch</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(7)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-navan">Na</div>
+                <span class="company-name">NAVAN</span>
+              </div>
+              <span class="news-time">Yesterday</span>
+            </div>
+            <div class="flat-card-headline">Navan appoints ex-Google DeepMind VP as Head of AI Products - third senior AI hire in 90 days</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-amber">LEADERSHIP</span>
+                <span class="tag tag-slate">TEAM GROWTH</span>
+              </div>
+              <span class="news-source">LinkedIn</span>
+            </div>
+          </div>
+
+          <!-- Brex -->
+          <div class="flat-card" onclick="openDrawer(8)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-brex">Br</div>
+                <span class="company-name">BREX</span>
+              </div>
+              <span class="news-time">1 day ago</span>
+            </div>
+            <div class="flat-card-headline">Brex launches Spend Controls 2.0 - AI-driven real-time expense blocking with predictive budget flagging for CFOs</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">FEATURE</span>
+                <span class="tag tag-slate">CFO TOOL</span>
+              </div>
+              <span class="news-source">Brex Blog</span>
+            </div>
+          </div>
+
+          <div class="flat-card" onclick="openDrawer(9)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-brex">Br</div>
+                <span class="company-name">BREX</span>
+              </div>
+              <span class="news-time">2 days ago</span>
+            </div>
+            <div class="flat-card-headline">Brex partners with Stripe to offer embedded travel booking inside Stripe Treasury for fintech-native companies</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-green">PARTNERSHIP</span>
+                <span class="tag tag-slate">FINTECH</span>
+              </div>
+              <span class="news-source">FinancialTimes</span>
+            </div>
+          </div>
+
+          <!-- Amex GBT -->
+          <div class="flat-card" onclick="openDrawer(10)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-amex">Am</div>
+                <span class="company-name">AMEX GBT</span>
+              </div>
+              <span class="news-time">3 days ago</span>
+            </div>
+            <div class="flat-card-headline">American Express GBT acquires Egencia's SMB portfolio from Expedia - adds 2M small business travellers to its platform</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-amber">ACQUISITION</span>
+                <span class="tag tag-slate">SMB</span>
+              </div>
+              <span class="news-source">Reuters</span>
+            </div>
+          </div>
+
+          <!-- SAP Concur -->
+          <div class="flat-card" onclick="openDrawer(11)" style="cursor:pointer;">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-sap">SC</div>
+                <span class="company-name">SAP CONCUR</span>
+              </div>
+              <span class="news-time">4 days ago</span>
+            </div>
+            <div class="flat-card-headline">SAP Concur quietly raises enterprise pricing by 14% - first increase in 3 years, effective Q3 2026 renewals</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-red">PRICING</span>
+                <span class="tag tag-amber">OPPORTUNITY</span>
+              </div>
+              <span class="news-source">Internal Detection</span>
+            </div>
+          </div>
+
+          <div class="scroll-more"><button onclick="showMore(this,'competitors')">SHOW 3 MORE ↓</button></div>
+        </div>
+      </div>
+
+      <!-- COL 3: NEW ENTRANTS -->
+      <div class="grid-col-inner">
+        <div class="grid-col-heading">
+          <div class="grid-col-heading-left">
+            <div class="col-icon">🆕</div>
+            <div>
+              <div class="col-title">New Entrants</div>
+              <div class="col-subtitle">Flagged up-and-coming players</div>
+            </div>
+          </div>
+          <div class="col-count-badge">3 THIS WEEK</div>
+        </div>
+        <div class="grid-col-body">
+
+          <div class="insight-banner">
+            <div class="insight-icon">📡</div>
+            <div class="insight-text"><strong>Trend:</strong> Two new entrants are targeting the SMB travel gap - a segment none of the major competitors are actively campaigning toward.</div>
+          </div>
+
+          <!-- Entrant 1 -->
+          <div class="flat-card" onclick="openDrawer(12)" style="cursor:pointer;border-left: 2px solid var(--green);">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo logo-default">TO</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--white)">TripOS</div>
+                </div>
+              </div>
+              <span class="tag tag-green">SEED</span>
+            </div>
+            <div class="flat-card-headline" style="margin-top:4px">AI-first SMB travel management - auto-booking, no IT setup, &lt;48h onboarding</div>
+            <div style="margin: 8px 0; display:flex; flex-direction:column; gap:4px;">
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Raised $4.2M seed · a16z · May 2026</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">15 open roles · 80% engineering</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Featured on Product Hunt #1 · Jun 2026</span></div>
+            </div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-amber">SMB</span>
+                <span class="tag tag-orange">AI NATIVE</span>
+              </div>
+              <span class="news-source">PH · Crunchbase</span>
+            </div>
+          </div>
+
+          <!-- Entrant 2 -->
+          <div class="flat-card" onclick="openDrawer(13)" style="cursor:pointer;border-left: 2px solid var(--amber);">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo" style="background:#7C3AED">FT</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--white)">FlowTrip</div>
+                </div>
+              </div>
+              <span class="tag tag-amber">PRE-SEED</span>
+            </div>
+            <div class="flat-card-headline" style="margin-top:4px">Expense + travel bundled for early-stage startups - per-seat pricing, Slack-first UX</div>
+            <div style="margin: 8px 0; display:flex; flex-direction:column; gap:4px;">
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">HN Launch: 380 upvotes · 4 days ago</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">200+ waitlist signups in 48h</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Founder: ex-Brex growth team</span></div>
+            </div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-slate">STARTUP</span>
+                <span class="tag tag-slate">SLACK-NATIVE</span>
+              </div>
+              <span class="news-source">Hacker News</span>
+            </div>
+          </div>
+
+          <!-- Entrant 3 -->
+          <div class="flat-card" onclick="openDrawer(14)" style="cursor:pointer;border-left: 2px solid var(--orange);">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo" style="background:#0891B2">VX</div>
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:var(--white)">VoyageX</div>
+                </div>
+              </div>
+              <span class="tag tag-orange">SERIES A</span>
+            </div>
+            <div class="flat-card-headline" style="margin-top:4px">Agentic travel platform for distributed teams - built on LangGraph, integrates with Notion &amp; Linear</div>
+            <div style="margin: 8px 0; display:flex; flex-direction:column; gap:4px;">
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Raised $18M Series A · Sequoia · Jun 2026</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Used by 120+ remote-first companies</span></div>
+              <div class="entrant-signal"><div class="signal-dot"></div><span class="news-time">Targeting Miraee's exact buyer persona</span></div>
+            </div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-red">HIGH WATCH</span>
+                <span class="tag tag-orange">AGENTIC</span>
+              </div>
+              <span class="news-source">TechCrunch</span>
+            </div>
+          </div>
+
+          <div style="padding: 10px 0 4px; border-top: 1px solid var(--border); margin: 4px 0 0;">
+            <div style="font-family: var(--mono); font-size: 10px; color: var(--muted); text-align: center; padding: 6px 0;"><span onclick="openAdd()" style="cursor:pointer;color:var(--orange);">+ ADD COMPANY MANUALLY</span></div>
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /main-grid -->
+
+    <!-- ── VIDEO CAROUSEL ──────────────────────── -->
+    <div class="video-section">
+      <div class="section-header" style="margin-top: 40px;">
+        <div class="section-title">
+          <div class="col-icon">▶️</div>
+          <div>
+            <div class="col-title" style="font-size: 15px;">Keynotes &amp; Product Launches</div>
+          </div>
+        </div>
+        <a href="#" class="section-link">VIEW ALL →</a>
+      </div>
+
+      <div class="video-grid">
+
+        <!-- Video 1 -->
+        <div class="flat-card" onclick="openVideo(0)" style="cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;">
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo logo-navan" style="width:16px;height:16px;font-size:7px;">Na</div>
+              <span class="company-name">NAVAN</span>
+            </div>
+            <span class="news-time">42:18 min</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">The Future of AI Corporate Travel - Navan CEO at BTN Summit</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Key Insights:</strong> Autonomous booking and policy compliance can reduce manual approvals by 73%. Zero-touch delegation is the future.
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags">
+              <span class="tag tag-orange">KEYNOTE</span>
+            </div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH VIDEO →</span>
+          </div>
+        </div>
+
+        <!-- Video 2 -->
+        <div class="flat-card" onclick="openVideo(1)" style="cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;">
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo logo-openai" style="width:16px;height:16px;font-size:7px;">OA</div>
+              <span class="company-name">OPENAI</span>
+            </div>
+            <span class="news-time">28:44 min</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">Realtime API Launch Event - Voice Agents, Low Latency, and What's Next</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Key Insights:</strong> Sub-300ms latency conversational audio enables natural, interruption-friendly voice agents. Output costs are $0.06/min.
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags">
+              <span class="tag tag-orange">PRODUCT LAUNCH</span>
+            </div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH VIDEO →</span>
+          </div>
+        </div>
+
+        <!-- Video 3 -->
+        <div class="flat-card" onclick="openVideo(2)" style="cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;">
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo logo-amex" style="width:16px;height:16px;font-size:7px;">Am</div>
+              <span class="company-name">AMEX GBT</span>
+            </div>
+            <span class="news-time">55:02 min</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">Reimagining Enterprise Travel - GBT CEO Skift Keynote</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Key Insights:</strong> Mid-market businesses (SMBs) represent the fastest-growing sector. Egencia integration adds 2M small business travellers.
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags">
+              <span class="tag tag-slate">CONFERENCE</span>
+            </div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH VIDEO →</span>
+          </div>
+        </div>
+
+        <!-- Video 4 -->
+        <div class="flat-card" onclick="openVideo(3)" style="cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;">
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo logo-anthropic" style="width:16px;height:16px;font-size:7px;">An</div>
+              <span class="company-name">ANTHROPIC</span>
+            </div>
+            <span class="news-time">19:33 min</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">Introducing Claude 4 Opus - Reasoning &amp; Multi-Agent Coordination</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Key Insights:</strong> 1M token context window, extended thinking mode for complex multi-step reasoning, and best-in-class coding benchmarks.
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags">
+              <span class="tag tag-orange">PRODUCT LAUNCH</span>
+            </div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH VIDEO →</span>
+          </div>
+        </div>      </div>
+    </div>
+    </div> <!-- /view-overview -->
+
+    <!-- ── GROWTH & MARKETING TAB VIEW ────────── -->
+    <div id="view-growth-marketing" class="tab-view" style="display:none;">
+      
+      <!-- Hero row -->
+      <div class="page-hero">
+        <div class="page-hero-left">
+          <h1>Growth &amp; Marketing Intelligence</h1>
+          <p>Marketing campaigns, social traffic, and business growth drivers</p>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">ALL</div>
+          <div class="filter-chip">CORE</div>
+          <div class="filter-chip">ENTRANTS</div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip">
+        <div class="stat-cell">
+          <div class="stat-label">Active Campaigns</div>
+          <div class="stat-value">5</div>
+          <div class="stat-sub">Across Meta &amp; LinkedIn</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Top Channel</div>
+          <div class="stat-value">LinkedIn</div>
+          <div class="stat-sub">65% of campaign posts</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Relative Traffic Growth</div>
+          <div class="stat-value">35% <span>↑ Navan</span></div>
+          <div class="stat-sub">SEO proxy indicators</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Dominant Persona</div>
+          <div class="stat-value" style="font-size:15px;padding-top:3px;">SMB Decision-Makers</div>
+          <div class="stat-sub">55% targeting share</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="main-grid">
+
+        <!-- Column 1: Growth & Traffic Metrics -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">📈</div>
+              <div>
+                <div class="col-title">Growth &amp; Traffic Metrics</div>
+                <div class="col-subtitle">Scorecard &amp; proxy traffic trends</div>
+              </div>
+            </div>
+            <div class="col-count-badge">UPDATED</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">📊</div>
+              <div class="insight-text"><strong>Insight:</strong> Navan continues to lead growth velocity across product and marketing dimensions, while SAP Concur shows stagnant organic momentum.</div>
+            </div>
+
+            <!-- Navan Growth Card -->
+            <div class="flat-card" onclick="openDrawer(12)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-navan">Na</div>
+                  <span class="company-name">NAVAN</span>
+                </div>
+                <span class="news-time">Daily</span>
+              </div>
+              <div class="flat-card-headline">Marketing: High ↑ | Product: Very High ↑ | Traffic: +28% MoM</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                AI Concierge release and active 45-day AI campaign drive high engagement.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">GROWTH VELOCITY</span>
+                  <span class="tag tag-green">TRAFFIC SPIKE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TravelPerk Growth Card -->
+            <div class="flat-card" onclick="openDrawer(13)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-navan" style="background:#7C3AED;">TP</div>
+                  <span class="company-name">TRAVELPERK</span>
+                </div>
+                <span class="news-time">Daily</span>
+              </div>
+              <div class="flat-card-headline">Marketing: Medium | Product: High ↑ | Traffic: +18% MoM</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                5 new features released last quarter focusing on enterprise automation.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-green">SERIES D</span>
+                  <span class="tag tag-slate">EXPANSION</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- SAP Concur Growth Card -->
+            <div class="flat-card" onclick="openDrawer(14)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-sap">SC</div>
+                  <span class="company-name">SAP CONCUR</span>
+                </div>
+                <span class="news-time">Daily</span>
+              </div>
+              <div class="flat-card-headline">Marketing: Low | Product: Low | Traffic: Stagnant (-2% MoM)</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                Pricing raised 14% on renewals; customer sentiment is negative on forums.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-red">STAGNANT</span>
+                  <span class="tag tag-amber">PRICING DISPLACEMENT</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 2: Active Campaigns & Channels -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">📢</div>
+              <div>
+                <div class="col-title">Active Campaigns &amp; Channels</div>
+                <div class="col-subtitle">Cross-channel recurring strategic themes</div>
+              </div>
+            </div>
+            <div class="col-count-badge">3 ACTIVE</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">🎯</div>
+              <div class="insight-text"><strong>Opportunity:</strong> 55% of competitor campaigns target SMB decision-makers, leaving the enterprise autonomous outcomes space open for Miraee.</div>
+            </div>
+
+            <!-- Navan Campaign -->
+            <div class="flat-card" onclick="openDrawer(15)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-navan">Na</div>
+                  <span class="company-name">NAVAN</span>
+                </div>
+                <span class="news-time">45d active</span>
+              </div>
+              <div class="flat-card-headline">"AI Travel Assistant" campaign - Meta, LinkedIn, YouTube</div>
+              <div style="font-size:11px;color:var(--slate);margin-bottom:8px;">
+                Dominant narrative of travel delegation. Targets corporate buyers &amp; CFOs.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">BRAND AWARENESS</span>
+                  <span class="tag tag-slate">CFOs</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- TravelPerk Campaign -->
+            <div class="flat-card" onclick="openDrawer(16)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-navan" style="background:#7C3AED;">TP</div>
+                  <span class="company-name">TRAVELPERK</span>
+                </div>
+                <span class="news-time">30d active</span>
+              </div>
+              <div class="flat-card-headline">"No-hassle Enterprise Booking" campaign - LinkedIn, PR</div>
+              <div style="font-size:11px;color:var(--slate);margin-bottom:8px;">
+                Focuses on simplifying booking and reducing shadow work. Targets Travel Managers.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-slate">ENTERPRISE</span>
+                  <span class="tag tag-slate">PROCUREMENT</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Brex Campaign -->
+            <div class="flat-card" onclick="openDrawer(17)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-brex">Br</div>
+                  <span class="company-name">BREX</span>
+                </div>
+                <span class="news-time">15d active</span>
+              </div>
+              <div class="flat-card-headline">"Spend Controls 2.0 Launch" campaign - Meta, Blogs</div>
+              <div style="font-size:11px;color:var(--slate);margin-bottom:8px;">
+                Real-time AI transaction blocking and predictive budget protection. Targets CFOs.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">PRODUCT LAUNCH</span>
+                  <span class="tag tag-slate">FINANCE</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 3: Growth Attribution Timeline -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">🧬</div>
+              <div>
+                <div class="col-title">Attribution Timeline</div>
+                <div class="col-subtitle">Strategic storylines &amp; drivers</div>
+              </div>
+            </div>
+            <div class="col-count-badge">ANALYZED</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">⚡</div>
+              <div class="insight-text"><strong>Pattern:</strong> Funding rounds correlate directly with leadership hiring spikes in engineering and subsequent product expansion.</div>
+            </div>
+
+            <!-- Storyline 1: AI Investment -->
+            <div class="flat-card" style="border-left: 2px solid var(--orange);">
+              <div class="flat-card-meta">
+                <span class="company-name" style="color:var(--orange);">AI INVESTMENT STORYLINE</span>
+                <span class="news-time">High Conf</span>
+              </div>
+              <div class="flat-card-headline">Navan's AI Product Acceleration</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px; line-height: 1.5;">
+                <div style="margin-bottom:4px;">• Dr. Sarah Chen hired as Head of AI Products (1m ago)</div>
+                <div style="margin-bottom:4px;">• ML Engineering hiring spike (8 open roles) (2m ago)</div>
+                <div>• AI Concierge product launched (GA) (Yesterday)</div>
+              </div>
+              <div class="flat-card-footer">
+                <span class="news-source">Driver: Product Innovation</span>
+              </div>
+            </div>
+
+            <!-- Storyline 2: Growth & Expansion -->
+            <div class="flat-card" style="border-left: 2px solid var(--green);">
+              <div class="flat-card-meta">
+                <span class="company-name" style="color:var(--green);">GROWTH &amp; EXPANSION STORYLINE</span>
+                <span class="news-time">High Conf</span>
+              </div>
+              <div class="flat-card-headline">TravelPerk scaling operations</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px; line-height: 1.5;">
+                <div style="margin-bottom:4px;">• Raised $200M Series D funding (3m ago)</div>
+                <div style="margin-bottom:4px;">• Opened Germany and France Offices (2m ago)</div>
+                <div>• Enterprise automation marketing push (1m ago)</div>
+              </div>
+              <div class="flat-card-footer">
+                <span class="news-source">Driver: Strategic Scaling</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── PRODUCT & STRATEGY TAB VIEW ────────── -->
+    <div id="view-product-strategy" class="tab-view" style="display:none;">
+      
+      <!-- Hero row -->
+      <div class="page-hero">
+        <div class="page-hero-left">
+          <h1>Product &amp; Strategic Shifts</h1>
+          <p>CXO keynote themes, competitor pricing timelines, and tech stack adoption</p>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">ALL</div>
+          <div class="filter-chip">AI/TECH</div>
+          <div class="filter-chip">PRICING</div>
+        </div>
+      </div>
+
+      <!-- Stats strip -->
+      <div class="stats-strip">
+        <div class="stat-cell">
+          <div class="stat-label">Strategic Theme</div>
+          <div class="stat-value" style="font-size:15px;padding-top:3px;">Autonomous AI</div>
+          <div class="stat-sub">65% of CXO speak share</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Pricing Alerts</div>
+          <div class="stat-value">1 <span>Concur 14%</span></div>
+          <div class="stat-sub">Quiet renewals hike</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Emerging Tech Stack</div>
+          <div class="stat-value">LangGraph</div>
+          <div class="stat-sub">VoyageX integration</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Avg Feature Velocity</div>
+          <div class="stat-value">1.6 / mo</div>
+          <div class="stat-sub">Core travel competitors</div>
+        </div>
+      </div>
+
+      <!-- Main Grid -->
+      <div class="main-grid">
+
+        <!-- Column 1: CXO Keynotes & Strategic Themes -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">🎙️</div>
+              <div>
+                <div class="col-title">CXO Keynotes &amp; Themes</div>
+                <div class="col-subtitle">Leadership speak &amp; strategic summaries</div>
+              </div>
+            </div>
+            <div class="col-count-badge">UPDATED</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">💡</div>
+              <div class="insight-text"><strong>Analysis:</strong> 65% of industry leaders discussed AI-powered personalization and zero-touch delegation during the last quarter.</div>
+            </div>
+
+            <!-- Navan CEO Keynote -->
+            <div class="flat-card" onclick="openDrawer(18)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-navan">Na</div>
+                  <span class="company-name">NAVAN CEO</span>
+                </div>
+                <span class="news-time">Jun 10, 2026</span>
+              </div>
+              <div class="flat-card-headline">"Future of AI Corporate Travel" - BTN Summit</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                Stated corporate travel is shifting from traditional management to autonomous, zero-touch delegation.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">AI AGENTS</span>
+                  <span class="tag tag-slate">DELEGATION</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Amex GBT CEO Keynote -->
+            <div class="flat-card" onclick="openDrawer(19)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-amex">Am</div>
+                  <span class="company-name">AMEX GBT CEO</span>
+                </div>
+                <span class="news-time">Jun 5, 2026</span>
+              </div>
+              <div class="flat-card-headline">"Reimagining Enterprise Travel" - Skift Forum</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                Highlighted SMB expansion (Egencia) and enterprise consolidation as core scaling metrics.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-slate">SMB FOCUS</span>
+                  <span class="tag tag-amber">SCALING</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Theme Distribution Chart (Simulated in HTML/CSS) -->
+            <div style="margin-top: 10px; border-top: 1px solid var(--border); padding-top: 12px;">
+              <div style="font-family:var(--mono); font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:10px; letter-spacing:0.06em;">CXO Strategic Theme Share</div>
+              <div style="display:flex; flex-direction:column; gap:8px;">
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px;">
+                    <span style="color:var(--text-dim);">AI &amp; Autonomous Agents</span>
+                    <span style="font-family:var(--mono); font-weight:600;">65%</span>
+                  </div>
+                  <div style="height:6px; background:var(--surface3); border-radius:3px; overflow:hidden;">
+                    <div style="width:65%; height:100%; background:var(--orange); border-radius:3px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px;">
+                    <span style="color:var(--text-dim);">Personalization &amp; Experience</span>
+                    <span style="font-family:var(--mono); font-weight:600;">20%</span>
+                  </div>
+                  <div style="height:6px; background:var(--surface3); border-radius:3px; overflow:hidden;">
+                    <div style="width:20%; height:100%; background:var(--slate); border-radius:3px;"></div>
+                  </div>
+                </div>
+                <div>
+                  <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:2px;">
+                    <span style="color:var(--text-dim);">Creator Economy / Slack-First</span>
+                    <span style="font-family:var(--mono); font-weight:600;">15%</span>
+                  </div>
+                  <div style="height:6px; background:var(--surface3); border-radius:3px; overflow:hidden;">
+                    <div style="width:15%; height:100%; background:var(--slate); border-radius:3px;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 2: Features, Pricing & Changes -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">💰</div>
+              <div>
+                <div class="col-title">Features &amp; Pricing Changes</div>
+                <div class="col-subtitle">Competitor pricing snapshots &amp; releases</div>
+              </div>
+            </div>
+            <div class="col-count-badge">2 ALERTS</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">⚠️</div>
+              <div class="insight-text"><strong>Price Hike:</strong> SAP Concur quiet renewals price increase of 14% is causing negative customer discussions on G2 &amp; Reddit.</div>
+            </div>
+
+            <!-- SAP Concur Pricing Raise -->
+            <div class="flat-card" onclick="openDrawer(11)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-sap">SC</div>
+                  <span class="company-name">SAP CONCUR</span>
+                </div>
+                <span class="news-time">Q3 2026 renewals</span>
+              </div>
+              <div class="flat-card-headline">Quiet 14% Enterprise Pricing Increase</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                First price increase in 3 years. Facing backlash on community forums.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-red">PRICING ALIGNMENT</span>
+                  <span class="tag tag-amber">OPPORTUNITY</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Brex Spend Controls 2.0 Feature -->
+            <div class="flat-card" onclick="openDrawer(8)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-brex">Br</div>
+                  <span class="company-name">BREX</span>
+                </div>
+                <span class="news-time">15d ago</span>
+              </div>
+              <div class="flat-card-headline">Spend Controls 2.0: AI-driven Real-time Block</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                Intercepts out-of-policy spending at transaction time. Budget warnings 72h early.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">FEATURE RELEASE</span>
+                  <span class="tag tag-slate">CFO TOOL</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- FlowTrip Startup Package -->
+            <div class="flat-card" onclick="openDrawer(13)">
+              <div class="flat-card-meta">
+                <div class="flat-card-company">
+                  <div class="company-logo logo-default" style="background:#7C3AED;">FT</div>
+                  <span class="company-name">FLOWTRIP</span>
+                </div>
+                <span class="news-time">4d ago</span>
+              </div>
+              <div class="flat-card-headline">Slack-first per-seat startup pricing launched</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 8px;">
+                No long contracts. Simple per-user pricing target for early stage startups.
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-green">STARTUP MODEL</span>
+                  <span class="tag tag-slate">PRICING</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Column 3: Tech Radar & Miraee Fit -->
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">🛰️</div>
+              <div>
+                <div class="col-title">Tech Radar &amp; Fit</div>
+                <div class="col-subtitle">Evolving tech stack &amp; relevance score</div>
+              </div>
+            </div>
+            <div class="col-count-badge">3 TRACKED</div>
+          </div>
+          <div class="grid-col-body">
+
+            <div class="insight-banner">
+              <div class="insight-icon">🤖</div>
+              <div class="insight-text"><strong>Emerging:</strong> VoyageX is the first competitor to implement LangGraph multi-agent architecture in production.</div>
+            </div>
+
+            <!-- LangGraph Card -->
+            <div class="flat-card" onclick="openDrawer(20)">
+              <div class="flat-card-meta">
+                <span class="company-name" style="color:var(--green);">LANGGRAPH (MULTI-AGENT)</span>
+                <span class="news-time">High Fit</span>
+              </div>
+              <div class="flat-card-headline">VoyageX Multi-Agent Travel Planner</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 6px; line-height:1.45;">
+                • Competitor Adoption: VoyageX in production<br>
+                • Maturity: Production-ready (Sequoia backed)<br>
+                • Open Source: Yes (LangChain ecosystem)
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-green">OPEN SOURCE</span>
+                  <span class="tag tag-orange">AGENTIC</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- OpenAI Realtime Card -->
+            <div class="flat-card" onclick="openDrawer(21)">
+              <div class="flat-card-meta">
+                <span class="company-name" style="color:var(--amber);">OPENAI REALTIME VOICE API</span>
+                <span class="news-time">Medium Fit</span>
+              </div>
+              <div class="flat-card-headline">Sub-300ms latency voice agents</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 6px; line-height:1.45;">
+                • Competitor Adoption: OpenAI API release<br>
+                • Maturity: Production-ready<br>
+                • Open Source: No (Proprietary API costs)
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">VOICE TECH</span>
+                  <span class="tag tag-slate">PROPRIETARY</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- AWS Bedrock Memory Card -->
+            <div class="flat-card" onclick="openDrawer(22)">
+              <div class="flat-card-meta">
+                <span class="company-name" style="color:var(--green);">AWS BEDROCK AGENT MEMORY</span>
+                <span class="news-time">High Fit</span>
+              </div>
+              <div class="flat-card-headline">Persistent cross-session memory</div>
+              <div style="font-size: 11px; color: var(--slate); margin-bottom: 6px; line-height:1.45;">
+                • Competitor Adoption: AWS API release<br>
+                • Maturity: Production-ready<br>
+                • Open Source: No (Bedrock native feature)
+              </div>
+              <div class="flat-card-footer">
+                <div class="news-tags">
+                  <span class="tag tag-orange">AGENTS</span>
+                  <span class="tag tag-slate">PLATFORM</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ── FOOTER ─────────────────────────────────── -->
+  <footer>
+    <div class="footer-left">MICC · Market Intelligence · All sources are publicly available · Free data only</div>
+    <div class="footer-right">
+      <a href="#">BRD</a>
+      <a href="#">Settings</a>
+      <a href="#">Export</a>
+    </div>
+  </footer>
+
+
+  
+<!-- ── DRAWER OVERLAY ─────────────────────────── -->
+<div id="drawer-overlay" onclick="closeDrawer()" style="
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;backdrop-filter:blur(2px);
+"></div>
+
+<div id="drawer" style="
+  display:none;position:fixed;top:0;right:0;width:460px;height:100vh;
+  background:var(--surface);border-left:1px solid var(--border);
+  z-index:201;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.12);
+  transform:translateX(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+  font-family:var(--sans);
+">
+  <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;">
+    <div id="drawer-company-wrap" style="display:flex;align-items:center;gap:10px;">
+      <div id="drawer-logo" class="company-logo" style="width:28px;height:28px;font-size:11px;border-radius:6px;"></div>
+      <div>
+        <div id="drawer-company" style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-dim);"></div>
+        <div id="drawer-time" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px;"></div>
+      </div>
+    </div>
+    <button onclick="closeDrawer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--text-dim);">✕</button>
+  </div>
+  <div style="padding:22px 24px;">
+    <div id="drawer-tags" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;"></div>
+    <h2 id="drawer-headline" style="font-size:16px;font-weight:600;line-height:1.45;color:var(--white);margin-bottom:14px;"></h2>
+    <p id="drawer-body" style="font-size:13px;color:var(--slate);line-height:1.65;margin-bottom:22px;"></p>
+    <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:10px;">
+      <a id="drawer-link" href="#" target="_blank" style="
+        display:inline-flex;align-items:center;gap:6px;
+        background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+        letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;
+        transition:opacity .15s;
+      " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">READ SOURCE →</a>
+      <button onclick="closeDrawer()" style="
+        background:none;border:1px solid var(--border);border-radius:5px;
+        font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+        transition:border-color .15s;
+      " onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── VIDEO MODAL ────────────────────────────── -->
+<div id="video-overlay" onclick="closeVideo()" style="
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;
+  align-items:center;justify-content:center;backdrop-filter:blur(4px);
+"></div>
+<div id="video-modal" style="
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:720px;max-width:95vw;z-index:301;
+">
+  <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+    <div id="video-modal-thumb" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+      <div style="position:relative;z-index:1;text-align:center;">
+        <div style="font-size:72px;margin-bottom:8px;" id="video-modal-emoji"></div>
+        <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.08em;">PREVIEW - CLICK SOURCE TO WATCH FULL VIDEO</div>
+      </div>
+    </div>
+    <div style="padding:18px 20px;">
+      <div id="video-modal-badge" style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;"></div>
+      <div id="video-modal-title" style="font-size:15px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:6px;"></div>
+      <div id="video-modal-meta" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <a id="video-modal-link" href="#" target="_blank" style="
+          background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+          letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+        ">▶ WATCH ON YOUTUBE</a>
+        <button onclick="closeVideo()" style="
+          background:none;border:1px solid var(--border);border-radius:5px;
+          font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+        ">CLOSE ✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── ADD COMPANY MODAL ──────────────────────── -->
+<div id="add-overlay" onclick="closeAdd()" style="
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;
+  align-items:center;justify-content:center;backdrop-filter:blur(3px);
+"></div>
+<div id="add-modal" style="
+  display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:420px;max-width:95vw;z-index:301;
+">
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:14px;font-weight:600;color:var(--white);">Track a new company</div>
+      <button onclick="closeAdd()" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);">✕</button>
+    </div>
+    <div style="padding:20px;">
+      <div style="margin-bottom:14px;">
+        <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">COMPANY NAME</label>
+        <input id="add-name" type="text" placeholder="e.g. TripActions, Locomote..." style="
+          width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+          background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+          outline:none;transition:border-color .15s;
+        " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">WEBSITE</label>
+        <input id="add-url" type="text" placeholder="https://..." style="
+          width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+          background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+          outline:none;transition:border-color .15s;
+        " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">CATEGORY</label>
+        <select id="add-cat" style="
+          width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+          background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+          outline:none;cursor:pointer;
+        ">
+          <option>New Entrant</option>
+          <option>Competitor</option>
+          <option>Industry Leader</option>
+        </select>
+      </div>
+      <button onclick="handleAdd()" style="
+        width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;
+        font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+        padding:10px;cursor:pointer;transition:opacity .15s;
+      " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">+ ADD TO WATCHLIST</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+    // ── LIVE CLOCK
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent = now.toLocaleString('en-US',{
+        month:'short',day:'numeric',year:'numeric',
+        hour:'2-digit',minute:'2-digit',second:'2-digit',
+        hour12:false,timeZoneName:'short'
+      });
+    }
+    updateClock(); setInterval(updateClock,1000);
+
+    // ── TICKER
+    const tickerItems = [
+      {co:'ANTHROPIC',text:'Claude 4 Opus launches with 1M context window and extended thinking mode'},
+      {co:'NAVAN',text:'AI Concierge goes live - autonomous booking and policy compliance for enterprise'},
+      {co:'OPENAI',text:'Realtime API enables sub-300ms voice agents in third-party applications'},
+      {co:'SAP CONCUR',text:'Enterprise pricing raised 14% - first increase in 3 years, effective Q3'},
+      {co:'TRAVELPERK',text:'$200M Series D raised - announces Germany and France expansion'},
+      {co:'META AI',text:'Llama 3.2 multimodal drops with open weights and on-device optimisation'},
+      {co:'VOYAGEX',text:'$18M Series A from Sequoia - agentic travel for distributed teams'},
+      {co:'BREX',text:'Spend Controls 2.0 adds AI-driven real-time expense blocking for CFOs'},
+      {co:'AWS',text:'Bedrock agent memory now supports persistent cross-session context for enterprises'},
+      {co:'AMEX GBT',text:'Acquires Egencia SMB portfolio from Expedia - adds 2M business travellers'},
+    ];
+    const track = document.getElementById('ticker');
+    [...tickerItems,...tickerItems].forEach(item => {
+      const el = document.createElement('span');
+      el.className = 'ticker-item';
+      el.innerHTML = `<span class="t-dot"></span><span class="t-co">${item.co}</span>${item.text}`;
+      track.appendChild(el);
+    });
+
+    // ── FILTER CHIPS
+    document.querySelectorAll('.filter-chip').forEach(chip => {
+      chip.addEventListener('click', function() {
+        document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+        this.classList.add('active');
+        const val = this.textContent.trim();
+        filterCards(val);
+      });
+    });
+
+    function filterCards(val) {
+      const allCards = document.querySelectorAll('.flat-card[data-type]');
+      allCards.forEach(card => {
+        const time = card.getAttribute('data-time') || '';
+        let show = true;
+        if (val === 'TODAY') show = time.includes('h ago') || time.toLowerCase() === 'today';
+        else if (val === '7D') show = !time.includes('days ago') || parseInt(time) <= 7;
+        else if (val === '30D') show = true;
+        card.style.display = show ? '' : 'none';
+      });
+    }
+
+    // ── TAB SWITCHING
+    function switchTab(tabId) {
+      // Update tab active state
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        if (t.getAttribute('data-tab') === tabId) {
+          t.classList.add('active');
+        } else {
+          t.classList.remove('active');
+        }
+      });
+
+      // Update view visibility
+      document.querySelectorAll('.tab-view').forEach(v => {
+        if (v.id === 'view-' + tabId) {
+          v.style.display = 'block';
+        } else {
+          v.style.display = 'none';
+        }
+      });
+
+      // Scroll to top of the page
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    // Attach click events to nav tabs
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        switchTab(tabId);
+      });
+    });
+
+    // ── TOAST
+    function showToast(msg) {
+      let t = document.getElementById('micc-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'micc-toast';
+        t.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+          background:#1A1A1A;color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+          padding:10px 20px;border-radius:6px;z-index:500;opacity:0;
+          transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;`;
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(10px)';
+      }, 2200);
+    }
+
+    // ── DRAWER
+    const drawerData = [
+      {'logo': 'An', 'company': 'ANTHROPIC', 'logoClass': 'logo-anthropic', 'time': '2h ago', 'headline': 'Claude 4 Opus launches with extended thinking and 1M token context - claims best-in-class reasoning on enterprise benchmarks', 'body': 'Anthropic released Claude 4 Opus today, its most capable model to date. Key highlights include a 1 million token context window, extended thinking mode for multi-step reasoning, and top scores on enterprise coding and legal benchmarks. This directly competes with GPT-4o and Gemini 1.5 Ultra.', 'tag1': 'MODEL RELEASE', 'tag2': 'ENTERPRISE', 'source': 'TechCrunch', 'url': 'https://techcrunch.com', 'type': 'leader'},
+      {'logo': 'OA', 'company': 'OPENAI', 'logoClass': 'logo-openai', 'time': '5h ago', 'headline': 'OpenAI releases Realtime API for voice agents - enables sub-300ms latency conversational AI in third-party apps', 'body': "OpenAI's Realtime API is now generally available, enabling developers to build low-latency voice agents with full interruption handling. Pricing is $0.06/min for input audio. This is a direct challenge to ElevenLabs, Deepgram, and Vapi in the voice AI space.", 'tag1': 'API LAUNCH', 'tag2': 'VOICE', 'source': 'The Verge', 'url': 'https://theverge.com', 'type': 'leader'},
+      {'logo': 'G', 'company': 'GOOGLE DEEPMIND', 'logoClass': 'logo-google', 'time': '9h ago', 'headline': 'Gemini 2.5 Flash now available on Vertex AI with built-in tool use and function calling for enterprise applications', 'body': 'Google DeepMind has made Gemini 2.5 Flash available on Vertex AI with native tool use, function calling, and grounding with Google Search. Enterprise customers get SLA-backed uptime and data residency controls. Notably priced below GPT-4o on a per-token basis.', 'tag1': 'PLATFORM', 'tag2': 'FREE TIER', 'source': 'Google Blog', 'url': 'https://blog.google', 'type': 'leader'},
+      {'logo': 'Me', 'company': 'META AI', 'logoClass': 'logo-meta', 'time': 'Yesterday', 'headline': 'Meta releases Llama 3.2 with multimodal capabilities and on-device model optimised for mobile - fully open weights', 'body': 'Meta open-sourced Llama 3.2 including a multimodal variant that handles images and text together. A special on-device version is optimised for mobile inference. The fully open weights allow commercial fine-tuning - a major competitive moat vs proprietary models.', 'tag1': 'OPEN SOURCE', 'tag2': 'MULTIMODAL', 'source': 'Meta Blog', 'url': 'https://ai.meta.com', 'type': 'leader'},
+      {'logo': 'Ms', 'company': 'MICROSOFT', 'logoClass': 'logo-microsoft', 'time': '2 days ago', 'headline': 'Microsoft Copilot Studio adds travel expense automation templates using Azure AI Foundry - targeting enterprise procurement', 'body': 'Microsoft quietly shipped 14 new Copilot Studio templates in its Azure AI Foundry marketplace, including a travel expense automation workflow that connects to SAP and Oracle ERP systems. This signals Microsoft is moving beyond coding assistants into enterprise process automation.', 'tag1': 'PRODUCT', 'tag2': 'TRAVEL ADJACENT', 'source': 'MS Tech Blog', 'url': 'https://techcommunity.microsoft.com', 'type': 'leader'},
+      {'logo': 'AW', 'company': 'AWS', 'logoClass': 'logo-amazon', 'time': '3 days ago', 'headline': 'Amazon Bedrock adds agent memory capabilities enabling persistent context across multi-session enterprise workflows', 'body': 'AWS Bedrock now supports persistent agent memory via a new Memory API, allowing AI agents to retain facts, preferences, and context across separate conversation sessions. This fills a critical gap for enterprise agentic applications that span days or weeks.', 'tag1': 'AGENTS', 'tag2': 'PLATFORM', 'source': 'AWS Blog', 'url': 'https://aws.amazon.com/blogs', 'type': 'leader'},
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': '6h ago', 'headline': 'Navan AI Concierge goes live for enterprise customers - autonomous booking, approval, and policy compliance in one workflow', 'body': "Navan's AI Concierge is now in GA for enterprise customers. It autonomously handles the full travel booking loop: search → policy check → approval routing → booking confirmation. Early pilots show 73% reduction in manual approvals. This is a direct competitive threat to Miraee's core value proposition.", 'tag1': 'DIRECT THREAT', 'tag2': 'AI PRODUCT', 'source': 'TechCrunch', 'url': 'https://techcrunch.com', 'type': 'competitor'},
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Yesterday', 'headline': 'Navan appoints ex-Google DeepMind VP as Head of AI Products - third senior AI hire in 90 days', 'body': 'Navan has hired Dr. Sarah Chen, previously VP of Applied Research at Google DeepMind, as their new Head of AI Products. This is the third senior AI hire in 90 days, following a Head of ML Engineering (ex-OpenAI) and a Director of AI Safety (ex-Anthropic). Strong signal of accelerating AI product investment.', 'tag1': 'LEADERSHIP', 'tag2': 'TEAM GROWTH', 'source': 'LinkedIn', 'url': 'https://linkedin.com', 'type': 'competitor'},
+      {'logo': 'Br', 'company': 'BREX', 'logoClass': 'logo-brex', 'time': '1 day ago', 'headline': 'Brex launches Spend Controls 2.0 - AI-driven real-time expense blocking with predictive budget flagging for CFOs', 'body': 'Brex Spend Controls 2.0 introduces real-time AI expense blocking that intercepts out-of-policy transactions before they complete. The system uses predictive flagging to warn budget owners 72 hours before projected overruns. Positions Brex more aggressively in the CFO tooling space.', 'tag1': 'FEATURE', 'tag2': 'CFO TOOL', 'source': 'Brex Blog', 'url': 'https://brex.com/blog', 'type': 'competitor'},
+      {'logo': 'Br', 'company': 'BREX', 'logoClass': 'logo-brex', 'time': '2 days ago', 'headline': 'Brex partners with Stripe to offer embedded travel booking inside Stripe Treasury for fintech-native companies', 'body': 'Brex and Stripe have announced a partnership that embeds travel booking directly inside Stripe Treasury. Fintech companies already using Stripe can now book business travel without leaving the Stripe dashboard. Targets the developer-first and startup segment that neither Navan nor Concur currently owns.', 'tag1': 'PARTNERSHIP', 'tag2': 'FINTECH', 'source': 'FinancialTimes', 'url': 'https://ft.com', 'type': 'competitor'},
+      {'logo': 'Am', 'company': 'AMEX GBT', 'logoClass': 'logo-amex', 'time': '3 days ago', 'headline': "American Express GBT acquires Egencia's SMB portfolio from Expedia - adds 2M small business travellers", 'body': "Amex GBT has completed the acquisition of Egencia's SMB customer portfolio from Expedia Group for an undisclosed sum. This adds approximately 2 million small business travellers to GBT's platform and strengthens their mid-market position - a segment previously underserved by their enterprise-focused product.", 'tag1': 'ACQUISITION', 'tag2': 'SMB', 'source': 'Reuters', 'url': 'https://reuters.com', 'type': 'competitor'},
+      {'logo': 'SC', 'company': 'SAP CONCUR', 'logoClass': 'logo-sap', 'time': '4 days ago', 'headline': 'SAP Concur quietly raises enterprise pricing by 14% - first increase in 3 years, effective Q3 2026 renewals', 'body': 'SAP Concur has notified enterprise customers of a 14% price increase effective on Q3 2026 contract renewals. This is the first price change in 3 years and comes as the platform faces increasing competition from AI-native alternatives. Customer reaction on G2 and Reddit r/sap has been notably negative - a potential displacement opportunity.', 'tag1': 'PRICING', 'tag2': 'OPPORTUNITY', 'source': 'Internal Detection', 'url': '#', 'type': 'competitor'},
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Updated Daily', 'headline': 'Marketing and Product Growth leads core competitor momentum', 'body': 'Navan displays strong marketing momentum driven by its sustained "AI Travel Assistant" campaign (now active for 45 days) coupled with the GA release of its "AI Concierge" product. Hiring velocity remains high in ML Engineering and product teams.', 'tag1': 'AI PRODUCT', 'tag2': 'TEAM GROWTH', 'source': 'MICC Analytics', 'url': '#', 'type': 'growth'},
+      {'logo': 'TP', 'company': 'TRAVELPERK', 'logoClass': 'logo-navan', 'time': 'Updated Daily', 'headline': 'Product velocity and Series D funding drive international expansion', 'body': 'TravelPerk released 5 new automation features last quarter targeting enterprise customers, backed by its $200M Series D funding. Operations are scaling up rapidly in Germany and France.', 'tag1': 'FEATURE', 'tag2': 'ACQUISITION', 'source': 'MICC Analytics', 'url': '#', 'type': 'growth'},
+      {'logo': 'SC', 'company': 'SAP CONCUR', 'logoClass': 'logo-sap', 'time': 'Updated Daily', 'headline': 'Stagnant marketing growth offset by quiet 14% pricing hike', 'body': 'SAP Concur displays stagnant organic marketing volume and negative social sentiment following a quiet 14% price increase on enterprise renewals. This pricing action represents a key displacement opportunity for Miraee.', 'tag1': 'PRICING', 'tag2': 'OPPORTUNITY', 'source': 'MICC Analytics', 'url': '#', 'type': 'growth'},
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Active 45 Days', 'headline': 'Multi-channel "AI Travel Assistant" campaign targeting Enterprise CFOs', 'body': 'Navan has run its "AI Travel Assistant" campaign across Meta, LinkedIn, and YouTube for 45 days. The campaign positions the assistant as a way to reduce expense friction and automate corporate policies.', 'tag1': 'DIRECT THREAT', 'tag2': 'AI PRODUCT', 'source': 'Meta Ad Library', 'url': '#', 'type': 'campaign'},
+      {'logo': 'TP', 'company': 'TRAVELPERK', 'logoClass': 'logo-navan', 'time': 'Active 30 Days', 'headline': 'LinkedIn and PR-led push for enterprise travel automation', 'body': 'TravelPerk is running a campaign focusing on simplifying enterprise booking and reducing the "shadow work" of employee travel planning. It targets procurement themes and travel managers.', 'tag1': 'FEATURE', 'tag2': 'ENTERPRISE', 'source': 'LinkedIn', 'url': '#', 'type': 'campaign'},
+      {'logo': 'Br', 'company': 'BREX', 'logoClass': 'logo-brex', 'time': 'Active 15 Days', 'headline': 'Meta and Blog campaign targeting CFOs and Finance themes', 'body': 'Brex is promoting its Spend Controls 2.0 release, emphasizing real-time AI transaction blocking and budget protection. The campaign target is CFOs looking to gain strict control over corporate expenditure.', 'tag1': 'FEATURE', 'tag2': 'CFO TOOL', 'source': 'Meta Ad Library', 'url': '#', 'type': 'campaign'},
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Jun 10, 2026', 'headline': 'CEO Keynote at BTN Summit: Shift toward Zero-Touch Delegation', 'body': 'Navan CEO spoke at the BTN Summit, stating that corporate travel is shifting from traditional management to autonomous, zero-touch delegation. The company aims to own the full search-to-book execution flow via AI.', 'tag1': 'AGENTS', 'tag2': 'AI PRODUCT', 'source': 'BTN Summit', 'url': '#', 'type': 'cxo'},
+      {'logo': 'Am', 'company': 'AMEX GBT', 'logoClass': 'logo-amex', 'time': 'Jun 5, 2026', 'headline': 'CEO Skift Keynote: Enterprise consolidation and SMB market push', 'body': 'Amex GBT CEO discussed the integration of Egencias SMB portfolio, highlighting that mid-market businesses represent their fastest-growing segment. The company intends to focus on scale and consolidation.', 'tag1': 'ACQUISITION', 'tag2': 'SMB', 'source': 'Skift Forum', 'url': '#', 'type': 'cxo'},
+      {'logo': 'VX', 'company': 'VOYAGEX', 'logoClass': 'logo-default', 'time': 'Adopted Jun 2026', 'headline': 'Multi-Agent framework (LangGraph) adopted for distributed travel planning', 'body': 'VoyageX has built its agentic travel platform using LangGraph, enabling multi-agent coordination. This allows specialized agents to handle flight search, hotel booking, and calendar alignment in parallel.', 'tag1': 'AGENTIC', 'tag2': 'OPEN SOURCE', 'source': 'TechCrunch', 'url': '#', 'type': 'tech'},
+      {'logo': 'OA', 'company': 'OPENAI', 'logoClass': 'logo-openai', 'time': 'Released Jun 2026', 'headline': 'Conversational voice API with sub-300ms latency', 'body': 'OpenAI released the Realtime API for sub-300ms voice interactions. This enables travel apps to build conversational agents that feel natural and handle interruptions instantly, though API costs are high.', 'tag1': 'API LAUNCH', 'tag2': 'VOICE', 'source': 'OpenAI Blog', 'url': '#', 'type': 'tech'},
+      {'logo': 'AW', 'company': 'AWS', 'logoClass': 'logo-amazon', 'time': 'Released Jun 2026', 'headline': 'Persistent cross-session agent memory', 'body': 'AWS Bedrock introduced persistent memory capabilities. AI agents can now retain user travel preferences, historical itineraries, and constraints across multi-day conversation sessions without losing context.', 'tag1': 'AGENTS', 'tag2': 'PLATFORM', 'source': 'AWS Blog', 'url': '#', 'type': 'tech'}
+    ];
+
+    const tagClassMap = {
+      'DIRECT THREAT':'tag-red','HIGH WATCH':'tag-red','PRICING':'tag-red',
+      'OPPORTUNITY':'tag-amber','ACQUISITION':'tag-amber','LEADERSHIP':'tag-amber','TRAVEL ADJACENT':'tag-amber',
+      'PARTNERSHIP':'tag-green','OPEN SOURCE':'tag-green','FREE TIER':'tag-green',
+      'MODEL RELEASE':'tag-orange','API LAUNCH':'tag-orange','PRODUCT':'tag-orange','AGENTS':'tag-orange',
+      'AI PRODUCT':'tag-orange','FEATURE':'tag-orange','AGENTIC':'tag-orange','AI NATIVE':'tag-orange',
+      'PLATFORM':'tag-orange','SMB':'tag-amber',
+      'ENTERPRISE':'tag-slate','VOICE':'tag-slate','MULTIMODAL':'tag-slate','TEAM GROWTH':'tag-slate',
+      'CFO TOOL':'tag-slate','FINTECH':'tag-slate','STARTUP':'tag-slate','SLACK-NATIVE':'tag-slate',
+    };
+
+    function openDrawer(idx) {
+      const d = drawerData[idx];
+      const logo = document.getElementById('drawer-logo');
+      logo.textContent = d.logo;
+      logo.className = 'company-logo ' + d.logoClass;
+      logo.style.width = '28px'; logo.style.height = '28px'; logo.style.fontSize = '11px'; logo.style.borderRadius = '6px';
+      document.getElementById('drawer-company').textContent = d.company;
+      document.getElementById('drawer-time').textContent = d.time;
+      document.getElementById('drawer-headline').textContent = d.headline;
+      document.getElementById('drawer-body').textContent = d.body;
+      document.getElementById('drawer-link').href = d.url;
+      document.getElementById('drawer-link').textContent = 'READ ON ' + d.source.toUpperCase() + ' →';
+      const tagsEl = document.getElementById('drawer-tags');
+      tagsEl.innerHTML = '';
+      [d.tag1, d.tag2].forEach(t => {
+        const span = document.createElement('span');
+        span.className = 'tag ' + (tagClassMap[t] || 'tag-slate');
+        span.textContent = t;
+        tagsEl.appendChild(span);
+      });
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('drawer-overlay');
+      drawer.style.display = 'block';
+      overlay.style.display = 'block';
+      requestAnimationFrame(() => drawer.style.transform = 'translateX(0)');
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById('drawer');
+      drawer.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        drawer.style.display = 'none';
+        document.getElementById('drawer-overlay').style.display = 'none';
+      }, 260);
+    }
+
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeDrawer(); closeVideo(); closeAdd(); } });
+
+    // ── VIDEO MODAL
+    const videoData = [{'emoji': '🤖', 'bg': 'linear-gradient(135deg,#1a0a2e,#2d1b69,#7c3aed)', 'badge': 'KEYNOTE', 'badgeBg': 'rgba(200,80,0,0.9)', 'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'date': 'Jun 10, 2026', 'title': 'The Future of AI Corporate Travel - Navan CEO at BTN Business Travel Innovation Summit', 'meta': 'BTN Forum · San Francisco', 'duration': '42:18', 'url': 'https://youtube.com'}, {'emoji': '🧠', 'bg': 'linear-gradient(135deg,#0c1a0c,#14532d,#22c55e)', 'badge': 'PRODUCT LAUNCH', 'badgeBg': 'rgba(16,163,127,0.9)', 'logo': 'OA', 'company': 'OPENAI', 'logoClass': 'logo-openai', 'date': 'Jun 8, 2026', 'title': "Realtime API Launch Event - Voice Agents, Low Latency, and What's Next for Conversational AI", 'meta': 'OpenAI · YouTube Premiere', 'duration': '28:44', 'url': 'https://youtube.com'}, {'emoji': '✈️', 'bg': 'linear-gradient(135deg,#0d1117,#1a2332,#1a6bdb)', 'badge': 'CONFERENCE', 'badgeBg': 'rgba(26,107,219,0.9)', 'logo': 'Am', 'company': 'AMEX GBT', 'logoClass': 'logo-amex', 'date': 'Jun 5, 2026', 'title': 'Reimagining Enterprise Travel - The GBT CEO Skift Global Forum Keynote 2026', 'meta': 'Skift Global Forum · NYC', 'duration': '55:02', 'url': 'https://youtube.com'}, {'emoji': '⚡', 'bg': 'linear-gradient(135deg,#1a0f00,#4a2800,#e85d04)', 'badge': 'PRODUCT LAUNCH', 'badgeBg': 'rgba(200,80,0,0.9)', 'logo': 'An', 'company': 'ANTHROPIC', 'logoClass': 'logo-anthropic', 'date': 'Jun 3, 2026', 'title': 'Introducing Claude 4 Opus - Extended Thinking, Tool Use, and Multi-Agent Coordination', 'meta': 'Anthropic · YouTube', 'duration': '19:33', 'url': 'https://youtube.com'}];
+
+    function openVideo(idx) {
+      const v = videoData[idx];
+      const thumb = document.getElementById('video-modal-thumb');
+      thumb.style.background = v.bg;
+      document.getElementById('video-modal-emoji').textContent = v.emoji;
+      const badge = document.getElementById('video-modal-badge');
+      badge.textContent = v.badge;
+      badge.style.background = v.badgeBg; badge.style.color = '#fff';
+      document.getElementById('video-modal-title').textContent = v.title;
+      document.getElementById('video-modal-meta').textContent = v.meta + ' · ' + v.date;
+      document.getElementById('video-modal-link').href = v.url;
+      const modal = document.getElementById('video-modal');
+      const overlay = document.getElementById('video-overlay');
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+
+    function closeVideo() {
+      document.getElementById('video-modal').style.display = 'none';
+      document.getElementById('video-overlay').style.display = 'none';
+    }
+
+    // ── ADD COMPANY MODAL
+    function openAdd() {
+      document.getElementById('add-modal').style.display = 'block';
+      document.getElementById('add-overlay').style.display = 'block';
+      setTimeout(() => document.getElementById('add-name').focus(), 50);
+    }
+    function closeAdd() {
+      document.getElementById('add-modal').style.display = 'none';
+      document.getElementById('add-overlay').style.display = 'none';
+    }
+    function handleAdd() {
+      const name = document.getElementById('add-name').value.trim();
+      if (!name) { document.getElementById('add-name').style.borderColor='var(--red)'; return; }
+      closeAdd();
+      showToast(name.toUpperCase() + ' ADDED TO WATCHLIST');
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-url').value = '';
+    }
+
+    // ── SHOW MORE
+    function showMore(btn, section) {
+      btn.closest('.scroll-more').style.display = 'none';
+      const hidden = document.querySelectorAll(`.flat-card[data-hidden="${section}"]`);
+      hidden.forEach(c => { c.removeAttribute('data-hidden'); c.style.display = ''; });
+      showToast('SHOWING ALL ' + section.toUpperCase() + ' ITEMS');
+    }
+  </script>
+
+</body>
+</html>

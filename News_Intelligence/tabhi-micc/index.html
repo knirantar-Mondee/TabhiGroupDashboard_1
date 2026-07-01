@@ -1,0 +1,2312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabhi · Intelligence Command Center</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Kaushan+Script&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ─────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:          #F5F4F1;
+      --surface:     #FFFFFF;
+      --surface2:    #F8F7F4;
+      --surface3:    #EEECEA;
+      --border:      #E2DFD8;
+      --border2:     #CCC9C0;
+      --orange:      #C85000;
+      --orange-dim:  #FCEEE6;
+      --orange-glow: rgba(200,80,0,0.08);
+      --slate:       #6B6B72;
+      --muted:       #9B9B9B;
+      --text:        #1A1A1A;
+      --text-dim:    #4A4A4A;
+      --white:       #111111;
+      --green:       #166534;
+      --green-dim:   rgba(22,101,52,0.08);
+      --amber:       #92400E;
+      --red:         #991B1B;
+      --mono:        'IBM Plex Mono', monospace;
+      --sans:        'Inter', sans-serif;
+      --wine:        #4D0C22;
+      --wine-light:  #63132D;
+    }
+
+    html { font-size: 14px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* ── PORTAL VIEW (LANDING PAGE) ────────────── */
+    #portal-view {
+      background: var(--wine);
+      min-height: 100vh;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 150;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+      padding: 40px;
+    }
+
+    .portal-container {
+      max-width: 1200px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .portal-left {
+      color: #fff;
+    }
+
+    .tabhi-logo-portal {
+      display: block;
+      margin-bottom: 60px;
+      height: 52px;
+    }
+
+    .tabhi-logo-portal svg {
+      height: 100%;
+      width: auto;
+    }
+
+    .portal-pill {
+      display: inline-block;
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 24px;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .portal-left h1 {
+      font-size: 48px;
+      font-weight: 700;
+      line-height: 1.15;
+      margin-bottom: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .portal-left h1 span {
+      color: var(--orange);
+    }
+
+    .portal-left p {
+      font-size: 16px;
+      color: #CCC9C0;
+      line-height: 1.5;
+    }
+
+    .portal-right {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .brand-portal-card {
+      background: rgba(255, 255, 255, 0.03); /* transparent glassmorphism */
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 24px 28px;
+      cursor: pointer;
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      position: relative;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      overflow: hidden;
+      text-decoration: none;
+    }
+
+    .brand-portal-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: transparent;
+      transition: background 0.3s ease;
+    }
+
+    .brand-portal-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 87, 34, 0.4);
+      transform: translateY(-4px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+    }
+
+    .brand-portal-card:hover::before {
+      background: #FF5C39; /* left edge line indicator */
+    }
+
+    .brand-card-logo-wrap {
+      width: 52px;
+      height: 52px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+
+    .brand-portal-card:hover .brand-card-logo-wrap {
+      transform: scale(1.08);
+      border-color: rgba(255, 87, 34, 0.3);
+    }
+
+    .brand-card-logo-wrap svg {
+      width: 32px;
+      height: 32px;
+    }
+
+    .brand-card-content {
+      flex: 1;
+    }
+
+    .brand-card-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .brand-card-title {
+      font-family: var(--sans);
+      font-size: 26px;
+      font-weight: 700;
+      color: #FF5C39; /* Coral orange-red */
+      line-height: 1.1;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+      transition: color 0.3s ease;
+    }
+
+    .brand-portal-card:hover .brand-card-title {
+      color: #FF7D60;
+    }
+
+    .brand-card-subtitle {
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      color: #FF7020; /* Vibrant orange */
+      margin-bottom: 10px;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+    }
+
+    .brand-card-desc {
+      font-family: var(--sans);
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.5;
+      font-weight: 400;
+    }
+
+    .brand-card-arrow {
+      font-size: 20px;
+      color: rgba(255, 255, 255, 0.25);
+      transition: transform 0.3s ease, color 0.3s ease;
+      margin-top: 2px;
+    }
+
+    .brand-portal-card:hover .brand-card-arrow {
+      transform: translateX(4px);
+      color: #FF5C39;
+    }
+
+    /* ── DASHBOARD VIEW (HIDDEN INITIALLY) ────── */
+    #dashboard-view {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    /* ── HEADER ───────────────────────────────── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-mark {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .logo-text-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-main-title {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+
+    .logo-divider {
+      width: 1px;
+      height: 16px;
+      background: var(--border);
+    }
+
+    .logo-active-brand {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--orange);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .back-btn {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--slate);
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 5px 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      margin-left: 16px;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .back-btn:hover {
+      background: var(--orange-glow);
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .header-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--green);
+      background: var(--green-dim);
+      border: 1px solid rgba(34,197,94,0.2);
+      border-radius: 20px;
+      padding: 3px 10px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.08em;
+    }
+
+    .header-badge::before {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background: var(--green);
+      border-radius: 50%;
+      animation: pulse-green 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-green {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .header-time {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    /* ── NAV TABS ─────────────────────────────── */
+    .nav-tabs {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
+      display: flex;
+      gap: 0;
+    }
+
+    .nav-tab {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      padding: 14px 20px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.15s, border-color 0.15s;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .nav-tab.active {
+      color: var(--orange);
+      border-bottom-color: var(--orange);
+      font-weight: 600;
+    }
+
+    .nav-tab:hover:not(.active) { color: var(--text-dim); }
+
+    /* ── PAGE LAYOUT ──────────────────────────── */
+    .page {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 28px 32px 60px;
+    }
+
+    /* ── PAGE HERO ────────────────────────────── */
+    .page-hero {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-hero-left h1 {
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .page-hero-left p {
+      font-size: 13px;
+      color: var(--slate);
+      margin-top: 4px;
+    }
+
+    .filter-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .filter-chip {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--text-dim);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .filter-chip:hover, .filter-chip.active {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+
+
+    /* ── INSIGHT BANNER ── */
+    .insight-banner {
+      background: var(--orange-glow);
+      border: 1px solid rgba(200,80,0,0.15);
+      border-left: 3px solid var(--orange);
+      border-radius: 6px;
+      padding: 12px 14px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .insight-icon {
+      font-size: 13px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .insight-text {
+      font-size: 11.5px;
+      color: var(--text-dim);
+      line-height: 1.45;
+    }
+
+    .insight-text strong {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    /* ── TICKER BAR ───────────────────────────── */
+    .ticker-wrap {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+      height: 36px;
+      display: flex;
+      align-items: center;
+    }
+
+    .ticker-label {
+      background: var(--orange);
+      color: #fff;
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      padding: 0 14px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      flex-shrink: 0;
+      white-space: nowrap;
+      z-index: 1;
+    }
+
+    .ticker-track {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker-scroll 60s linear infinite;
+      will-change: transform;
+    }
+
+    .ticker-track:hover { animation-play-state: paused; }
+
+    .ticker-item {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #555;
+      padding: 0 32px 0 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ticker-item .t-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--orange);
+      flex-shrink: 0;
+    }
+
+    .ticker-item .t-co {
+      color: var(--orange);
+      font-weight: 600;
+    }
+
+    @keyframes ticker-scroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ── STATS STRIP ──────────────────────────── */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 28px;
+    }
+
+    .stat-cell {
+      background: var(--surface);
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-label {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      line-height: 1;
+    }
+
+    .stat-value span {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--green);
+      margin-left: 6px;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      color: var(--slate);
+    }
+
+    /* ── SECTION HEADER ───────────────────────── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      margin-top: 36px;
+    }
+
+    .section-header:first-of-type { margin-top: 0; }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .section-link {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--slate);
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      transition: color 0.15s;
+      text-decoration: none;
+    }
+
+    .section-link:hover { color: var(--orange); }
+
+    /* ── THREE-COLUMN GRID ────────────────────── */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 380px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* ── FLAT CARD ────────────────────────────── */
+    .flat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      transition: border-color 0.15s;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .flat-card:hover { border-color: var(--border2); }
+
+    .flat-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .flat-card-company {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .company-logo {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      padding: 2px;
+    }
+
+    .company-logo svg {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .company-name {
+      font-family: var(--mono);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-dim);
+      letter-spacing: 0.06em;
+    }
+
+    .news-time {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .flat-card-headline {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+      line-height: 1.45;
+      margin-bottom: 6px;
+    }
+
+    .flat-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .news-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-family: var(--mono);
+      font-size: 9px;
+      letter-spacing: 0.08em;
+      padding: 2px 7px;
+      border-radius: 3px;
+      font-weight: 500;
+    }
+
+    .tag-orange { background: var(--orange-glow); color: var(--orange); border: 1px solid rgba(232,93,4,0.25); }
+    .tag-slate  { background: var(--surface3); color: var(--slate); border: 1px solid var(--border); }
+    .tag-green  { background: rgba(34,197,94,0.08); color: var(--green); border: 1px solid rgba(34,197,94,0.2); }
+    .tag-amber  { background: rgba(245,158,11,0.08); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+    .tag-red    { background: rgba(239,68,68,0.08); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+
+    .news-source {
+      font-family: var(--mono);
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    /* ── GRID COLUMN WRAPPERS ─────────────────── */
+    .grid-col-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .grid-col-heading {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .grid-col-heading-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .col-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: var(--orange-glow);
+      border: 1px solid rgba(232,93,4,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .col-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+    }
+
+    .col-subtitle {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .col-count-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--orange);
+      background: var(--orange-glow);
+      border: 1px solid rgba(232,93,4,0.2);
+      border-radius: 3px;
+      padding: 2px 7px;
+    }
+
+    .grid-col-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── SCROLL MORE ──────────────────────────── */
+    .scroll-more {
+      text-align: center;
+      padding: 10px;
+      margin-top: 4px;
+    }
+
+    .scroll-more button {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 6px 16px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .scroll-more button:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    /* ── FOOTER ───────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--surface);
+      margin-top: 60px;
+    }
+
+    .footer-left {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .footer-right {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-right a { color: var(--muted); text-decoration: none; }
+    .footer-right a:hover { color: var(--orange); }
+  </style>
+</head>
+<body>
+
+  <!-- ── PORTAL VIEW (TABHI LANDING PAGE) ────── -->
+  <div id="portal-view">
+    <div class="portal-container">
+      <div class="portal-left">
+        <div class="tabhi-logo-portal" id="tabhi-logo-portal-svg">
+          <!-- populated by script to include official Tabhi logo -->
+        </div>
+        <span class="portal-pill">Our Ecosystem</span>
+        <h1>The Tabhi Group<br>of Companies</h1>
+        <p>Redefining travel across the entire value chain through collaborative, agentic AI technologies. Select an ecosystem brand to launch its Competitive Intelligence dashboard.</p>
+      </div>
+
+      <div class="portal-right">
+        <!-- Mondee B2B -->
+        <div class="brand-portal-card" onclick="loadBrand('mondee')">
+          <div class="brand-card-logo-wrap" id="portal-card-mondee-logo">
+            <!-- populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Mondee</h2>
+                <div class="brand-card-subtitle">The Agentic AI Travel Marketplace</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining business travel by harnessing agentic AI to unify operations, supplier collaboration, and customer service into one seamless ecosystem</p>
+          </div>
+        </div>
+
+        <!-- Miraee B2E -->
+        <div class="brand-portal-card" onclick="loadBrand('miraee')">
+          <div class="brand-card-logo-wrap" id="portal-card-miraee-logo">
+            <!-- populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Miraee</h2>
+                <div class="brand-card-subtitle">The Next Gen Employee Travel Platform</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining employee travel through AI-driven, seamless, and cost-efficient experiences that maximize productivity, savings, and business outcomes</p>
+          </div>
+        </div>
+
+        <!-- Abhee B2C -->
+        <div class="brand-portal-card" onclick="loadBrand('abhee')">
+          <div class="brand-card-logo-wrap" id="portal-card-abhee-logo">
+            <!-- populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Abhee</h2>
+                <div class="brand-card-subtitle">The Hyperlocal Experiential marketplace</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining travel by enabling hosts and curators to build immersive, experience-driven businesses, powered by agentic AI, that deliver unforgettable journeys and unlock global growth opportunities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── DASHBOARD VIEW (ACTIVE STATE) ───────── -->
+  <div id="dashboard-view">
+
+
+    <!-- ── HEADER ── -->
+    <header>
+      <div class="logo">
+        <div class="logo-mark" onclick="goHome()" id="header-brand-logo-mark">
+          <!-- dynamic svg brand logo -->
+        </div>
+        <div class="logo-text-group">
+          <div id="header-tabhi-logo" onclick="goHome()" style="cursor:pointer; height:28px; display:flex; align-items:center; overflow:visible;"></div>
+          <div class="logo-divider"></div>
+          <span class="logo-active-brand" id="active-brand-title">MONDEE (B2B)</span>
+        </div>
+        <a class="back-btn" onclick="goHome()">
+          <span>←</span> Back to Ecosystem
+        </a>
+      </div>
+      <div class="header-right">
+        <div class="header-badge" id="header-badge-txt">B2B RADAR</div>
+        <div class="header-time" id="clock">-</div>
+      </div>
+    </header>
+    <!-- ── NAV TABS ── -->
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-tab="overview" onclick="switchTab('overview')">OVERVIEW</div>
+      <div class="nav-tab" data-tab="growth-marketing" onclick="switchTab('growth-marketing')">GROWTH &amp; MARKETING</div>
+      <div class="nav-tab" data-tab="product-strategy" onclick="switchTab('product-strategy')">PRODUCT &amp; STRATEGY</div>
+    </nav>
+
+    <!-- ── PAGE CONTENT ── -->
+    <main class="page">
+      
+      <!-- ── PAGE HERO ── -->
+      <div class="page-hero">
+        <div class="page-hero-left">
+          <h1 id="hero-title">B2B Distribution &amp; Agency Intelligence</h1>
+          <p id="hero-description">GDS, wholesale consolidators, agency OTAs, and direct supplier portals competing with Mondee</p>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">ALL</div>
+          <div class="filter-chip">TODAY</div>
+          <div class="filter-chip">7D</div>
+          <div class="filter-chip">30D</div>
+        </div>
+      </div>
+
+      <!-- ── TAB 1: OVERVIEW VIEW ── -->
+      <div id="view-overview" class="tab-view">
+
+        <div class="main-grid" id="overview-grid">
+          <!-- Col 1, Col 2, Col 3 rendered dynamically -->
+        </div>
+
+        <div class="video-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="col-icon">▶️</div>
+              <span class="section-name" id="video-section-title">B2B &amp; GDS Strategy Presentation Briefs</span>
+            </div>
+            <a href="#" class="section-link" id="video-all-link">VIEW ALL BRIEFS →</a>
+          </div>
+          <div class="video-grid" id="video-grid-container">
+            <!-- dynamic videos -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: GROWTH & MARKETING VIEW ── -->
+      <div id="view-growth-marketing" class="tab-view" style="display:none;">
+
+        <div class="main-grid" id="growth-grid">
+          <!-- dynamic columns -->
+        </div>
+      </div>
+
+      <!-- ── TAB 3: PRODUCT & STRATEGY VIEW ── -->
+      <div id="view-product-strategy" class="tab-view" style="display:none;">
+
+        <div class="main-grid" id="product-grid">
+          <!-- dynamic columns -->
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+      <div class="footer-left" id="footer-left-txt">TABHI · Command Center · Portfolio Competitive Intelligence · Updated continuously</div>
+      <div class="footer-right">
+        <a href="#">Blueprint Spec</a>
+        <a href="#">Excel Database</a>
+        <a href="#" onclick="goHome()">Ecosystem Hub</a>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ── DRAWER OVERLAY ─────────────────────────── -->
+  <div id="drawer-overlay" onclick="closeDrawer()" style="
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:200;backdrop-filter:blur(2px);
+  "></div>
+
+  <div id="drawer" style="
+    display:none;position:fixed;top:0;right:0;width:460px;height:100vh;
+    background:var(--surface);border-left:1px solid var(--border);
+    z-index:201;overflow-y:auto;box-shadow:-8px 0 32px rgba(0,0,0,0.12);
+    transform:translateX(100%);transition:transform 0.25s cubic-bezier(.4,0,.2,1);
+    font-family:var(--sans);
+  ">
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1;">
+      <div id="drawer-company-wrap" style="display:flex;align-items:center;gap:10px;">
+        <div id="drawer-logo" class="company-logo" style="width:28px;height:28px;border-radius:6px;padding:2px;"></div>
+        <div>
+          <div id="drawer-company" style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-dim);"></div>
+          <div id="drawer-time" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px;"></div>
+        </div>
+      </div>
+      <button onclick="closeDrawer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--text-dim);">✕</button>
+    </div>
+    <div style="padding:22px 24px;">
+      <div id="drawer-tags" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;"></div>
+      <h2 id="drawer-headline" style="font-size:16px;font-weight:600;line-height:1.45;color:var(--white);margin-bottom:14px;"></h2>
+      <p id="drawer-body" style="font-size:13px;color:var(--slate);line-height:1.65;margin-bottom:22px;"></p>
+      <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:10px;">
+        <a id="drawer-link" href="#" target="_blank" style="
+          display:inline-flex;align-items:center;gap:6px;
+          background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+          letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;
+          transition:opacity .15s;
+        " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">READ SOURCE →</a>
+        <button onclick="closeDrawer()" style="
+          background:none;border:1px solid var(--border);border-radius:5px;
+          font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+          transition:border-color .15s;
+        " onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIDEO MODAL ────────────────────────────── -->
+  <div id="video-overlay" onclick="closeVideo()" style="
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:300;
+    align-items:center;justify-content:center;backdrop-filter:blur(4px);
+  "></div>
+  <div id="video-modal" style="
+    display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:720px;max-width:95vw;z-index:301;
+  ">
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,0.4);">
+      <div id="video-modal-thumb" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+        <div style="position:relative;z-index:1;text-align:center;">
+          <div style="font-size:72px;margin-bottom:8px;" id="video-modal-emoji"></div>
+          <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.08em;">PREVIEW BRIEF - NOT CONNECTED TO LIVE STREAMS</div>
+        </div>
+      </div>
+      <div style="padding:18px 20px;">
+        <div id="video-modal-badge" style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;"></div>
+        <div id="video-modal-title" style="font-size:15px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:6px;"></div>
+        <div id="video-modal-meta" style="font-family:var(--mono);font-size:11px;color:var(--muted);margin-bottom:14px;"></div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <a id="video-modal-link" href="#" target="_blank" style="
+            background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+            letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+          ">▶ VIEW ON YOUTUBE</a>
+          <button onclick="closeVideo()" style="
+            background:none;border:1px solid var(--border);border-radius:5px;
+            font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+          ">CLOSE ✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ADD COMPANY MODAL ──────────────────────── -->
+  <div id="add-overlay" onclick="closeAdd()" style="
+    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:300;
+    align-items:center;justify-content:center;backdrop-filter:blur(3px);
+  "></div>
+  <div id="add-modal" style="
+    display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:420px;max-width:95vw;z-index:301;
+  ">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,0.2);">
+      <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <div style="font-size:14px;font-weight:600;color:var(--white);" id="add-modal-title">Track a new company</div>
+        <button onclick="closeAdd()" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);">✕</button>
+      </div>
+      <div style="padding:20px;">
+        <div style="margin-bottom:14px;">
+          <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">COMPANY NAME</label>
+          <input id="add-name" type="text" placeholder="e.g. Sabre, Layla..." style="
+            width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+            background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+            outline:none;transition:border-color .15s;
+          " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">WEBSITE</label>
+          <input id="add-url" type="text" placeholder="https://..." style="
+            width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+            background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+            outline:none;transition:border-color .15s;
+          " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+        <button onclick="handleAdd()" style="
+          width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;
+          font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+          padding:10px;cursor:pointer;transition:opacity .15s;
+        " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">+ ADD TO WATCHLIST</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BRAND LOGOS & VECTOR GRAPHICS ── -->
+  <script>
+    // SVG vectors for each brand logo to make them premium and realistic
+    const logoSVGs = {
+      tabhi: `<svg viewBox="0 0 140 50" style="height:100%; width:auto; overflow:visible;"><circle cx="24" cy="24" r="16" fill="#FF501A" /><text x="18" y="34" font-family="'Kaushan Script', 'Caveat', 'Brush Script MT', cursive" font-size="34" font-weight="700" fill="#FFFFFF" letter-spacing="-0.02em">Tabhi</text></svg>`,
+      tabhidark: `<svg viewBox="0 0 140 50" style="height:100%; width:auto; overflow:visible;"><circle cx="24" cy="24" r="16" fill="#FF501A" /><text x="18" y="34" font-family="'Kaushan Script', 'Caveat', 'Brush Script MT', cursive" font-size="34" font-weight="700" fill="#111111" letter-spacing="-0.02em">Tabhi</text></svg>`,
+      mondee: `<svg viewBox="0 0 32 32" style="width:100%;height:100%;"><rect width="32" height="32" rx="6" fill="#C85000" /><path d="M7 23V9h4.5l4.5 7 4.5-7H25v14h-3.5V13.5l-4.5 7-4.5-7V23H7z" fill="#FFF" /></svg>`,
+      miraee: `<svg viewBox="0 0 32 32" style="width:100%;height:100%;"><rect width="32" height="32" rx="6" fill="#4B0C22" /><path d="M8 22V10c4-3 12-3 16 0v12c-4 3-12 3-16 0z" fill="none" stroke="#C85000" stroke-width="2.5" /><path d="M11 14h10v4H11z" fill="#C85000" /></svg>`,
+      abhee: `<svg viewBox="0 0 32 32" style="width:100%;height:100%;"><rect width="32" height="32" rx="6" fill="#005F73" /><path d="M16 6L6 24h6l4-8 4 8h6L16 6z" fill="#FFF" /><circle cx="16" cy="15" r="3.5" fill="#EE9B00" /></svg>`,
+      sabre: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#D9381E" /><path d="M6 17c1.5-2.5 4-5 6-5s4.5 2.5 6 5M12 7c-2 0-3 1.5-3 3.5s1 3.5 3 3.5 3-1.5 3-3.5S14 7 12 7z" fill="none" stroke="#FFF" stroke-width="2" /></svg>`,
+      amadeus: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#005F9E" /><circle cx="12" cy="12" r="7" fill="none" stroke="#FFF" stroke-width="1.8" /><ellipse cx="12" cy="12" rx="2.5" ry="7" fill="none" stroke="#FFF" stroke-width="1.2" /><line x1="5" y1="12" x2="19" y2="12" stroke="#FFF" stroke-width="1.2" /></svg>`,
+      travelport: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#5C2D91" /><path d="M7 7h10v10H7z" fill="none" stroke="#FFF" stroke-width="2.5" /><circle cx="12" cy="12" r="3.5" fill="#FFF" /></svg>`,
+      centrav: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#2E7D32" /><path d="M5 19L19 5M9 5h10v10" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>`,
+      picasso: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#1565C0" /><circle cx="9" cy="9" r="4.5" fill="#FFF" /><circle cx="15" cy="15" r="4.5" fill="#FFF" style="opacity:0.8;" /><circle cx="12" cy="12" r="3" fill="#C85000" /></svg>`,
+      expedia: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#1A1A1A" /><path d="M12 4a8 8 0 100 16 8 8 0 000-16zm-3.5 8h7M12 8.5v7" fill="none" stroke="#FFCC00" stroke-width="2.2" /></svg>`,
+      booking: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#003580" /><path d="M7 8h5c2 0 3.5 1 3.5 2.5S14 13 12 13H7V8zm0 5h5c2 0 3.5 1 3.5 2.5S14 18 12 18H7v-5z" fill="#FFF" /></svg>`,
+      navan: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#8B5CF6" /><path d="M8 7v10l8-10v10" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" /></svg>`,
+      travelperk: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#5C2D91" /><path d="M7 17V7h4.5c2 0 3.5.8 3.5 2.5S13.5 12 11.5 12H9v5H7z" fill="#FFF" /><circle cx="16" cy="14" r="3" fill="#FFA375" /></svg>`,
+      amex: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#1A6BDB" /><path d="M7 17l5-10 5 10H7z" fill="none" stroke="#FFF" stroke-width="2" /><path d="M10 13h4" stroke="#FFF" stroke-width="2" /></svg>`,
+      sap: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0D7EBF" /><path d="M6 9h12v6H6z" fill="none" stroke="#FFF" stroke-width="2" /><circle cx="12" cy="12" r="2.5" fill="#FFF" /></svg>`,
+      brex: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#F97316" /><path d="M6 9l6-4 6 4v6l-6 4-6-4V9z" fill="none" stroke="#FFF" stroke-width="2" /></svg>`,
+      ramp: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#111" /><path d="M7 7h10l-5 10L7 7z" fill="#22C55E" /></svg>`,
+      tripos: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#4F46E5" /><circle cx="12" cy="12" r="5" fill="none" stroke="#FFF" stroke-width="2" /><circle cx="12" cy="12" r="2.5" fill="#FFF" /></svg>`,
+      flowtrip: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#EC4899" /><path d="M6 14c2-4 6-4 8-8M10 18c3-2 6-4 8-8" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" /></svg>`,
+      voyagex: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#06B6D4" /><path d="M6 6h12M6 12h12M6 18h12" fill="none" stroke="#FFF" stroke-width="2.5" stroke-linecap="round" /><circle cx="12" cy="12" r="3" fill="#EE9B00" /></svg>`,
+      hopper: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#059669" /><path d="M12 19c-3 0-5-2-5-4.5s2-4.5 5-4.5 5 2 5 4.5-2 4.5-5 4.5z" fill="none" stroke="#FFF" stroke-width="1.8" /><path d="M10 8V4c0-.5.5-.8.9-.5l2 2" fill="none" stroke="#FFF" stroke-width="1.8" /></svg>`,
+      airbnb: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#FF5A5F" /><path d="M12 6c-2.5 0-4 1.5-4 4s1.5 4 4 6.5c2.5-2.5 4-4 4-6.5s-1.5-4-4-4zm0 6a2 2 0 100-4 2 2 0 000 4z" fill="none" stroke="#FFF" stroke-width="1.8" /></svg>`,
+      vrbo: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0F294A" /><path d="M7 9l5-4 5 4v6H7V9z" fill="none" stroke="#FFF" stroke-width="2" /><line x1="7" y1="12" x2="17" y2="12" stroke="#FFF" stroke-width="1.5" /></svg>`,
+      tripadvisor: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#34E0A1" /><circle cx="9" cy="12" r="3.5" fill="none" stroke="#111" stroke-width="1.8" /><circle cx="15" cy="12" r="3.5" fill="none" stroke="#111" stroke-width="1.8" /><circle cx="9" cy="12" r="1.5" fill="#111" /><circle cx="15" cy="12" r="1.5" fill="#111" /></svg>`,
+      layla: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#6366F1" /><circle cx="12" cy="12" r="6.5" fill="none" stroke="#FFF" stroke-width="2" /><path d="M12 9v6" stroke="#FFF" stroke-width="2" /></svg>`,
+      clientbase: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#555" /><path d="M7 17V7h4.5c2 0 3.5.8 3.5 2.5S13.5 12 11.5 12H9" fill="none" stroke="#FFF" stroke-width="2" /></svg>`,
+      viator: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#FF9900" /><path d="M7 7h10v10H7z" fill="none" stroke="#FFF" stroke-width="2.5" /><circle cx="12" cy="12" r="3" fill="#FFF" /></svg>`,
+      priceline: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0053C2" /><path d="M7 6h5c2.5 0 4 1.2 4 3s-1.5 3-4 3H7V6zm0 5.2h5c1.8 0 2.8-.8 2.8-1.8s-1-1.8-2.8-1.8H7v3.6z" fill="#FFF" /><circle cx="16.5" cy="15.5" r="2.5" fill="#FFF" /></svg>`,
+      travelocity: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#002244" /><path d="M12 4l2.5 5.5h5.8l-4.7 4 1.8 5.7-5.4-3.5-5.4 3.5 1.8-5.7-4.7-4h5.8z" fill="#D9381E" /></svg>`,
+      orbitz: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#00A3A6" /><circle cx="12" cy="12" r="6" fill="none" stroke="#FFF" stroke-width="2.5" /><circle cx="12" cy="12" r="2" fill="#FFF" /></svg>`,
+      hilton: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#001830" /><path d="M7 6v12h2.5v-4.5h5V18H17V6h-2.5v4.5h-5V6z" fill="#D4AF37" /></svg>`,
+      delta: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#E6192E" /><path d="M12 4L4 18h16zM12 7.5L16 16H8z" fill="#FFF" /></svg>`,
+      marriott: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#B00020" /><path d="M6 7v10h2.5V11l3.5 4.5 3.5-4.5v6H18V7l-6 7.5z" fill="#FFF" /></svg>`,
+      ccra: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#004D40" /><path d="M17 12c0 2.8-2.2 5-5 5s-5-2.2-5-5 2.2-5 5-5" fill="none" stroke="#FFF" stroke-width="2" /><path d="M12 9v6h3" fill="none" stroke="#FFA000" stroke-width="2" /></svg>`,
+      travelworks: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#1A237E" /><path d="M5 6v12h5v-5h4v5h5V6h-5v5h-4V6z" fill="#81C784" /></svg>`,
+      trawex: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#37474F" /><path d="M5 8h14v8H5z" fill="none" stroke="#FFF" stroke-width="2" /><circle cx="12" cy="12" r="2.5" fill="#80D8FF" /></svg>`,
+      cruiseplanners: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#00796B" /><path d="M12 4v16M8 8l8 8M16 8l-8 8" stroke="#FFF" stroke-width="2" /></svg>`,
+      gtt: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0D47A1" /><path d="M7 6h10v3H7zm0 5h7v3H7zm0 5h10v3H7z" fill="#FFF" /></svg>`,
+      downtowntravel: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#E65100" /><path d="M6 18V9h3v9zm4 0V6h3v12zm4 0v-7h3v7z" fill="#FFF" /></svg>`,
+      skybird: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#039BE5" /><path d="M6 14s4-8 8-8 4 6 4 6-2 1-6 1-6 1-6 1z" fill="#FFF" /></svg>`,
+      default: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#555" /><path d="M12 7c-2.7 0-5 2.3-5 5s2.3 5 5 5 5-2.3 5-5-2.3-5-5-5z" fill="none" stroke="#FFF" stroke-width="2" /></svg>`
+    };
+
+    function getLogoSVG(brandKey) {
+      const key = brandKey.toLowerCase().replace(/[\s\.\-]+/g, '');
+      if (logoSVGs[key]) return logoSVGs[key];
+      // fallback searches
+      if (key.includes('sabre')) return logoSVGs.sabre;
+      if (key.includes('amadeus')) return logoSVGs.amadeus;
+      if (key.includes('travelport')) return logoSVGs.travelport;
+      if (key.includes('centrav')) return logoSVGs.centrav;
+      if (key.includes('picasso')) return logoSVGs.picasso;
+      if (key.includes('expedia')) return logoSVGs.expedia;
+      if (key.includes('booking')) return logoSVGs.booking;
+      if (key.includes('navan')) return logoSVGs.navan;
+      if (key.includes('travelperk')) return logoSVGs.travelperk;
+      if (key.includes('amex')) return logoSVGs.amex;
+      if (key.includes('sap') || key.includes('concur')) return logoSVGs.sap;
+      if (key.includes('brex')) return logoSVGs.brex;
+      if (key.includes('ramp')) return logoSVGs.ramp;
+      if (key.includes('tripos')) return logoSVGs.tripos;
+      if (key.includes('flowtrip')) return logoSVGs.flowtrip;
+      if (key.includes('voyagex')) return logoSVGs.voyagex;
+      if (key.includes('hopper')) return logoSVGs.hopper;
+      if (key.includes('airbnb')) return logoSVGs.airbnb;
+      if (key.includes('vrbo')) return logoSVGs.vrbo;
+      if (key.includes('tripadvisor')) return logoSVGs.tripadvisor;
+      if (key.includes('layla')) return logoSVGs.layla;
+      if (key.includes('clientbase')) return logoSVGs.clientbase;
+      if (key.includes('viator')) return logoSVGs.viator;
+      if (key.includes('priceline')) return logoSVGs.priceline;
+      if (key.includes('travelocity')) return logoSVGs.travelocity;
+      if (key.includes('orbitz')) return logoSVGs.orbitz;
+      if (key.includes('hilton')) return logoSVGs.hilton;
+      if (key.includes('delta')) return logoSVGs.delta;
+      if (key.includes('marriott')) return logoSVGs.marriott;
+      if (key.includes('ccra')) return logoSVGs.ccra;
+      if (key.includes('travelworks')) return logoSVGs.travelworks;
+      if (key.includes('trawex')) return logoSVGs.trawex;
+      if (key.includes('cruiseplanners') || key.includes('cruise planners')) return logoSVGs.cruiseplanners;
+      if (key.includes('gtt')) return logoSVGs.gtt;
+      if (key.includes('downtowntravel') || key.includes('downtown travel')) return logoSVGs.downtowntravel;
+      if (key.includes('skybird') || key.includes('sky bird')) return logoSVGs.skybird;
+      if (key.includes('mondee')) return logoSVGs.mondee;
+      if (key.includes('miraee')) return logoSVGs.miraee;
+      if (key.includes('abhee')) return logoSVGs.abhee;
+      return logoSVGs.default;
+    }
+  </script>
+
+  <!-- ── MASTER DATASET ── -->
+  <script>
+    const brandData = {
+      mondee: {
+        title: "Mondee (B2B)",
+        label: "MONDEE B2B LIVE ALERTS",
+        headerBadge: "B2B RADAR",
+        heroTitle: "B2B Distribution & Agency Intelligence",
+        heroDesc: "GDS, wholesale consolidators, agency OTAs, and direct supplier portals competing with Mondee",
+        footerLeft: "TABHI · Mondee B2B Intelligence Command Center · All sources public",
+        stats: {
+          'overview': [
+            { label: "B2B Signals Today", value: "42", change: "↑ 8", sub: "GDS & consolidator alerts" },
+            { label: "GDS API Releases", value: "5", change: "", sub: "Tech updates live" },
+            { label: "Consolidator Alerts", value: "3", change: "↑ 1", sub: "Commission changes" },
+            { label: "Top B2B Theme", value: "NDC Distribution", change: "", sub: "Sabre & Amadeus pushing" }
+          ],
+          'growth-marketing': [
+            { label: "Active B2B Campaigns", value: "3", change: "", sub: "Sabre & Expedia TAAP" },
+            { label: "Top B2B Channel", value: "LinkedIn", change: "", sub: "Agency targeted ads" },
+            { label: "Relative Traffic Growth", value: "22%", change: "↑ TAAP", sub: "Agent portal sessions" },
+            { label: "Dominant Persona", value: "Travel Agents", change: "", sub: "B2B agency owners" }
+          ],
+          'product-strategy': [
+            { label: "Strategic Theme", value: "NDC Transition", change: "", sub: "GDS modern API push" },
+            { label: "Pricing Alerts", value: "1", change: "Centrav", sub: "International booking fees" },
+            { label: "Emerging Tech Stack", value: "REST JSON APIs", change: "", sub: "SOAP XML replacement" },
+            { label: "Avg Feature Velocity", value: "1.2 / mo", change: "", sub: "Core B2B competitors" }
+          ]
+        },
+        ticker: [
+          { tag: "SABRE", text: "Sabre launches advanced NDC exchange platform for retail travel agencies", isHighlight: true },
+          { tag: "AMADEUS", text: "Amadeus seals content distribution agreement with Delta Airlines", isHighlight: false },
+          { tag: "CENTRAV", text: "Centrav updates B2B pricing model on private air fares", isHighlight: false },
+          { tag: "EXPEDIA TAAP", text: "Expedia TAAP launches Summer Promo offering up to 12% commission", isHighlight: true }
+        ],
+        // Redesigned rich Tab-specific Executive Insights
+        insights: {
+          overview: [
+            "<strong>Sabre's NDC Expansion:</strong> Expanded EU carrier integrations introduce direct API ticketing routes that create volume pressure on traditional wholesale consolidators.",
+            "<strong>Expedia TAAP Pricing Move:</strong> Quietly boosted summer commission tiers to 12% on packages to directly pull retail travel agents off traditional distribution desks.",
+            "<strong>Tech Disruption Pipeline:</strong> Major CRM suites like ClientBase are releasing direct Sabre NDC profile connectors, cementing workflow automation patterns."
+          ],
+          'growth-marketing': [
+            "<strong>Agent Engagement Spike:</strong> Centrav B2B logins increased 15% MoM following its private long-haul fare rules updates, indicating high agent price-sensitivity.",
+            "<strong>NDC Push Campaigns:</strong> Sabre is running heavy LinkedIn-led acquisition campaigns targeting small-to-mid-size retail agencies under the 'Own Your NDC' theme."
+          ],
+          'product-strategy': [
+            "<strong>Cloud GDS Migration:</strong> Amadeus is shifting distribution queries to cloud-native platforms, recording a 40% query latency reduction to support real-time retail bundling.",
+            "<strong>Specialty UX Integrations:</strong> Viator has integrated WhatsApp notifications directly into its operator portals to cut down booking verification times for destination bookings."
+          ]
+        },
+        overviewCols: [
+          {
+            title: "Industry Leaders",
+            subtitle: "Sabre · Amadeus · Travelport",
+            icon: "🌐",
+            count: "4 NEW",
+            banner: "<strong>Distribution Shift:</strong> Sabre expanded its NDC integration with major EU carriers, introducing surcharge bypass options.",
+            cards: [
+              { id: 0, company: "SABRE", logo: "Sa", logoClass: "logo-sab", time: "3h ago", title: "Sabre launches advanced NDC exchange platform for retail travel agencies - enables real-time corporate fare bundling", tags: ["NDC RELEASE", "DISTRIBUTION"], source: "Travel Weekly" },
+              { id: 1, company: "AMADEUS", logo: "Am", logoClass: "logo-ama", time: "8h ago", title: "Amadeus seals content distribution agreement with Delta Airlines - targets direct NDC booking incentives for agents", tags: ["CONTENT DEAL", "SUPPLIER"], source: "Reuters" },
+              { id: 2, company: "TRAVELPORT", logo: "Tp", logoClass: "logo-tvp", time: "Yesterday", title: "Travelport expands hotel content integration with Booking.com - adds 1.2M property listings directly to Travelport+", tags: ["API EXPANSION", "HOTEL CONTENT"], source: "Phocuswire" }
+            ]
+          },
+          {
+            title: "Competitors",
+            subtitle: "Centrav · Picasso · GTT · Expedia TAAP",
+            icon: "🛫",
+            count: "5 NEW",
+            banner: "<strong>Watch:</strong> Expedia TAAP has quietly boosted its agent commission tier by 2% for summer packages.",
+            cards: [
+              { id: 3, company: "CENTRAV", logo: "Ce", logoClass: "logo-cen", time: "4h ago", title: "Centrav updates B2B pricing model on private air fares - adjusts agent service fees for international bookings", tags: ["PRICING CHG", "CONSOLIDATOR"], source: "Travel Market Report" },
+              { id: 4, company: "PICASSO TRAVEL", logo: "Pi", logoClass: "logo-pic", time: "Yesterday", title: "Picasso Travel adds advanced group booking modules for corporate aggregators with split ticketing APIs", tags: ["FEATURE LAUNCH", "GROUP BOOKINGS"], source: "Internal Detection" },
+              { id: 5, company: "EXPEDIA TAAP", logo: "Ex", logoClass: "logo-expedia", time: "2 days ago", title: "Expedia TAAP launches Summer Promo offering up to 12% commission on select hotel packages for travel agents", tags: ["AGENT PROMO", "OPPORTUNITY"], source: "Expedia Press" }
+            ]
+          },
+          {
+            title: "New Entrants",
+            subtitle: "ClientBase · Marriott Excellence · Viator",
+            icon: "🔧",
+            count: "3 TRACKED",
+            banner: "<strong>Trend:</strong> Travel CRMs are integrating generative AI itinerary builders directly into agent workflows, bypassing manual routing.",
+            cards: [
+              { id: 6, company: "CLIENTBASE", logo: "Cb", logoClass: "logo-default", time: "Yesterday", title: "ClientBase releases integration connector for Sabre NDC profiles - simplifies agent profile synchronization", tags: ["INTEGRATION", "CRM SOFTWARE"], source: "ClientBase Notes" },
+              { id: 7, company: "MARRIOTT EXCELLENCE", logo: "Ma", logoClass: "logo-default", time: "3 days ago", title: "Marriott Hotel Excellence portal updates agent education benefits - offers exclusive direct discount codes", tags: ["SUPPLIER DIRECT", "BENEFITS"], source: "Marriott News" },
+              { id: 8, company: "VIATOR FOR AGENTS", logo: "Vi", logoClass: "logo-default", time: "4 days ago", title: "Viator introduces real-time booking status notifications for travel agents via WhatsApp for tours", tags: ["UX TOOL", "SPECIALTY"], source: "Viator Blog" }
+            ]
+          }
+        ],
+        growthCols: [
+          {
+            title: "Growth & Traffic Metrics",
+            subtitle: "Scorecard & proxy traffic trends",
+            icon: "📈",
+            count: "UPDATED",
+            banner: "<strong>Traffic:</strong> Expedia TAAP consolidator search query volumes increased 24% MoM during June peak.",
+            cards: [
+              { id: 26, company: "CENTRAV", logo: "Ce", logoClass: "logo-cen", time: "Updated Weekly", title: "Agent login volume increases 15% MoM following private air fares update", tags: ["TRAFFIC VELOCITY", "GROWTH"], source: "MICC Analytics" },
+              { id: 27, company: "EXPEDIA TAAP", logo: "Ex", logoClass: "logo-expedia", time: "Updated Weekly", title: "Agent acquisition spikes 22% QoQ driven by summer commission incentives", tags: ["ACQUISITION", "COMMISSION"], source: "MICC Analytics" }
+            ]
+          },
+          {
+            title: "Active Campaigns & Channels",
+            subtitle: "Cross-channel agent promotion themes",
+            icon: "📢",
+            count: "2 ACTIVE",
+            banner: "<strong>Campaign:</strong> Sabre's 'Own Your NDC' social campaign is running heavily on LinkedIn targeting retail agencies.",
+            cards: [
+              { id: 28, company: "SABRE", logo: "Sa", logoClass: "logo-sab", time: "30d active", title: "Sabre 'Own Your NDC' multi-channel campaign targeting mid-size retail agencies", tags: ["NDC PROMO", "B2B CAMPAIGN"], source: "LinkedIn" },
+              { id: 29, company: "EXPEDIA TAAP", logo: "Ex", logoClass: "logo-expedia", time: "12d active", title: "TAAP Summer Rewards campaign emphasizing hotel package booking payouts", tags: ["COMMISSION PUSH", "REWARDS"], source: "Meta Ad Library" }
+            ]
+          },
+          {
+            title: "Attribution Timeline",
+            subtitle: "Strategic storylines & drivers",
+            icon: "🧬",
+            count: "ANALYZED",
+            banner: "<strong>Insight:</strong> GDS NDC rollouts correlate directly with subsequent API connector updates by major CRMs.",
+            cards: [
+              { id: 30, company: "SABRE", logo: "Sa", logoClass: "logo-sab", time: "B2B Storyline", title: "Sabre NDC Ecosystem Expansion: GDS API Release → ClientBase Connector → Agency Launch", tags: ["STORYLINE", "DISTRIBUTION"], source: "MICC Analytics" }
+            ]
+          }
+        ],
+        productCols: [
+          {
+            title: "CXO Keynotes & Themes",
+            subtitle: "Leadership B2B speak & strategies",
+            icon: "🎙️",
+            count: "UPDATED",
+            banner: "<strong>Themes:</strong> 72% of GDS executive statements focus on NDC transition models and cloud-native API speeds.",
+            cards: [
+              { id: 31, company: "SABRE CEO", logo: "Sa", logoClass: "logo-sab", time: "Jun 15, 2026", title: "Keynote at Developer Conference: Migration to Modern B2B API Frameworks", tags: ["NDC FUTURE", "API SPEED"], source: "Sabre Blog" },
+              { id: 32, company: "AMADEUS CEO", logo: "Am", logoClass: "logo-ama", time: "Jun 12, 2026", title: "BTN Interview: Unifying GDS air and hotel content into cloud-native APIs", tags: ["UNIFIED CONTENT", "CLOUD GDS"], source: "Travel Weekly" }
+            ]
+          },
+          {
+            title: "Features & Pricing Changes",
+            subtitle: "B2B private fare & CRM rules",
+            icon: "💰",
+            count: "1 ALERT",
+            banner: "<strong>Fee Hike:</strong> Centrav adjusted its long-haul private air fare booking fee, slightly decreasing agent markup margins.",
+            cards: [
+              { id: 33, company: "CENTRAV", logo: "Ce", logoClass: "logo-cen", time: "Q3 pricing change", title: "Private Air Fares Booking Fee Adjustments on International Routes", tags: ["MARGIN PRESSURE", "FEES"], source: "Centrav Docs" }
+            ]
+          },
+          {
+            title: "Tech Radar & Fit",
+            subtitle: "B2B tech stack & relevance",
+            icon: "🛰️",
+            count: "2 TRACKED",
+            banner: "<strong>Tech Trend:</strong> JSON-based GDS APIs are fully replacing legacy SOAP profiles, improving response times by 3x.",
+            cards: [
+              { id: 34, company: "JSON GDS APIs", logo: "Sa", logoClass: "logo-sab", time: "High Fit", title: "Sabre & Amadeus next-gen RESTful JSON APIs for agent search pipelines", tags: ["REST APIs", "XML BYPASS"], source: "MICC Tech Radar" }
+            ]
+          }
+        ],
+        videos: [
+          { idx: 0, title: "Sabre NDC Developer Roadmap 2026: Enhancing B2B Workflows" },
+          { idx: 1, title: "Amadeus Executive Keynote: The Shift to Cloud-Native GDS APIs" }
+        ]
+      },
+      miraee: {
+        title: "Miraee (B2E)",
+        label: "MIRAEE B2E LIVE ALERTS",
+        headerBadge: "B2E RADAR",
+        heroTitle: "B2E Corporate Travel & Spend Intelligence",
+        heroDesc: "TMCs, SaaS spend management systems, and corporate travel utilities competing with Miraee",
+        footerLeft: "TABHI · Miraee B2E Intelligence Command Center · All sources public",
+        stats: {
+          'overview': [
+            { label: "Signals today", value: "34", change: "↑ 12", sub: "Across all sources" },
+            { label: "Active campaigns", value: "7", change: "", sub: "Competitor campaigns live" },
+            { label: "New entrants", value: "3", change: "↑ 1", sub: "Flagged this week" },
+            { label: "Top theme", value: "AI Agents", change: "", sub: "4 of 5 majors this month" }
+          ],
+          'growth-marketing': [
+            { label: "Active Campaigns", value: "5", change: "", sub: "Across Meta & LinkedIn" },
+            { label: "Top Channel", value: "LinkedIn", change: "", sub: "65% of campaign posts" },
+            { label: "Relative Traffic Growth", value: "35%", change: "↑ Navan", sub: "SEO proxy indicators" },
+            { label: "Dominant Persona", value: "SMB Decision-Makers", change: "", sub: "55% targeting share" }
+          ],
+          'product-strategy': [
+            { label: "Strategic Theme", value: "Autonomous AI", change: "", sub: "65% of CXO speak share" },
+            { label: "Pricing Alerts", value: "1", change: "Concur 14%", sub: "Quiet renewals hike" },
+            { label: "Emerging Tech Stack", value: "LangGraph", change: "", sub: "VoyageX integration" },
+            { label: "Avg Feature Velocity", value: "1.6 / mo", change: "", sub: "Core travel competitors" }
+          ]
+        },
+        ticker: [
+          { tag: "NAVAN", text: "Navan releases 'AI Concierge' generally available for enterprise clients", isHighlight: true },
+          { tag: "TRAVELPERK", text: "TravelPerk announces Slack integration to support auto-approval routing", isHighlight: false },
+          { tag: "SAP CONCUR", text: "SAP Concur enterprise contract renewals see a quiet 14% base hike", isHighlight: true },
+          { tag: "BREX", text: "Brex Spend Controls 2.0 launches with real-time AI expense checking", isHighlight: false }
+        ],
+        // Redesigned rich Tab-specific Executive Insights
+        insights: {
+          overview: [
+            "<strong>Navan 'AI Concierge' Launch:</strong> Direct threat generally available, promising autonomous searching, approval routing, and policy checks in one end-to-end user loop.",
+            "<strong>SAP Concur Price Pressure:</strong> Contract renewals show a quiet 14% hike, causing elevated negative community feedback and creating displacement opportunities.",
+            "<strong>Emerging Multi-Agent Frameworks:</strong> Startups like VoyageX are securing capital (Sequoia Series A) on LangGraph-native travel flows, moving past basic chat bots."
+          ],
+          'growth-marketing': [
+            "<strong>Direct AI Marketing Outlays:</strong> Navan's 'AI Travel Assistant' campaign is now active for 45 days across social platforms, indicating significant budget conviction.",
+            "<strong>Growth Divergence:</strong> Navan (+28% MoM) and TravelPerk (+18% MoM) lead in digital velocity, while SAP Concur features stagnant/negative organic indicators."
+          ],
+          'product-strategy': [
+            "<strong>Autonomous Corporate Delegation:</strong> Keynotes by TMC leaders emphasize zero-touch expense systems, mapping to corporate card blocking (e.g. Brex Spend Controls 2.0)."
+          ]
+        },
+        overviewCols: [
+          {
+            title: "Industry Leaders",
+            subtitle: "Anthropic · OpenAI · Google · Meta · Microsoft",
+            icon: "🌐",
+            count: "3 NEW",
+            banner: "<strong>Corporate Push:</strong> Navan is running a heavy 45-day campaign across YouTube and Meta emphasizing their 'AI Concierge'.",
+            cards: [
+              { id: 9, company: "NAVAN", logo: "Na", logoClass: "logo-navan", time: "2h ago", title: "Navan releases 'AI Concierge' generally available for enterprise clients - promises auto-booking within travel policies", tags: ["DIRECT THREAT", "AI LAUNCH"], source: "TechCrunch" },
+              { id: 10, company: "TRAVELPERK", logo: "Tp", logoClass: "logo-default", time: "5h ago", title: "TravelPerk announces API integration with Slack to support auto-approval notifications for corporate travelers", tags: ["INTEGRATION", "SLACK-NATIVE"], source: "TravelPerk Blog" },
+              { id: 11, company: "AMEX GBT", logo: "Am", logoClass: "logo-amex", time: "Yesterday", title: "Amex GBT records 18% growth in mid-market SMB customer bookings following Egencia platform integration", tags: ["ACQUISITION", "SMB FOCUS"], source: "Reuters" }
+            ]
+          },
+          {
+            title: "Competitors",
+            subtitle: "Navan · Brex · Amex GBT · SAP Concur",
+            icon: "🛫",
+            count: "4 NEW",
+            banner: "<strong>Pricing displacement:</strong> SAP Concur's recent 14% pricing hike on renewals has driven massive negative customer review volume on G2.",
+            cards: [
+              { id: 12, company: "SAP CONCUR", logo: "Sc", logoClass: "logo-sap", time: "6h ago", title: "SAP Concur enterprise contract renewals see a quiet 14% increase - first general price correction in 3 years", tags: ["PRICING HIKE", "OPPORTUNITY"], source: "Internal Detection" },
+              { id: 13, company: "BREX", logo: "Br", logoClass: "logo-brex", time: "Yesterday", title: "Brex Spend Controls 2.0 launches with real-time AI expense checking - blocks out-of-policy card spend at point of sale", tags: ["FEATURE RELEASE", "CFO TOOL"], source: "Brex Blog" },
+              { id: 14, company: "RAMP", logo: "Ra", logoClass: "logo-ramp", time: "2 days ago", title: "Ramp partners with travel consolidators to enable auto-reconciliation of flights booked outside standard channels", tags: ["PARTNERSHIP", "CARDS"], source: "Finextra" }
+            ]
+          },
+          {
+            title: "New Entrants",
+            subtitle: "TripOS · FlowTrip · VoyageX",
+            icon: "🔧",
+            count: "3 TRACKED",
+            banner: "<strong>Tech Trend:</strong> Startups like VoyageX are adopting LangGraph multi-agent frameworks in production, claiming 85% planning accuracy.",
+            cards: [
+              { id: 15, company: "TRIPOS", logo: "To", logoClass: "logo-tripos", time: "Seed Stage", title: "TripOS raises $4.2M Seed from a16z - promises AI-native SMB travel management with 48h onboarding", tags: ["SEED FUND", "AI NATIVE"], source: "Crunchbase" },
+              { id: 16, company: "FLOWTRIP", logo: "Ft", logoClass: "logo-flowtrip", time: "Pre-Seed", title: "FlowTrip debuts Slack-first travel & expense booking bundle for early stage startups with per-user pricing", tags: ["STARTUP", "SLACK UX"], source: "Hacker News" },
+              { id: 17, company: "VOYAGEX", logo: "Vx", logoClass: "logo-voyagex", time: "Series A", title: "VoyageX secures $18M Series A from Sequoia - builds agentic multi-session planner built on LangGraph", tags: ["HIGH WATCH", "AGENTIC"], source: "TechCrunch" }
+            ]
+          }
+        ],
+        growthCols: [
+          {
+            title: "Growth & Traffic Metrics",
+            subtitle: "Scorecard & proxy traffic trends",
+            icon: "📈",
+            count: "UPDATED",
+            banner: "<strong>Analysis:</strong> Navan continues to lead growth velocity across product and marketing dimensions, while SAP Concur shows stagnant organic momentum.",
+            cards: [
+              { id: 35, company: "NAVAN", logo: "Na", logoClass: "logo-navan", time: "Daily", title: "Marketing: High ↑ | Product: Very High ↑ | Traffic: +28% MoM", tags: ["GROWTH VELOCITY", "TRAFFIC SPIKE"], source: "MICC Analytics" },
+              { id: 36, company: "TRAVELPERK", logo: "Tp", logoClass: "logo-default", time: "Daily", title: "Marketing: Medium | Product: High ↑ | Traffic: +18% MoM", tags: ["SERIES D", "EXPANSION"], source: "MICC Analytics" }
+            ]
+          },
+          {
+            title: "Active Campaigns & Channels",
+            subtitle: "Cross-channel recurring strategic themes",
+            icon: "📢",
+            count: "3 ACTIVE",
+            banner: "<strong>Opportunity:</strong> 55% of competitor campaigns target SMB decision-makers, leaving the enterprise autonomous outcomes space open.",
+            cards: [
+              { id: 37, company: "NAVAN", logo: "Na", logoClass: "logo-navan", time: "45d active", title: '"AI Travel Assistant" campaign - Meta, LinkedIn, YouTube', tags: ["BRAND AWARENESS", "CFOs"], source: "Meta Ad Library" },
+              { id: 38, company: "BREX", logo: "Br", logoClass: "logo-brex", time: "15d active", title: '"Spend Controls 2.0 Launch" campaign - Meta, Blogs', tags: ["PRODUCT LAUNCH", "FINANCE"], source: "Meta Ad Library" }
+            ]
+          },
+          {
+            title: "Attribution Timeline",
+            subtitle: "Strategic storylines & drivers",
+            icon: "🧬",
+            count: "ANALYZED",
+            banner: "<strong>Pattern:</strong> Funding rounds correlate directly with leadership hiring spikes in engineering and subsequent product expansion.",
+            cards: [
+              { id: 39, company: "NAVAN", logo: "Na", logoClass: "logo-navan", time: "B2E Storyline", title: "Navan's AI Product Acceleration: ML Hiring Spike → Head of AI Hired → AI Concierge Launch", tags: ["STORYLINE", "PRODUCT INNOV"], source: "MICC Analytics" }
+            ]
+          }
+        ],
+        productCols: [
+          {
+            title: "CXO Keynotes & Themes",
+            subtitle: "Leadership B2E speak & strategies",
+            icon: "🎙️",
+            count: "UPDATED",
+            banner: "<strong>Analysis:</strong> 65% of industry leaders discussed AI-powered personalization and zero-touch delegation during the last quarter.",
+            cards: [
+              { id: 40, company: "NAVAN CEO", logo: "Na", logoClass: "logo-navan", time: "BTN Summit", title: 'Keynote: Corporate travel is shifting from traditional management to autonomous, zero-touch delegation', tags: ["AI AGENTS", "DELEGATION"], source: "BTN Summit" }
+            ]
+          },
+          {
+            title: "Features & Pricing Changes",
+            subtitle: "B2E contract rules & pricing edits",
+            icon: "💰",
+            count: "1 ALERT",
+            banner: "<strong>Price Hike:</strong> SAP Concur quiet renewals price increase of 14% is causing negative customer discussions on G2 & Reddit.",
+            cards: [
+              { id: 41, company: "SAP CONCUR", logo: "Sc", logoClass: "logo-sap", time: "Contract Update", title: "Quiet 14% Enterprise Pricing Increase effective Q3 renewals", tags: ["PRICING HIKE", "OPPORTUNITY"], source: "Internal Detection" }
+            ]
+          },
+          {
+            title: "Tech Radar & Fit",
+            subtitle: "B2E tech stack & relevance",
+            icon: "🛰️",
+            count: "3 TRACKED",
+            banner: "<strong>Emerging:</strong> VoyageX is the first competitor to implement LangGraph multi-agent architecture in production.",
+            cards: [
+              { id: 42, company: "LANGGRAPH", logo: "Vx", logoClass: "logo-voyagex", time: "High Fit", title: "VoyageX Multi-Agent Travel Planner using LangGraph multi-agent framework", tags: ["OPEN SOURCE", "AGENTIC"], source: "Tech Crunch" }
+            ]
+          }
+        ],
+        videos: [
+          { idx: 2, title: "Navan CEO Skift Forum: The Transition to Zero-Touch AI Corporate Travel" }
+        ]
+      },
+      abhee: {
+        title: "Abhee (B2C)",
+        label: "ABHEE B2C LIVE ALERTS",
+        headerBadge: "B2C RADAR",
+        heroTitle: "B2C Leisure Travel & Consumer AI Intelligence",
+        heroDesc: "Consumer OTAs, vacation home booking sites, and retail AI assistant utilities competing with Abhee",
+        footerLeft: "TABHI · Abhee B2C Intelligence Command Center · All sources public",
+        stats: {
+          'overview': [
+            { label: "B2C Signals Today", value: "37", change: "↑ 11", sub: "Consumer OTA & AI signals" },
+            { label: "OTA Campaigns", value: "6", change: "", sub: "Active promos live" },
+            { label: "AI Booking Updates", value: "4", change: "↑ 1", sub: "Conversational bots live" },
+            { label: "Top B2C Theme", value: "Conversational DM", change: "", sub: "Layla & TripAdvisor pushing" }
+          ],
+          'growth-marketing': [
+            { label: "Active B2C Campaigns", value: "4", change: "", sub: "Airbnb & Hopper live" },
+            { label: "Top B2C Channel", value: "TikTok / IG", change: "", sub: "Viral experiential video" },
+            { label: "Relative Traffic Growth", value: "35%", change: "↑ Airbnb", sub: "Consumer app downloads" },
+            { label: "Dominant Persona", value: "Leisure Travelers", change: "", sub: "Gen Z & Millennial focus" }
+          ],
+          'product-strategy': [
+            { label: "Strategic Theme", value: "Conversational AI", change: "", sub: "In-app travel planners" },
+            { label: "Pricing Alerts", value: "1", change: "Vrbo", sub: "Host rates updated" },
+            { label: "Emerging Tech Stack", value: "WhatsApp APIs", change: "", sub: "Social DM booking bots" },
+            { label: "Avg Feature Velocity", value: "1.8 / mo", change: "", sub: "Core B2C competitors" }
+          ]
+        },
+        ticker: [
+          { tag: "EXPEDIA", text: "Expedia launches new AI trip planning assistant inside consumer app", isHighlight: true },
+          { tag: "BOOKING.COM", text: "Booking.com records 12% rise in summer flight bookings via bundles", isHighlight: false },
+          { tag: "HOPPER", text: "Hopper rolls out 'Fare Freeze' pricing tools for winter holiday flights", isHighlight: true },
+          { tag: "AIRBNB", text: "Airbnb summer release introduces 'Icons' celebrity-hosted rentals", isHighlight: false }
+        ],
+        // Redesigned rich Tab-specific Executive Insights
+        insights: {
+          overview: [
+            "<strong>Conversational B2C Assist:</strong> Expedia's native in-app trip planner release supports grouping hotels and dynamic flight advice via visual maps.",
+            "<strong>Hopper 'Fare Freeze' Adoption:</strong> Gaining retail traction by letting users pay flexible deposits to lock flight rates, lowering initial cart abandonment.",
+            "<strong>DM-Led Transactions:</strong> Layla AI chat agent integrates into Instagram DMs, allowing users to move from travel reel clips directly to final reservations."
+          ],
+          'growth-marketing': [
+            "<strong>Social & Experience Growth:</strong> Airbnb summer Icons campaign drives 35% MoM social engagement spikes, capturing younger leisure booking segments.",
+            "<strong>Retail Flight Bundles:</strong> Booking.com's summer flight transactions increased 12% MoM due to automated stay+flight price deductions."
+          ],
+          'product-strategy': [
+            "<strong>Dynamic Supply Payouts:</strong> Vrbo adjusted host payment rules in prime coastal zones to secure vacation home listings and limit Airbnb expansion."
+          ]
+        },
+        overviewCols: [
+          {
+            title: "Industry Leaders",
+            subtitle: "Expedia · Booking.com · Priceline · Hopper",
+            icon: "🛍️",
+            count: "4 NEW",
+            banner: "<strong>Retail Battle:</strong> Hopper has launched a heavy marketing campaign for its 'Price Freeze' option to lock in low holiday fares.",
+            cards: [
+              { id: 18, company: "EXPEDIA", logo: "Ex", logoClass: "logo-expedia", time: "3h ago", title: "Expedia launches new AI trip planning assistant inside its flagship consumer app - allows natural language hotel grouping", tags: ["PRODUCT RELEASE", "B2C PLANNER"], source: "Phocuswire" },
+              { id: 19, company: "BOOKING.COM", logo: "Bo", logoClass: "logo-booking", time: "6h ago", title: "Booking.com records 12% rise in summer flight bookings following expansion of its bundled flights+stays pricing package", tags: ["GROWTH VELOCITY", "RETAIL"], source: "Booking Press" },
+              { id: 20, company: "HOPPER", logo: "Hp", logoClass: "logo-hopper", time: "Yesterday", title: "Hopper rolls out 'Fare Freeze' pricing tools for winter holiday flights - guarantees fares for up to 14 days for a deposit", tags: ["FEATURE LAUNCH", "CUST ACQUISITION"], source: "Hopper Release" }
+            ]
+          },
+          {
+            title: "Competitors",
+            subtitle: "Airbnb · Vrbo · Tripadvisor",
+            icon: "🏡",
+            count: "3 NEW",
+            banner: "<strong>Leisure Shift:</strong> Airbnb is shifting marketing resources away from cities toward curated rural 'Icons' experiences to drive engagement.",
+            cards: [
+              { id: 21, company: "AIRBNB", logo: "Ab", logoClass: "logo-airbnb", time: "5h ago", title: "Airbnb summer release introduces 'Icons' - high-fidelity celebrity-hosted rentals designed to drive social media virality", tags: ["BRAND CAMPAIGN", "EXPERIENCES"], source: "TechCrunch" },
+              { id: 22, company: "VRBO", logo: "Vr", logoClass: "logo-expedia", time: "Yesterday", title: "Vrbo introduces custom host-payout models to combat Airbnb supply growth in coastal vacation markets", tags: ["PRICING DEFENSE", "SUPPLY"], source: "Phocuswire" },
+              { id: 23, company: "TRIPADVISOR", logo: "Ta", logoClass: "logo-tripadv", time: "3 days ago", title: "Tripadvisor announces partnership with Viator to embed tour booking widgets inside its popular local reviews pages", tags: ["PARTNERSHIP", "TOURS"], source: "Reuters" }
+            ]
+          },
+          {
+            title: "New Entrants",
+            subtitle: "Layla · Tripadvisor AI · Chat assistants",
+            icon: "🤖",
+            count: "3 TRACKED",
+            banner: "<strong>Disruption:</strong> Direct-to-consumer AI agents like Layla are capturing younger demographic travel queries off social platforms.",
+            cards: [
+              { id: 24, company: "LAYLA", logo: "Ly", logoClass: "logo-layla", time: "Active", title: "Layla AI chat planner launches Instagram messaging integration - lets users plan and book full trips directly in DM chat", tags: ["DM CHAT", "SOCIAL SEARCH"], source: "Layla PR" },
+              { id: 25, company: "TRIPADVISOR AI", logo: "Ta", logoClass: "logo-tripadv", time: "Active", title: "Tripadvisor rolls out generative AI travel planner to EU markets - reports 3.2M plans generated since US beta launch", tags: ["AI PLANNER", "RETAIL"], source: "Tripadvisor News" }
+            ]
+          }
+        ],
+        growthCols: [
+          {
+            title: "Growth & Traffic Metrics",
+            subtitle: "Scorecard & proxy traffic trends",
+            icon: "📈",
+            count: "UPDATED",
+            banner: "<strong>Metrics:</strong> Booking.com experienced a 12% rise in summer bookings via flight+stay bundling packages.",
+            cards: [
+              { id: 43, company: "BOOKING.COM", logo: "Bo", logoClass: "logo-booking", time: "Weekly Update", title: "Flight booking transaction velocity increases 12% MoM during summer peak", tags: ["TRAFFIC VELOCITY", "RETAIL GROWTH"], source: "MICC Analytics" },
+              { id: 44, company: "AIRBNB", logo: "Ab", logoClass: "logo-airbnb", time: "Weekly Update", title: "Social media engagement spikes 35% MoM following 'Icons' experience release", tags: ["VIRAL REACH", "BRAND ENGAGEMENT"], source: "MICC Analytics" }
+            ]
+          },
+          {
+            title: "Active Campaigns & Channels",
+            subtitle: "Cross-channel consumer promotions",
+            icon: "📢",
+            count: "2 ACTIVE",
+            banner: "<strong>Campaign:</strong> Airbnb's 'Icons' campaign leads B2C viral travel engagement on TikTok and Instagram.",
+            cards: [
+              { id: 45, company: "AIRBNB", logo: "Ab", logoClass: "logo-airbnb", time: "20d active", title: "Icons celebrity hosted rentals campaign - Instagram & TikTok native push", tags: ["VIRAL CONTENT", "EXPERIENCES"], source: "Meta Ad Library" },
+              { id: 46, company: "HOPPER", logo: "Hp", logoClass: "logo-hopper", time: "15d active", title: "Fare Freeze consumer app promotion targeting winter holiday travel lock-ins", tags: ["FARE LOCK", "CONVERSION"], source: "Meta Ad Library" }
+            ]
+          },
+          {
+            title: "Attribution Timeline",
+            subtitle: "Strategic storylines & drivers",
+            icon: "🧬",
+            count: "ANALYZED",
+            banner: "<strong>Insight:</strong> Consumer travel app updates focus heavily on social-first sharing integrations.",
+            cards: [
+              { id: 47, company: "LAYLA", logo: "Ly", logoClass: "logo-layla", time: "B2C Storyline", title: "Layla Chat Booking expansion: Instagram DM Integration → Viral Travel Reels → OTA Booking", tags: ["STORYLINE", "SOCIAL SEARCH"], source: "MICC Analytics" }
+            ]
+          }
+        ],
+        productCols: [
+          {
+            title: "CXO Keynotes & Themes",
+            subtitle: "Leadership B2C speak & strategies",
+            icon: "🎙️",
+            count: "UPDATED",
+            banner: "<strong>Themes:</strong> 58% of retail travel executives highlight conversational chat booking and social search relevance.",
+            cards: [
+              { id: 48, company: "EXPEDIA CEO", logo: "Ex", logoClass: "logo-expedia", time: "Phocuswright", title: "Interview: LLMs are training on millions of booking routes to deliver automated B2C flight advice", tags: ["LLM TRAVEL", "CONVERSATIONAL"], source: "Phocuswire" }
+            ]
+          },
+          {
+            title: "Features & Pricing Changes",
+            subtitle: "B2C flight freeze & host rates",
+            icon: "💰",
+            count: "1 ALERT",
+            banner: "<strong>Pricing Shift:</strong> Vrbo updated host payout guidelines, slightly decreasing listing commissions to capture supply from Airbnb.",
+            cards: [
+              { id: 49, company: "VRBO", logo: "Vr", logoClass: "logo-expedia", time: "Host Rate update", title: "Host payment structures updated in coastal markets to incentivize rental supply", tags: ["HOST RATES", "SUPPLY PRESSURE"], source: "Phocuswire" }
+            ]
+          },
+          {
+            title: "Tech Radar & Fit",
+            subtitle: "B2C tech stack & relevance",
+            icon: "🛰️",
+            count: "2 TRACKED",
+            banner: "<strong>Tech Trend:</strong> WhatsApp conversational APIs are emerging as high-conversion booking tools in EU and LatAm.",
+            cards: [
+              { id: 50, company: "WHATSAPP APIs", logo: "Ly", logoClass: "logo-layla", time: "High Fit", title: "Layla chat and booking workflows utilizing Instagram DM and WhatsApp conversational APIs", tags: ["DM CHAT", "CONVERSATIONAL"], source: "MICC Tech Radar" }
+            ]
+          }
+        ],
+        videos: [
+          { idx: 3, title: "Expedia CEO Interview: Generative AI and the Future of Leisure Travel Booking" }
+        ]
+      }
+    };
+
+    let activeBrand = 'mondee';
+    let activeTab = 'overview';
+
+    // ── TAG COLOR MAPPING
+    const tagClassMap = {
+      // Red tags (threats/alerts)
+      'DIRECT THREAT': 'tag-red',
+      'HIGH WATCH': 'tag-red',
+      'PRICING HIKE': 'tag-red',
+      'MARGIN PRESSURE': 'tag-red',
+      'PRICING DEFENSE': 'tag-red',
+
+      // Amber tags (opportunities/marketing/acquisition)
+      'OPPORTUNITY': 'tag-amber',
+      'ACQUISITION': 'tag-amber',
+      'LEADERSHIP': 'tag-amber',
+      'TRAVEL ADJACENT': 'tag-amber',
+      'SMB': 'tag-amber',
+      'SMB FOCUS': 'tag-amber',
+      'COMMISSION': 'tag-amber',
+      'COMMISSION PUSH': 'tag-amber',
+      'REWARDS': 'tag-amber',
+      'AGENT PROMO': 'tag-amber',
+      'SUPPLY': 'tag-amber',
+      'SUPPLY PRESSURE': 'tag-amber',
+      'CUST ACQUISITION': 'tag-amber',
+      'PRICING': 'tag-amber',
+
+      // Green tags (growth/partnerships/open-source)
+      'PARTNERSHIP': 'tag-green',
+      'OPEN SOURCE': 'tag-green',
+      'FREE TIER': 'tag-green',
+      'GROWTH': 'tag-green',
+      'TRAFFIC VELOCITY': 'tag-green',
+      'TRAFFIC SPIKE': 'tag-green',
+      'SEED FUND': 'tag-green',
+      'RETAIL': 'tag-green',
+      'RETAIL GROWTH': 'tag-green',
+      'CONVERSION': 'tag-green',
+      'BENEFITS': 'tag-green',
+      'STARTUP MODEL': 'tag-green',
+
+      // Orange tags (releases/features/ai/agents)
+      'MODEL RELEASE': 'tag-orange',
+      'API LAUNCH': 'tag-orange',
+      'PRODUCT': 'tag-orange',
+      'AGENTS': 'tag-orange',
+      'AI PRODUCT': 'tag-orange',
+      'FEATURE': 'tag-orange',
+      'AGENTIC': 'tag-orange',
+      'AI NATIVE': 'tag-orange',
+      'PLATFORM': 'tag-orange',
+      'NDC RELEASE': 'tag-orange',
+      'API EXPANSION': 'tag-orange',
+      'FEATURE LAUNCH': 'tag-orange',
+      'INTEGRATION': 'tag-orange',
+      'UX TOOL': 'tag-orange',
+      'NDC PROMO': 'tag-orange',
+      'B2B CAMPAIGN': 'tag-orange',
+      'NDC FUTURE': 'tag-orange',
+      'API SPEED': 'tag-orange',
+      'UNIFIED CONTENT': 'tag-orange',
+      'CLOUD GDS': 'tag-orange',
+      'REST APIs': 'tag-orange',
+      'XML BYPASS': 'tag-orange',
+      'AI LAUNCH': 'tag-orange',
+      'FEATURE RELEASE': 'tag-orange',
+      'PRODUCT LAUNCH': 'tag-orange',
+      'PRODUCT INNOV': 'tag-orange',
+      'AI AGENTS': 'tag-orange',
+      'PRODUCT RELEASE': 'tag-orange',
+      'B2C PLANNER': 'tag-orange',
+      'FARE LOCK': 'tag-orange',
+      'AI PLANNER': 'tag-orange',
+      'LLM TRAVEL': 'tag-orange',
+      'VOICE TECH': 'tag-orange',
+
+      // Slate tags (standard categories)
+      'ENTERPRISE': 'tag-slate',
+      'VOICE': 'tag-slate',
+      'MULTIMODAL': 'tag-slate',
+      'TEAM GROWTH': 'tag-slate',
+      'CFO TOOL': 'tag-slate',
+      'FINTECH': 'tag-slate',
+      'STARTUP': 'tag-slate',
+      'SLACK-NATIVE': 'tag-slate',
+      'SLACK UX': 'tag-slate',
+      'CFOs': 'tag-slate',
+      'FINANCE': 'tag-slate',
+      'DELEGATION': 'tag-slate',
+      'CARDS': 'tag-slate',
+      'FEES': 'tag-slate',
+      'PRICING CHG': 'tag-slate',
+      'CONSOLIDATOR': 'tag-slate',
+      'GROUP BOOKINGS': 'tag-slate',
+      'CRM SOFTWARE': 'tag-slate',
+      'SUPPLIER DIRECT': 'tag-slate',
+      'SPECIALTY': 'tag-slate',
+      'STORYLINE': 'tag-slate',
+      'DISTRIBUTION': 'tag-slate',
+      'CONTENT DEAL': 'tag-slate',
+      'SUPPLIER': 'tag-slate',
+      'HOTEL CONTENT': 'tag-slate',
+      'VIRAL CONTENT': 'tag-slate',
+      'EXPERIENCES': 'tag-slate',
+      'SOCIAL SEARCH': 'tag-slate',
+      'CONVERSATIONAL': 'tag-slate',
+      'DM CHAT': 'tag-slate',
+      'BRAND CAMPAIGN': 'tag-slate',
+      'TOURS': 'tag-slate',
+      'BRAND AWARENESS': 'tag-slate',
+      'PROPRIETARY': 'tag-slate',
+    };
+
+    // ── TOAST MESSAGES
+    function showToast(msg) {
+      let t = document.getElementById('micc-toast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'micc-toast';
+        t.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+          background:#1A1A1A;color:#fff;font-family:var(--mono);font-size:11px;letter-spacing:.06em;
+          padding:10px 20px;border-radius:6px;z-index:500;opacity:0;
+          transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;`;
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.opacity = '1';
+      t.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateX(-50%) translateY(10px)';
+      }, 2200);
+    }
+
+    // ── LIVE CLOCK
+    function updateClock() {
+      const el = document.getElementById('clock');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit', second: '2-digit',
+          hour12: false, timeZoneName: 'short'
+        });
+      }
+    }
+    setInterval(updateClock, 1000);
+    // Initial clock render on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', updateClock);
+
+    // ── ESCAPE KEY LISTENER TO CLOSE OVERLAYS
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        if (typeof closeDrawer === 'function') closeDrawer();
+        if (typeof closeVideo === 'function') closeVideo();
+        if (typeof closeAdd === 'function') closeAdd();
+      }
+    });
+  </script>
+
+  <!-- ── RENDER ENGINE ── -->
+  <script>
+    // Draw Tabhi logo vector in the portal view
+    document.getElementById('tabhi-logo-portal-svg').innerHTML = getLogoSVG('tabhi');
+    
+    // Draw Tabhi dark logo in the dashboard header
+    document.getElementById('header-tabhi-logo').innerHTML = getLogoSVG('tabhidark');
+
+    // Draw Tabhi group sub-logos inside portal cards
+    document.getElementById('portal-card-mondee-logo').innerHTML = getLogoSVG('mondee');
+    document.getElementById('portal-card-miraee-logo').innerHTML = getLogoSVG('miraee');
+    document.getElementById('portal-card-abhee-logo').innerHTML = getLogoSVG('abhee');
+
+    function loadBrand(brandId) {
+      activeBrand = brandId;
+      const bData = brandData[brandId];
+      
+      // Update header logo & titles
+      document.getElementById('header-brand-logo-mark').innerHTML = getLogoSVG(brandId);
+      document.getElementById('active-brand-title').textContent = bData.title;
+      document.getElementById('header-badge-txt').textContent = bData.headerBadge;
+      document.getElementById('hero-title').textContent = bData.heroTitle;
+      document.getElementById('hero-description').textContent = bData.heroDesc;
+      document.getElementById('footer-left-txt').textContent = bData.footerLeft;
+
+      // Render tab content
+      renderOverviewTab(bData);
+      renderGrowthTab(bData);
+      renderProductTab(bData);
+
+      // Transition Portal -> Dashboard
+      const portal = document.getElementById('portal-view');
+      const dashboard = document.getElementById('dashboard-view');
+      
+      portal.style.opacity = '0';
+      setTimeout(() => {
+        portal.style.display = 'none';
+        dashboard.style.display = 'block';
+        setTimeout(() => {
+          dashboard.style.opacity = '1';
+          switchTab('overview');
+        }, 50);
+      }, 400);
+
+      showToast(`LAUNCHED ${bData.title.toUpperCase()} CI PLATFORM`);
+    }
+
+
+
+    function goHome() {
+      const portal = document.getElementById('portal-view');
+      const dashboard = document.getElementById('dashboard-view');
+      
+      dashboard.style.opacity = '0';
+      setTimeout(() => {
+        dashboard.style.display = 'none';
+        portal.style.display = 'flex';
+        setTimeout(() => {
+          portal.style.opacity = '1';
+        }, 50);
+      }, 400);
+    }
+
+    function renderTicker(bData) {
+      const track = document.getElementById('ticker');
+      if (!track || !bData.ticker) return;
+      track.innerHTML = '';
+      const tickerItems = [...bData.ticker, ...bData.ticker];
+      tickerItems.forEach(item => {
+        const el = document.createElement('span');
+        el.className = 'ticker-item';
+        el.innerHTML = `<span class="t-dot"></span><span class="t-co">${item.tag || item.co}</span>${item.text}`;
+        track.appendChild(el);
+      });
+    }
+
+    function renderStats(bData, tabId) {
+      let statsArray = [];
+      let containerId = '';
+      
+      if (tabId === 'overview') {
+        statsArray = bData.stats.overview;
+        containerId = 'overview-stats';
+      } else if (tabId === 'growth-marketing') {
+        statsArray = bData.stats['growth-marketing'];
+        containerId = 'growth-stats';
+      } else if (tabId === 'product-strategy') {
+        statsArray = bData.stats['product-strategy'];
+        containerId = 'product-stats';
+      }
+      
+      const container = document.getElementById(containerId);
+      if (!container || !statsArray) return;
+      
+      container.innerHTML = statsArray.map(stat => {
+        const changeHtml = stat.change ? `<span>${stat.change}</span>` : '';
+        const styleVal = (stat.value && stat.value.length > 12) ? 'style="font-size:15px;padding-top:3px;"' : '';
+        return `
+          <div class="stat-cell">
+            <div class="stat-label">${stat.label}</div>
+            <div class="stat-value" ${styleVal}>${stat.value} ${changeHtml}</div>
+            <div class="stat-sub">${stat.sub}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderCardsList(cardsArray) {
+      if (!cardsArray || cardsArray.length === 0) return '';
+      return cardsArray.map(card => {
+        const tagsHtml = card.tags.map(t => `<span class="tag ${tagClassMap[t] || 'tag-slate'}">${t}</span>`).join('');
+        // Dynamic logo retrieval
+        const logoSVG = getLogoSVG(card.company);
+        return `
+          <div class="flat-card" onclick="openDrawer(${card.id})">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo">${logoSVG}</div>
+                <span class="company-name">${card.company}</span>
+              </div>
+              <span class="news-time">${card.time}</span>
+            </div>
+            <div class="flat-card-headline">${card.title}</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">${tagsHtml}</div>
+              <span class="news-source">${card.source}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderColumn(colData) {
+      const bannerHtml = colData.banner ? `
+        <div class="insight-banner">
+          <div class="insight-icon">💡</div>
+          <div class="insight-text">${colData.banner}</div>
+        </div>
+      ` : '';
+      return `
+        <div class="grid-col-inner">
+          <div class="grid-col-heading">
+            <div class="grid-col-heading-left">
+              <div class="col-icon">${colData.icon}</div>
+              <div>
+                <div class="col-title">${colData.title}</div>
+                <div class="col-subtitle">${colData.subtitle}</div>
+              </div>
+            </div>
+            <div class="col-count-badge">${colData.count}</div>
+          </div>
+          <div class="grid-col-body">
+            ${bannerHtml}
+            ${renderCardsList(colData.cards)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderOverviewTab(bData) {
+      const grid = document.getElementById('overview-grid');
+      grid.innerHTML = bData.overviewCols.map(renderColumn).join('');
+
+      // Populate Videos
+      document.getElementById('video-section-title').textContent = `${bData.title} Strategy Presentation Briefs`;
+      const videoGrid = document.getElementById('video-grid-container');
+      videoGrid.innerHTML = '';
+      bData.videos.forEach(v => {
+        const fullV = videoData[v.idx];
+        const card = document.createElement('div');
+        card.className = 'flat-card';
+        card.style.cssText = 'cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;';
+        card.setAttribute('onclick', `openVideo(${v.idx})`);
+        
+        const logoSVG = getLogoSVG(fullV.company);
+        
+        card.innerHTML = `
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
+              <span class="company-name">${fullV.company}</span>
+            </div>
+            <span class="news-time">${fullV.duration} min</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${fullV.title}</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Brief:</strong> ${fullV.meta} · Focuses on content bundles and GDS integrations.
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags"><span class="tag tag-orange">${fullV.badge}</span></div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH BRIEF →</span>
+          </div>
+        `;
+        videoGrid.appendChild(card);
+      });
+    }
+
+    function renderGrowthTab(bData) {
+      const grid = document.getElementById('growth-grid');
+      grid.innerHTML = bData.growthCols.map(renderColumn).join('');
+    }
+
+    function renderProductTab(bData) {
+      const grid = document.getElementById('product-grid');
+      grid.innerHTML = bData.productCols.map(renderColumn).join('');
+    }
+  </script>
+
+  <script>
+    // ── DRAWER SCRIPT FUNCTIONS
+    const drawerData = [
+      // 0: Sabre
+      {'logo': 'Sa', 'company': 'SABRE', 'logoClass': 'logo-sab', 'time': '3h ago', 'headline': 'Sabre launches advanced NDC exchange platform for retail travel agencies - enables real-time corporate fare bundling', 'body': 'Sabre released its new NDC exchange platform today, aimed at allowing B2B travel agents to bundle customized corporate flight packages and apply customer-specific corporate pricing rules on the fly. This increases direct NDC adoption and competes with traditional consolidator platforms.', 'tag1': 'NDC RELEASE', 'tag2': 'DISTRIBUTION', 'source': 'Travel Weekly', 'url': '#'},
+      // 1: Amadeus
+      {'logo': 'Am', 'company': 'AMADEUS', 'logoClass': 'logo-ama', 'time': '8h ago', 'headline': 'Amadeus seals content distribution agreement with Delta Airlines - targets direct NDC booking incentives for agents', 'body': 'Amadeus has signed a direct distribution agreement with Delta Airlines to make Deltas NDC content available via the Amadeus Travel Platform. Travel agents will receive specific booking credits and bypassed surcharges when using the direct connection, boosting GDS integration.', 'tag1': 'CONTENT DEAL', 'tag2': 'SUPPLIER', 'source': 'Reuters', 'url': '#'},
+      // 2: Travelport
+      {'logo': 'Tp', 'company': 'TRAVELPORT', 'logoClass': 'logo-tvp', 'time': 'Yesterday', 'headline': 'Travelport expands hotel content integration with Booking.com - adds 1.2M property listings directly to Travelport+ GDS API', 'body': 'Travelport has expanded its hotel content agreement with Booking.com. This places over 1.2 million global hotel and vacation home properties directly inside the Travelport+ GDS terminal and API, allowing agents to book hotel inventory alongside wholesale air tickets.', 'tag1': 'API EXPANSION', 'tag2': 'HOTEL CONTENT', 'source': 'Phocuswire', 'url': '#'},
+      // 3: Centrav
+      {'logo': 'Ce', 'company': 'CENTRAV', 'logoClass': 'logo-cen', 'time': '4h ago', 'headline': 'Centrav updates B2B pricing model on private air fares - adjusts agent service fees for international bookings', 'body': 'Centrav has updated its agent booking fee matrix for international private and consolidator airfares. The new model introduces flat fee incentives on long-haul routes but slightly raises fees for short-haul transfers. Direct implications on travel agent margins.', 'tag1': 'PRICING CHG', 'tag2': 'CONSOLIDATOR', 'source': 'Travel Market Report', 'url': '#'},
+      // 4: Picasso
+      {'logo': 'Pi', 'company': 'PICASSO TRAVEL', 'logoClass': 'logo-pic', 'time': 'Yesterday', 'headline': 'Picasso Travel adds advanced group booking modules for corporate aggregators with split ticketing APIs', 'body': 'Picasso Travel has rolled out new API modules specifically for group flight bookings. The software allows split ticketing rules, mixed class consolidator rates, and auto-ticketing queues to streamline complex agency bookings.', 'tag1': 'FEATURE LAUNCH', 'tag2': 'GROUP BOOKINGS', 'source': 'Internal Detection', 'url': '#'},
+      // 5: Expedia TAAP
+      {'logo': 'Ex', 'company': 'EXPEDIA TAAP', 'logoClass': 'logo-expedia', 'time': '2 days ago', 'headline': 'Expedia TAAP launches Summer Promo offering up to 12% commission on select hotel packages for travel agents', 'body': 'Expedia Travel Agent Affinity Program (TAAP) is offering up to 12% cash commissions for package bookings completed between June and August. This represents a significant margin push to direct more travel agents to check Expedia instead of traditional consolidator grids.', 'tag1': 'AGENT PROMO', 'tag2': 'OPPORTUNITY', 'source': 'Expedia Press', 'url': '#'},
+      // 6: ClientBase
+      {'logo': 'Cb', 'company': 'CLIENTBASE', 'logoClass': 'logo-default', 'time': 'Yesterday', 'headline': 'ClientBase releases integration connector for Sabre NDC profiles - simplifies agent profile synchronization', 'body': 'ClientBase has shipped an automated connector that syncs customer and traveler profiles directly into Sabre NDC profiles. This removes manual double-entry, maintaining compliance rules and loyalty data during automated booking processes.', 'tag1': 'INTEGRATION', 'tag2': 'CRM SOFTWARE', 'source': 'ClientBase Notes', 'url': '#'},
+      // 7: Marriott
+      {'logo': 'Ma', 'company': 'MARRIOTT EXCELLENCE', 'logoClass': 'logo-default', 'time': '3 days ago', 'headline': 'Marriott Hotel Excellence portal updates agent education benefits - offers exclusive direct-booking discount codes', 'body': 'Marriotts agent education portal updated its program rules. Agents who complete the "Hotel Excellence" certification receive personal direct discount codes, incentivizing them to book direct on Marriott.com rather than GDS portals.', 'tag1': 'SUPPLIER DIRECT', 'tag2': 'BENEFITS', 'source': 'Marriott News', 'url': '#'},
+      // 8: Viator B2B
+      {'logo': 'Vi', 'company': 'VIATOR FOR AGENTS', 'logoClass': 'logo-default', 'time': '4 days ago', 'headline': 'Viator introduces real-time booking status notifications for travel agents via WhatsApp for tours and experiences', 'body': 'Viator has added automated WhatsApp status notifications for its travel agent booking portal. Agents receive instant notifications when local operators confirm bookings, simplifying customer service and coordination.', 'tag1': 'UX TOOL', 'tag2': 'SPECIALTY', 'source': 'Viator Blog', 'url': '#'},
+      // 9: Navan
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': '2h ago', 'headline': 'Navan releases "AI Concierge" generally available for enterprise clients - promises auto-booking within travel policies', 'body': "Navan's AI Concierge is now generally available. The tool acts as a conversational AI travel manager for corporate clients, checking calendar details, analyzing enterprise policies, and auto-completing flight and hotel bookings in one workflow.", 'tag1': 'DIRECT THREAT', 'tag2': 'AI LAUNCH', 'source': 'TechCrunch', 'url': '#'},
+      // 10: TravelPerk
+      {'logo': 'Tp', 'company': 'TRAVELPERK', 'logoClass': 'logo-default', 'time': '5h ago', 'headline': 'TravelPerk announces API integration with Slack to support auto-approval notifications for corporate travelers', 'body': 'TravelPerk has rolled out an updated Slack app integration. Travel managers can approve employee flight requests directly in Slack, reducing booking delay latency and preventing fare increases during approval loops.', 'tag1': 'INTEGRATION', 'tag2': 'SLACK-NATIVE', 'source': 'TravelPerk Blog', 'url': '#'},
+      // 11: Amex GBT
+      {'logo': 'Am', 'company': 'AMEX GBT', 'logoClass': 'logo-amex', 'time': 'Yesterday', 'headline': 'Amex GBT records 18% growth in mid-market SMB customer bookings following Egencia platform integration', 'body': "Amex GBT reported a strong 18% increase in small-and-medium business (SMB) travel bookings. Executive comments attribute this to the full technical assimilation of Egencia's legacy customer base and tailored travel manager portals.", 'tag1': 'ACQUISITION', 'tag2': 'SMB FOCUS', 'source': 'Reuters', 'url': '#'},
+      // 12: SAP Concur
+      {'logo': 'Sc', 'company': 'SAP CONCUR', 'logoClass': 'logo-sap', 'time': '6h ago', 'headline': 'SAP Concur enterprise contract renewals see a quiet 14% increase - first general price correction in 3 years', 'body': 'SAP Concur has introduced a 14% base price increase on renewal agreements for its expense and travel modules, generating customer backlash on procurement forums. Represents a prime corporate displacement window.', 'tag1': 'PRICING HIKE', 'tag2': 'OPPORTUNITY', 'source': 'Internal Detection', 'url': '#'},
+      // 13: Brex
+      {'logo': 'Br', 'company': 'BREX', 'logoClass': 'logo-brex', 'time': 'Yesterday', 'headline': 'Brex Spend Controls 2.0 launches with real-time AI expense checking - blocks out-of-policy card spend at point of sale', 'body': 'Brex Spend Controls 2.0 introduces real-time AI expense blocking that intercepts out-of-policy transactions before they complete. The system uses predictive flagging to warn budget owners 72 hours before projected overruns.', 'tag1': 'FEATURE RELEASE', 'tag2': 'CFO TOOL', 'source': 'Brex Blog', 'url': '#'},
+      // 14: Ramp
+      {'logo': 'Ra', 'company': 'RAMP', 'logoClass': 'logo-ramp', 'time': '2 days ago', 'headline': 'Ramp partners with travel consolidators to enable auto-reconciliation of flights booked outside standard channels', 'body': 'Ramp has rolled out an automated integration that matches external corporate flights directly to corporate card statements, resolving out-of-channel expense tracking challenges for finance managers.', 'tag1': 'PARTNERSHIP', 'tag2': 'CARDS', 'source': 'Finextra', 'url': '#'},
+      // 15: TripOS
+      {'logo': 'To', 'company': 'TRIPOS', 'logoClass': 'logo-tripos', 'time': 'Seed Stage', 'headline': 'TripOS raises $4.2M Seed from a16z - promises AI-native SMB travel management with 48h onboarding', 'body': 'TripOS, an AI-first travel platform targeting small businesses, announced a $4.2M seed round led by a16z. The system aims to eliminate the complex onboarding times of traditional TMCs, allowing small companies to manage travel in under 48 hours.', 'tag1': 'SEED FUND', 'tag2': 'AI NATIVE', 'source': 'Crunchbase', 'url': '#'},
+      // 16: FlowTrip
+      {'logo': 'Ft', 'company': 'FLOWTRIP', 'logoClass': 'logo-flowtrip', 'time': 'Pre-Seed', 'headline': 'FlowTrip debuts Slack-first travel & expense booking bundle for early stage startups with per-user pricing', 'body': 'FlowTrip launched on Hacker News today, showing a Slack-native booking agent that handles flight and hotel booking directly via conversational chat. Pricing is a flat monthly fee per employee, targeting early stage startups.', 'tag1': 'STARTUP', 'tag2': 'SLACK UX', 'source': 'Hacker News', 'url': '#'},
+      // 17: VoyageX
+      {'logo': 'Vx', 'company': 'VOYAGEX', 'logoClass': 'logo-voyagex', 'time': 'Series A', 'headline': 'VoyageX secures $18M Series A from Sequoia - builds agentic multi-session planner built on LangGraph', 'body': 'VoyageX has raised $18M led by Sequoia. The platform uses a multi-agent framework to coordinate parallel travel subtasks, allowing conversational agents to hold context over days while aligning plans with Notion and Slack.', 'tag1': 'HIGH WATCH', 'tag2': 'AGENTIC', 'source': 'TechCrunch', 'url': '#'},
+      // 18: Expedia B2C
+      {'logo': 'Ex', 'company': 'EXPEDIA', 'logoClass': 'logo-expedia', 'time': '3h ago', 'headline': 'Expedia launches new AI trip planning assistant inside its flagship consumer app - allows natural language hotel grouping', 'body': 'Expedia updated its core consumer application to include a conversational AI trip builder. Travelers can ask the app to group hotels near specific attractions or build custom vacation itineraries in natural language.', 'tag1': 'PRODUCT RELEASE', 'tag2': 'B2C PLANNER', 'source': 'Phocuswire', 'url': '#'},
+      // 19: Booking.com
+      {'logo': 'Bo', 'company': 'BOOKING.COM', 'logoClass': 'logo-booking', 'time': '6h ago', 'headline': 'Booking.com records 12% rise in summer flight bookings following expansion of its bundled flights+stays pricing package', 'body': 'Booking Holdings announced a 12% increase in summer air bookings, attributing the growth to their updated bundling algorithm which discounts accommodations when combined with flights.', 'tag1': 'GROWTH VELOCITY', 'tag2': 'RETAIL', 'source': 'Booking Press', 'url': '#'},
+      // 20: Hopper
+      {'logo': 'Hp', 'company': 'HOPPER', 'logoClass': 'logo-hopper', 'time': 'Yesterday', 'headline': 'Hopper rolls out "Fare Freeze" pricing tools for winter holiday flights - guarantees fares for up to 14 days for a deposit', 'body': 'Hopper has launched its "Fare Freeze" feature globally for the winter holiday season. Consumer travelers can pay a small deposit to freeze flight pricing for up to 14 days, protecting them against last-minute tariff hikes.', 'tag1': 'FEATURE LAUNCH', 'tag2': 'CUST ACQUISITION', 'source': 'Hopper Release', 'url': '#'},
+      // 21: Airbnb
+      {'logo': 'Ab', 'company': 'AIRBNB', 'logoClass': 'logo-airbnb', 'time': '5h ago', 'headline': 'Airbnb summer release introduces "Icons" - high-fidelity celebrity-hosted rentals designed to drive social media virality', 'body': 'Airbnb unveiled its summer launch featuring celebrity-hosted stays under the "Icons" label. The brand aims to leverage these highly-publicized stays to drive massive consumer viral reach on TikTok and Instagram.', 'tag1': 'BRAND CAMPAIGN', 'tag2': 'EXPERIENCES', 'source': 'TechCrunch', 'url': '#'},
+      // 22: Vrbo
+      {'logo': 'Vr', 'company': 'VRBO', 'logoClass': 'logo-expedia', 'time': 'Yesterday', 'headline': 'Vrbo introduces custom host-payout models to combat Airbnb supply growth in coastal vacation markets', 'body': 'Vrbo has updated its host payment terms, offering higher immediate payout ratios for summer listings. This is a direct defensive move to secure rental supply against Airbnb in prime tourist markets.', 'tag1': 'PRICING DEFENSE', 'tag2': 'SUPPLY', 'source': 'Phocuswire', 'url': '#'},
+      // 23: Tripadvisor B2C
+      {'logo': 'Ta', 'company': 'TRIPADVISOR', 'logoClass': 'logo-tripadv', 'time': '3 days ago', 'headline': 'Tripadvisor announces partnership with Viator to embed tour booking widgets inside its popular local reviews pages', 'body': 'Tripadvisor is embedding booking modules from Viator directly into its destination reviews. Travelers can read a review and immediately reserve local tours, strengthening monetization of organic traffic.', 'tag1': 'PARTNERSHIP', 'tag2': 'TOURS', 'source': 'Reuters', 'url': '#'},
+      // 24: Layla
+      {'logo': 'Ly', 'company': 'LAYLA', 'logoClass': 'logo-layla', 'time': 'Active', 'headline': 'Layla AI chat planner launches Instagram messaging integration - lets users plan and book full trips directly in DM chat', 'body': 'Layla, a consumer travel AI startup, has integrated its conversational travel assistant directly into Instagram DMs. Users can chat with Layla, explore itineraries, and book hotel rooms without leaving the Instagram app.', 'tag1': 'DM CHAT', 'tag2': 'SOCIAL SEARCH', 'source': 'Layla PR', 'url': '#'},
+      // 25: Tripadvisor AI B2C
+      {'logo': 'Ta', 'company': 'TRIPADVISOR AI', 'logoClass': 'logo-tripadv', 'time': 'Active', 'headline': 'Tripadvisor rolls out generative AI travel planner to EU markets - reports 3.2M plans generated since US beta launch', 'body': 'Tripadvisor has expanded its generative AI travel planner to European markets. The company reports over 3.2 million vacation itineraries have been created since its initial launch in the United States.', 'tag1': 'AI PLANNER', 'tag2': 'RETAIL', 'source': 'Tripadvisor News', 'url': '#'},
+
+      // 26: Centrav growth
+      {'logo': 'Ce', 'company': 'CENTRAV', 'logoClass': 'logo-cen', 'time': 'Weekly Update', 'headline': 'Active B2B agent logins grow by 15% following fee modifications', 'body': 'Centrav accounts report a 15% increase in monthly logins by active travel agents. Internal indicators tie this directly to private air fare pricing rules.', 'tag1': 'TRAFFIC VELOCITY', 'tag2': 'GROWTH', 'source': 'MICC Analytics', 'url': '#'},
+      // 27: Expedia TAAP growth
+      {'logo': 'Ex', 'company': 'EXPEDIA TAAP', 'logoClass': 'logo-expedia', 'time': 'Weekly Update', 'headline': 'Expedia TAAP agent acquisition rate spikes 22% QoQ', 'body': 'Expedia TAAP is onboarding agents at an accelerated rate, driven by heavy summer commission payouts (up to 12%) and marketing campaigns.', 'tag1': 'ACQUISITION', 'tag2': 'COMMISSION', 'source': 'MICC Analytics', 'url': '#'},
+      // 28: Sabre campaign
+      {'logo': 'Sa', 'company': 'SABRE', 'logoClass': 'logo-sab', 'time': 'Active 30 Days', 'headline': 'Sabre "Own Your NDC" LinkedIn B2B campaign', 'body': 'Sabre is running an agency-level campaign on LinkedIn, positioning its NDC exchange platform as a margin protector for retail agencies.', 'tag1': 'NDC PROMO', 'tag2': 'B2B CAMPAIGN', 'source': 'LinkedIn', 'url': '#'},
+      // 29: Expedia campaign B2B
+      {'logo': 'Ex', 'company': 'EXPEDIA TAAP', 'logoClass': 'logo-expedia', 'time': 'Active 12 Days', 'headline': 'Expedia TAAP Summer Rewards campaign targeting travel agencies', 'body': 'Expedia TAAP is running social ads offering commissions up to 12% on hotel packages to drive retail agents to book via Expedia.', 'tag1': 'COMMISSION PUSH', 'tag2': 'REWARDS', 'source': 'Meta Ad Library', 'url': '#'},
+      // 30: Sabre storyline B2B
+      {'logo': 'Sa', 'company': 'SABRE', 'logoClass': 'logo-sab', 'time': 'B2B Storyline', 'headline': 'Sabre NDC distribution scaling sequence', 'body': 'Analysis shows clear sequencing: GDS API Release -> ClientBase sync connector launch -> direct retail agency campaigns.', 'tag1': 'STORYLINE', 'tag2': 'DISTRIBUTION', 'source': 'MICC Analytics', 'url': '#'},
+
+      // 31: Sabre CXO
+      {'logo': 'Sa', 'company': 'SABRE CEO', 'logoClass': 'logo-sab', 'time': 'Jun 15, 2026', 'headline': 'Developer Keynote: GDS NDC migration speeds and workflow tools', 'body': 'Sabre CEO emphasized cloud APIs, developer frameworks, and real-time NDC fare exchange modules at their annual summit.', 'tag1': 'NDC FUTURE', 'tag2': 'API SPEED', 'source': 'Sabre Blog', 'url': '#'},
+      // 32: Amadeus CXO
+      {'logo': 'Am', 'company': 'AMADEUS CEO', 'logoClass': 'logo-ama', 'time': 'Jun 12, 2026', 'headline': 'BTN Summit: Unifying air and hotel inventory in Cloud-Native GDS APIs', 'body': 'Amadeus CEO discussed integration of Booking.com hotel listings and Azure-native caching to drop API response speeds.', 'tag1': 'UNIFIED CONTENT', 'tag2': 'CLOUD GDS', 'source': 'Travel Weekly', 'url': '#'},
+      // 33: Centrav pricing change
+      {'logo': 'Ce', 'company': 'CENTRAV', 'logoClass': 'logo-cen', 'time': 'Q3 change', 'headline': 'Private Air Fares Booking Fee updates on international routes', 'body': 'Centrav has adjusted fees for long-haul routes, increasing commission potential but adjusting transaction costs.', 'tag1': 'MARGIN PRESSURE', 'tag2': 'FEES', 'source': 'Centrav Docs', 'url': '#'},
+      // 34: JSON APIs tech B2B
+      {'logo': 'Sa', 'company': 'JSON GDS APIs', 'logoClass': 'logo-sab', 'time': 'High Fit', 'headline': 'JSON RESTful API pipelines for real-time travel search', 'body': 'GDS platforms are moving from XML SOAP interfaces to JSON APIs to lower latency and sync better with CRM connectors.', 'tag1': 'REST APIs', 'tag2': 'XML BYPASS', 'source': 'MICC Tech Radar', 'url': '#'},
+
+      // 35: Navan growth B2E
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Daily Update', 'headline': 'Navan AI product releases and heavy marketing drive traffic spike', 'body': 'Navan has seen a 28% MoM traffic spike, driven by its 45-day AI Assistant campaign and the GA release of its AI Concierge tool.', 'tag1': 'GROWTH VELOCITY', 'tag2': 'TRAFFIC SPIKE', 'source': 'MICC Analytics', 'url': '#'},
+      // 36: TravelPerk growth B2E
+      {'logo': 'Tp', 'company': 'TRAVELPERK', 'logoClass': 'logo-default', 'time': 'Daily Update', 'headline': 'TravelPerk Series D funding and European expansions', 'body': 'TravelPerk is expanding its team and office footprint in Germany and France following its Series D round.', 'tag1': 'SERIES D', 'tag2': 'EXPANSION', 'source': 'MICC Analytics', 'url': '#'},
+      // 37: Navan campaign B2E
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'Active 45 Days', 'headline': 'AI Travel Assistant campaign running across Meta & YouTube', 'body': 'Navan is actively promoting its conversational booking assistant to corporate CFOs and travel managers.', 'tag1': 'BRAND AWARENESS', 'tag2': 'CFOs', 'source': 'Meta Ad Library', 'url': '#'},
+      // 38: Brex campaign B2E
+      {'logo': 'Br', 'company': 'BREX', 'logoClass': 'logo-brex', 'time': 'Active 15 Days', 'headline': 'Spend Controls 2.0 launch ads targeting CFOs and finance teams', 'body': 'Brex is promoting real-time transaction blocking and early budget overrun warnings directly to enterprise CFOs.', 'tag1': 'PRODUCT LAUNCH', 'tag2': 'FINANCE', 'source': 'Meta Ad Library', 'url': '#'},
+      // 39: Navan B2E timeline
+      {'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'time': 'B2E Storyline', 'headline': 'Navan AI product acceleration timeline', 'body': 'Navan has successfully executed a sequence: Hire AI product developers -> onboard ex-DeepMind leadership -> launch AI Concierge GA.', 'tag1': 'STORYLINE', 'tag2': 'PRODUCT INNOV', 'source': 'MICC Analytics', 'url': '#'},
+      // 40: Navan CXO B2E
+      {'logo': 'Na', 'company': 'NAVAN CEO', 'logoClass': 'logo-navan', 'time': 'BTN Summit', 'headline': 'Keynote: The shift from manual corporate travel to autonomous delegation', 'body': 'Navan CEO details plans to automate 90% of search-to-book workflows through conversational LLM managers.', 'tag1': 'AI AGENTS', 'tag2': 'DELEGATION', 'source': 'BTN Summit', 'url': '#'},
+      // 41: Concur B2E pricing
+      {'logo': 'Sc', 'company': 'SAP CONCUR', 'logoClass': 'logo-sap', 'time': 'Q3 renewal', 'headline': 'SAP Concur quiet renewals price increase of 14%', 'body': 'Concurs price increase represents a displacement opportunity as customer forums show negative reviews on contract updates.', 'tag1': 'PRICING HIKE', 'tag2': 'OPPORTUNITY', 'source': 'Internal Detection', 'url': '#'},
+      // 42: LangGraph B2E tech
+      {'logo': 'Vx', 'company': 'VOYAGEX', 'logoClass': 'logo-voyagex', 'time': 'High Fit', 'headline': 'Multi-Agent systems (LangGraph) for corporate booking pipelines', 'body': 'VoyageX has deployed LangGraph in production, aligning multi-agent flight, hotel, and calendar workflows.', 'tag1': 'OPEN SOURCE', 'tag2': 'AGENTIC', 'source': 'Tech Crunch', 'url': '#'},
+
+      // 43: Booking B2C growth
+      {'logo': 'Bo', 'company': 'BOOKING.COM', 'logoClass': 'logo-booking', 'time': 'Weekly Update', 'headline': 'Summer booking volume rises 12% driven by flight+stay bundles', 'body': 'Booking Holdings sees high transaction volume by automatically applying bundling discounts to accommodation packages.', 'tag1': 'TRAFFIC VELOCITY', 'tag2': 'RETAIL GROWTH', 'source': 'MICC Analytics', 'url': '#'},
+      // 44: Airbnb B2C growth
+      {'logo': 'Ab', 'company': 'AIRBNB', 'logoClass': 'logo-airbnb', 'time': 'Weekly Update', 'headline': 'Social media virality spikes 35% MoM via Icons experience campaigns', 'body': 'Airbnb experiences massive brand awareness and social traffic following celebrity-hosted Icons releases.', 'tag1': 'VIRAL REACH', 'tag2': 'BRAND ENGAGEMENT', 'source': 'MICC Analytics', 'url': '#'},
+      // 45: Airbnb campaign B2C
+      {'logo': 'Ab', 'company': 'AIRBNB', 'logoClass': 'logo-airbnb', 'time': 'Active 20 Days', 'headline': 'Icons celebrity-hosted experience campaign on TikTok & IG', 'body': 'Airbnb runs high-fidelity video campaigns featuring celebrity-hosted rooms to drive retail brand awareness.', 'tag1': 'VIRAL CONTENT', 'tag2': 'EXPERIENCES', 'source': 'Meta Ad Library', 'url': '#'},
+      // 46: Hopper campaign B2C
+      {'logo': 'Hp', 'company': 'HOPPER', 'logoClass': 'logo-hopper', 'time': 'Active 15 Days', 'headline': 'Fare Freeze app push targeting winter holiday flight bookings', 'body': 'Hopper runs direct-to-consumer ads offering to lock in winter flight prices for up to 14 days.', 'tag1': 'FARE LOCK', 'tag2': 'CONVERSION', 'source': 'Meta Ad Library', 'url': '#'},
+      // 47: Layla timeline B2C
+      {'logo': 'Ly', 'company': 'LAYLA', 'logoClass': 'logo-layla', 'time': 'B2C Storyline', 'headline': 'Layla conversational DM booking expansion timeline', 'body': 'Layla integrates directly into Instagram DMs, driving users from viral travel reels directly to instant chat reservations.', 'tag1': 'STORYLINE', 'tag2': 'SOCIAL SEARCH', 'source': 'MICC Analytics', 'url': '#'},
+      // 48: Expedia B2C CXO
+      {'logo': 'Ex', 'company': 'EXPEDIA CEO', 'logoClass': 'logo-expedia', 'time': 'Phocuswright', 'headline': 'Interview: Utilizing historical data to power generative search advice', 'body': 'Expedia CEO explains how LLM assistants are trained on millions of consumer bookings to advise travelers.', 'tag1': 'LLM TRAVEL', 'tag2': 'CONVERSATIONAL', 'source': 'Phocuswire', 'url': '#'},
+      // 49: Vrbo B2C pricing
+      {'logo': 'Vr', 'company': 'VRBO', 'logoClass': 'logo-expedia', 'time': 'Host Rate change', 'headline': 'Host payout rates updated in coastal zones to secure supply', 'body': 'Vrbo adjusts host payout commissions to capture local supply and defend market share against Airbnb.', 'tag1': 'HOST RATES', 'tag2': 'SUPPLY PRESSURE', 'source': 'Phocuswire', 'url': '#'},
+      // 50: WhatsApp B2C tech
+      {'logo': 'Ly', 'company': 'WHATSAPP APIs', 'logoClass': 'logo-layla', 'time': 'High Fit', 'headline': 'WhatsApp Conversational APIs for high-conversion retail booking', 'body': 'D2C travel startups are launching WhatsApp chatbots to capture leisure travelers directly on messaging portals.', 'tag1': 'DM CHAT', 'tag2': 'CONVERSATIONAL', 'source': 'MICC Tech Radar', 'url': '#'}
+    ];
+
+    function openDrawer(idx) {
+      const d = drawerData[idx];
+      const logo = document.getElementById('drawer-logo');
+      logo.innerHTML = getLogoSVG(d.company);
+      document.getElementById('drawer-company').textContent = d.company;
+      document.getElementById('drawer-time').textContent = d.time;
+      document.getElementById('drawer-headline').textContent = d.headline;
+      document.getElementById('drawer-body').textContent = d.body;
+      document.getElementById('drawer-link').href = d.url;
+      document.getElementById('drawer-link').textContent = 'READ ON ' + d.source.toUpperCase() + ' →';
+      
+      const tagsEl = document.getElementById('drawer-tags');
+      tagsEl.innerHTML = '';
+      [d.tag1, d.tag2].forEach(t => {
+        if (t) {
+          const span = document.createElement('span');
+          span.className = 'tag ' + (tagClassMap[t] || 'tag-slate');
+          span.textContent = t;
+          tagsEl.appendChild(span);
+        }
+      });
+      const drawer = document.getElementById('drawer');
+      const overlay = document.getElementById('drawer-overlay');
+      drawer.style.display = 'block';
+      overlay.style.display = 'block';
+      requestAnimationFrame(() => drawer.style.transform = 'translateX(0)');
+    }
+
+    function closeDrawer() {
+      const drawer = document.getElementById('drawer');
+      drawer.style.transform = 'translateX(100%)';
+      setTimeout(() => {
+        drawer.style.display = 'none';
+        document.getElementById('drawer-overlay').style.display = 'none';
+      }, 260);
+    }
+
+    // ── VIDEO MODAL
+    const videoData = [
+      {'emoji': '✈️', 'bg': 'linear-gradient(135deg,#120024,#2b1055,#c85000)', 'badge': 'TECHNICAL SPEC', 'badgeBg': '#C85000', 'logo': 'Sa', 'company': 'SABRE', 'logoClass': 'logo-sab', 'date': 'Jun 15, 2026', 'title': 'Sabre NDC Developer Roadmap 2026: Enhancing B2B Workflows & API Latency', 'meta': 'Sabre Developer Conference', 'duration': '15:20', 'url': '#'},
+      {'emoji': '🌐', 'bg': 'linear-gradient(135deg,#0d1117,#1a2332,#005f9e)', 'badge': 'KEYNOTE', 'badgeBg': '#005F9E', 'logo': 'Am', 'company': 'AMADEUS', 'logoClass': 'logo-ama', 'date': 'Jun 12, 2026', 'title': 'Amadeus Executive Keynote: The Shift to Cloud-Native GDS APIs & Real-time Caching', 'meta': 'Amadeus Summit · Madrid', 'duration': '28:44', 'url': '#'},
+      {'emoji': '🤖', 'bg': 'linear-gradient(135deg,#1a0a2e,#2d1b69,#7c3aed)', 'badge': 'KEYNOTE', 'badgeBg': '#8B5CF6', 'logo': 'Na', 'company': 'NAVAN', 'logoClass': 'logo-navan', 'date': 'Jun 10, 2026', 'title': 'Navan CEO Skift Forum: The Transition to Zero-Touch AI Corporate Travel Management', 'meta': 'Skift Corporate Forum · NYC', 'duration': '42:18', 'url': '#'},
+      {'emoji': '🛍️', 'bg': 'linear-gradient(135deg,#1a0f00,#4a2800,#000000)', 'badge': 'INTERVIEW', 'badgeBg': '#000000', 'logo': 'Ex', 'company': 'EXPEDIA', 'logoClass': 'logo-expedia', 'date': 'Jun 18, 2026', 'title': 'Expedia CEO Interview: Generative AI and the Future of Leisure Travel Booking Engines', 'meta': 'Phocuswright Conference · Miami', 'duration': '30:15', 'url': '#'}
+    ];
+
+    function openVideo(idx) {
+      const v = videoData[idx];
+      const thumb = document.getElementById('video-modal-thumb');
+      thumb.style.background = v.bg;
+      document.getElementById('video-modal-emoji').textContent = v.emoji;
+      const badge = document.getElementById('video-modal-badge');
+      badge.textContent = v.badge;
+      badge.style.background = v.badgeBg; badge.style.color = '#fff';
+      document.getElementById('video-modal-title').textContent = v.title;
+      document.getElementById('video-modal-meta').textContent = v.meta + ' · ' + v.date;
+      document.getElementById('video-modal-link').href = v.url;
+      const modal = document.getElementById('video-modal');
+      const overlay = document.getElementById('video-overlay');
+      modal.style.display = 'block';
+      overlay.style.display = 'block';
+    }
+
+    function closeVideo() {
+      document.getElementById('video-modal').style.display = 'none';
+      document.getElementById('video-overlay').style.display = 'none';
+    }
+
+    // ── ADD COMPANY MODAL
+    function openAdd() {
+      document.getElementById('add-modal-title').textContent = `Track a new company for ${activeBrand.toUpperCase()}`;
+      document.getElementById('add-modal').style.display = 'block';
+      document.getElementById('add-overlay').style.display = 'block';
+      setTimeout(() => document.getElementById('add-name').focus(), 50);
+    }
+    function closeAdd() {
+      document.getElementById('add-modal').style.display = 'none';
+      document.getElementById('add-overlay').style.display = 'none';
+    }
+    function handleAdd() {
+      const name = document.getElementById('add-name').value.trim();
+      if (!name) { document.getElementById('add-name').style.borderColor='var(--red)'; return; }
+      closeAdd();
+      showToast(`${name.toUpperCase()} ADDED TO ${activeBrand.toUpperCase()} WATCHLIST`);
+      document.getElementById('add-name').value = '';
+      document.getElementById('add-url').value = '';
+    }
+
+    // ── SHOW MORE
+    function showMore(btn, section) {
+      btn.closest('.scroll-more').style.display = 'none';
+      showToast('SHOWING ALL ' + section.toUpperCase() + ' ITEMS');
+    }
+
+    function switchTab(tabId) {
+      activeTab = tabId;
+      document.querySelectorAll('.nav-tab').forEach(t => {
+        if (t.getAttribute('data-tab') === tabId) {
+          t.classList.add('active');
+        } else {
+          t.classList.remove('active');
+        }
+      });
+      document.querySelectorAll('.tab-view').forEach(v => {
+        if (v.id === 'view-' + tabId) {
+          v.style.display = 'block';
+        } else {
+          v.style.display = 'none';
+        }
+      });
+      
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+  </script>
+
+</body>
+</html>

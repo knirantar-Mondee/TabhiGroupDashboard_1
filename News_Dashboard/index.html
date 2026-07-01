@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tabhi · Intelligence Command Center</title>
+  
+  <!-- Modular CSS stylesheets -->
+  <link rel="stylesheet" href="css/variables.css" />
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/portal.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <link rel="stylesheet" href="css/components.css" />
+
+  <!-- SheetJS Library for parsing Excel files on the client side -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <!-- ── PORTAL VIEW (TABHI LANDING PAGE) ────── -->
+  <div id="portal-view">
+    <div class="portal-container">
+      <div class="portal-left">
+        <div class="tabhi-logo-portal" id="tabhi-logo-portal-svg">
+          <!-- Populated dynamically -->
+        </div>
+        <span class="portal-pill">Our Ecosystem</span>
+        <h1>The Tabhi Group<br>of Companies</h1>
+        <p>Redefining travel across the entire value chain through collaborative, agentic AI technologies. Select an ecosystem brand to launch its Competitive Intelligence dashboard.</p>
+        <p id="portal-status-text" style="font-family: var(--mono); font-size: 11px; margin-top: 24px; color: var(--orange); font-weight: 500;">
+          Bootstrapping dashboard application...
+        </p>
+      </div>
+
+      <div class="portal-right">
+        <!-- Mondee B2B -->
+        <div class="brand-portal-card" onclick="window.app.loadBrand('mondee')">
+          <div class="brand-card-logo-wrap" id="portal-card-mondee-logo">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Mondee</h2>
+                <div class="brand-card-subtitle">The Agentic AI Travel Marketplace</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining business travel by harnessing agentic AI to unify operations, supplier collaboration, and customer service into one seamless ecosystem</p>
+          </div>
+        </div>
+
+        <!-- Miraee B2E -->
+        <div class="brand-portal-card" onclick="window.app.loadBrand('miraee')">
+          <div class="brand-card-logo-wrap" id="portal-card-miraee-logo">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Miraee</h2>
+                <div class="brand-card-subtitle">The Next Gen Employee Travel Platform</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining employee travel through AI-driven, seamless, and cost-efficient experiences that maximize productivity, savings, and business outcomes</p>
+          </div>
+        </div>
+
+        <!-- Abhee B2C -->
+        <div class="brand-portal-card" onclick="window.app.loadBrand('abhee')">
+          <div class="brand-card-logo-wrap" id="portal-card-abhee-logo">
+            <!-- Populated dynamically -->
+          </div>
+          <div class="brand-card-content">
+            <div class="brand-card-header-row">
+              <div>
+                <h2 class="brand-card-title">Abhee</h2>
+                <div class="brand-card-subtitle">The Hyperlocal Experiential marketplace</div>
+              </div>
+              <span class="brand-card-arrow">→</span>
+            </div>
+            <p class="brand-card-desc">Redefining travel by enabling hosts and curators to build immersive, experience-driven businesses, powered by agentic AI, that deliver unforgettable journeys and unlock global growth opportunities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ── DASHBOARD VIEW (ACTIVE STATE) ───────── -->
+  <div id="dashboard-view">
+
+    <!-- ── HEADER ── -->
+    <header>
+      <div class="logo">
+        <div class="logo-mark" onclick="window.app.goHome()" id="header-brand-logo-mark">
+          <!-- Dynamic svg brand logo -->
+        </div>
+        <div class="logo-text-group">
+          <div id="header-tabhi-logo" onclick="window.app.goHome()" style="cursor:pointer; height:28px; display:flex; align-items:center; overflow:visible;"></div>
+          <div class="logo-divider"></div>
+          <span class="logo-active-brand" id="active-brand-title">MONDEE (B2B)</span>
+        </div>
+        <a class="back-btn" onclick="window.app.goHome()">
+          <span>←</span> Back to Ecosystem
+        </a>
+      </div>
+      <div class="header-right">
+        <div class="header-badge" id="header-badge-txt">B2B RADAR</div>
+        <div class="header-time" id="clock">-</div>
+      </div>
+    </header>
+
+    <!-- ── LIVE TICKER BAR ── -->
+    <div class="ticker-wrap">
+      <div class="ticker-label">LIVE SECTOR SHIFTS</div>
+      <div class="ticker-track" id="ticker">
+        <!-- Populated dynamically -->
+      </div>
+    </div>
+
+    <!-- ── NAV TABS ── -->
+    <nav class="nav-tabs">
+      <div class="nav-tab active" data-tab="overview" onclick="window.app.uiManager.switchTab('overview')">OVERVIEW</div>
+      <div class="nav-tab" data-tab="growth-marketing" onclick="window.app.uiManager.switchTab('growth-marketing')">GROWTH &amp; MARKETING</div>
+      <div class="nav-tab" data-tab="product-strategy" onclick="window.app.uiManager.switchTab('product-strategy')">PRODUCT &amp; STRATEGY</div>
+    </nav>
+
+    <!-- ── PAGE CONTENT ── -->
+    <main class="page">
+      
+      <!-- ── PAGE HERO ── -->
+      <div class="page-hero">
+        <div class="page-hero-left">
+          <h1 id="hero-title">B2B Distribution &amp; Agency Intelligence</h1>
+          <p id="hero-description">GDS, wholesale consolidators, agency OTAs, and direct supplier portals competing with Mondee</p>
+        </div>
+        <div class="filter-row">
+          <div class="filter-chip active">ALL</div>
+          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR LATEST SCRAPED ALERTS')">TODAY</div>
+          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR PAST 7 DAYS')">7D</div>
+          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR PAST 30 DAYS')">30D</div>
+        </div>
+      </div>
+
+      <!-- ── TAB 1: OVERVIEW VIEW ── -->
+      <div id="view-overview" class="tab-view">
+        <!-- Stats strip -->
+        <div class="stats-strip" id="overview-stats">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="main-grid" style="margin-bottom: 28px;">
+          <!-- Main 3-column feed -->
+          <div style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;" id="overview-grid">
+            <!-- Col 1, Col 2, Col 3 rendered dynamically -->
+          </div>
+          
+          <!-- Column 3: Rich Tab-Specific Executive Insights -->
+          <div class="grid-col-inner" style="align-self: start;">
+            <div class="grid-col-heading" style="border-bottom: 1px solid var(--border); background: var(--surface2);">
+              <div class="grid-col-heading-left">
+                <div class="col-icon">💡</div>
+                <div>
+                  <div class="col-title" style="color: var(--white); font-weight: 600;">Executive Strategy Insights</div>
+                  <div class="col-subtitle">Evaluated target brand implications</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 16px 20px;">
+              <ul id="overview-insights-list" style="margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text-dim); line-height: 1.7; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy presentation briefs section -->
+        <div class="video-section">
+          <div class="section-header">
+            <div class="section-title">
+              <div class="col-icon">▶️</div>
+              <span class="section-name" id="video-section-title">B2B &amp; GDS Strategy Presentation Briefs</span>
+            </div>
+            <a class="section-link" onclick="window.app.uiManager.openAdd()">+ CONFIGURE NEW WATCHLIST</a>
+          </div>
+          <div class="video-grid" id="video-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
+            <!-- Dynamic videos -->
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 2: GROWTH & MARKETING VIEW ── -->
+      <div id="view-growth-marketing" class="tab-view" style="display:none;">
+        <!-- Stats strip -->
+        <div class="stats-strip" id="growth-stats">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="main-grid">
+          <!-- Main 2-column feed -->
+          <div style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" id="growth-grid">
+            <!-- dynamic columns -->
+          </div>
+
+          <!-- Column 3: Tab-Specific Insights -->
+          <div class="grid-col-inner" style="align-self: start;">
+            <div class="grid-col-heading" style="border-bottom: 1px solid var(--border); background: var(--surface2);">
+              <div class="grid-col-heading-left">
+                <div class="col-icon">💡</div>
+                <div>
+                  <div class="col-title" style="color: var(--white); font-weight: 600;">Growth Sector Insights</div>
+                  <div class="col-subtitle">Alliances & funding impact</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 16px 20px;">
+              <ul id="growth-insights-list" style="margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text-dim); line-height: 1.7; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── TAB 3: PRODUCT & STRATEGY VIEW ── -->
+      <div id="view-product-strategy" class="tab-view" style="display:none;">
+        <!-- Stats strip -->
+        <div class="stats-strip" id="product-stats">
+          <!-- Populated dynamically -->
+        </div>
+
+        <div class="main-grid">
+          <!-- Main 2-column feed -->
+          <div style="grid-column: span 2; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" id="product-grid">
+            <!-- dynamic columns -->
+          </div>
+
+          <!-- Column 3: Tab-Specific Insights -->
+          <div class="grid-col-inner" style="align-self: start;">
+            <div class="grid-col-heading" style="border-bottom: 1px solid var(--border); background: var(--surface2);">
+              <div class="grid-col-heading-left">
+                <div class="col-icon">💡</div>
+                <div>
+                  <div class="col-title" style="color: var(--white); font-weight: 600;">Technical Strategy Insights</div>
+                  <div class="col-subtitle">Digital release tracking</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding: 16px 20px;">
+              <ul id="product-insights-list" style="margin: 0; padding-left: 18px; font-size: 12.5px; color: var(--text-dim); line-height: 1.7; display: flex; flex-direction: column; gap: 14px;">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ── FOOTER ── -->
+    <footer>
+      <div class="footer-left" id="footer-left-txt">TABHI · Command Center · Portfolio Competitive Intelligence · Updated continuously</div>
+      <div class="footer-right">
+        <a onclick="window.app.uiManager.showToast('LAUNCHING SYSTEM ARCHITECTURE BLUEPRINT')">Blueprint Spec</a>
+        <a onclick="window.app.uiManager.showToast('EXCEL DATABASE CONNECTED')">Excel Database</a>
+        <a onclick="window.app.goHome()">Ecosystem Hub</a>
+      </div>
+    </footer>
+
+  </div>
+
+
+  <!-- ── DRAWER OVERLAY ─────────────────────────── -->
+  <div id="drawer-overlay" class="drawer-overlay" onclick="window.app.uiManager.closeDrawer()"></div>
+
+  <!-- ── SIDEBAR DETAIL DRAWER ── -->
+  <div id="drawer" class="drawer">
+    <div style="padding-bottom:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div id="drawer-company-wrap" style="display:flex;align-items:center;gap:10px;">
+        <div id="drawer-logo" class="company-logo" style="width:28px;height:28px;border-radius:6px;padding:2px;"></div>
+        <div>
+          <div id="drawer-company" style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-dim);"></div>
+          <div id="drawer-time" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px;"></div>
+        </div>
+      </div>
+      <button onclick="window.app.uiManager.closeDrawer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--text-dim);outline:none;">✕</button>
+    </div>
+    <div style="flex-grow:1; display:flex; flex-direction:column; justify-content:space-between;">
+      <div>
+        <div id="drawer-tags" style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;"></div>
+        <h2 id="drawer-headline" style="font-size:16px;font-weight:600;line-height:1.45;color:var(--white);margin-bottom:14px;"></h2>
+        <p id="drawer-body" style="font-size:13px;color:var(--slate);line-height:1.65;margin-bottom:22px; white-space:pre-line;"></p>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;display:flex;gap:10px;margin-top:auto;">
+        <a id="drawer-link" href="#" target="_blank" style="
+          display:inline-flex;align-items:center;gap:6px;
+          background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+          letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;
+          transition:opacity .15s;
+        " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">READ SOURCE →</a>
+        <button onclick="window.app.uiManager.closeDrawer()" style="
+          background:none;border:1px solid var(--border);border-radius:5px;
+          font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+          transition:border-color .15s;
+        " onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── VIDEO BRIEF MODAL OVERLAY ──────────────── -->
+  <div id="video-overlay" class="modal-overlay" onclick="window.app.uiManager.closeVideo()"></div>
+  
+  <!-- ── VIDEO BRIEF MODAL ── -->
+  <div id="video-modal" class="modal" style="width:720px; max-width:95vw; padding:0;">
+    <div style="border-radius:12px;overflow:hidden;background:var(--surface2);">
+      <div id="video-modal-thumb" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;background:#1e1b18;">
+        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+        <div style="position:relative;z-index:1;text-align:center;">
+          <div style="font-size:72px;margin-bottom:8px;" id="video-modal-emoji">🎬</div>
+          <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.08em;">INTELLIGENCE ENGINE STRATEGIC BRIEF</div>
+        </div>
+      </div>
+      <div style="padding:22px 24px;">
+        <div id="video-modal-badge" style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;"></div>
+        <h3 id="video-modal-title" style="font-size:16px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:8px;"></h3>
+        <div id="video-modal-meta" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px;"></div>
+        
+        <p id="video-modal-brief-body" style="font-size:13px; color:var(--slate); line-height:1.65; margin-bottom:22px; white-space:pre-line;"></p>
+        
+        <div style="display:flex;gap:10px;align-items:center;">
+          <a id="video-modal-link" href="#" target="_blank" style="
+            background:var(--orange);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;
+            letter-spacing:.06em;padding:8px 16px;border-radius:5px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;
+          ">READ ORIGINAL SOURCE →</a>
+          <button onclick="window.app.uiManager.closeVideo()" style="
+            background:none;border:1px solid var(--border);border-radius:5px;
+            font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
+          ">CLOSE ✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── WATCHLIST CONFIG MODAL OVERLAY ─────────── -->
+  <div id="add-overlay" class="modal-overlay" onclick="window.app.uiManager.closeAdd()"></div>
+  
+  <!-- ── WATCHLIST CONFIG MODAL ── -->
+  <div id="add-modal" class="modal">
+    <div style="background:var(--surface);border-radius:12px;overflow:hidden;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:1px solid var(--border);padding-bottom:12px;">
+        <div style="font-size:14px;font-weight:600;color:var(--white);" id="add-modal-title">Track a new competitor query</div>
+        <button onclick="window.app.uiManager.closeAdd()" style="background:none;border:none;font-size:16px;cursor:pointer;color:var(--muted);outline:none;">✕</button>
+      </div>
+      <div>
+        <div style="margin-bottom:14px;">
+          <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">COMPETITOR KEYWORD</label>
+          <input id="add-name" type="text" placeholder="e.g. Navan, Sabre, Centrav..." style="
+            width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+            background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+            outline:none;transition:border-color .15s;
+          " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.08em;display:block;margin-bottom:6px;">TARGET WEBSITE / RSS URL</label>
+          <input id="add-url" type="text" placeholder="https://news.google.com/rss..." style="
+            width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:6px;
+            background:var(--surface2);color:var(--text);font-family:var(--sans);font-size:13px;
+            outline:none;transition:border-color .15s;
+          " onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='var(--border)'"/>
+        </div>
+        <button onclick="window.app.uiManager.submitAdd()" style="
+          width:100%;background:var(--orange);color:#fff;border:none;border-radius:6px;
+          font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.08em;
+          padding:10px;cursor:pointer;transition:opacity .15s;outline:none;
+        " onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">+ ADD TO PIPELINE SEARCH</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrapping App module -->
+  <script type="module">
+    import { App } from './js/App.js';
+    window.addEventListener('DOMContentLoaded', () => {
+      const app = new App();
+      app.init();
+      window.app = app;
+    });
+  </script>
+</body>
+</html>
