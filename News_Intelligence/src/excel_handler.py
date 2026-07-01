@@ -272,7 +272,7 @@ def append_news_articles(articles):
         append_news_articles_to_file(group, db_file_path, brand)
         
         # Also sync to the News_Dashboard data folder for immediate UI refresh
-        dashboard_dir = os.path.join(os.path.dirname(BASE_DIR), "News_Dashboard", "data")
+        dashboard_dir = os.path.join(os.path.dirname(os.path.dirname(OUTPUT_DIR)), "News_Dashboard", "data")
         if os.path.exists(os.path.dirname(dashboard_dir)):
             os.makedirs(dashboard_dir, exist_ok=True)
             dashboard_file_path = os.path.join(dashboard_dir, filename)
