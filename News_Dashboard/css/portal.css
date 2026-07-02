@@ -190,3 +190,63 @@
   transform: translateX(4px);
   color: #FF5C39;
 }
+
+/* Responsive portal styles */
+@media (max-width: 960px) {
+  #portal-view {
+    padding: 30px 20px;
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+  
+  .portal-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 20px;
+  }
+  
+  .tabhi-logo-portal {
+    margin-bottom: 30px;
+    height: 44px;
+  }
+  
+  .portal-left h1 {
+    font-size: 36px;
+  }
+  
+  .portal-left p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-portal-card {
+    padding: 16px 20px;
+    gap: 16px;
+  }
+  
+  .brand-card-title {
+    font-size: 20px;
+  }
+  
+  .brand-card-subtitle {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  
+  .brand-card-desc {
+    font-size: 12px;
+  }
+  
+  .brand-card-logo-wrap {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .brand-card-logo-wrap svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
