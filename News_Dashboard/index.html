@@ -91,27 +91,6 @@
   <!-- ── DASHBOARD VIEW (ACTIVE STATE) ───────── -->
   <div id="dashboard-view">
 
-    <!-- ── HEADER ── -->
-    <header>
-      <div class="logo">
-        <div class="logo-mark" onclick="window.app.goHome()" id="header-brand-logo-mark">
-          <!-- Dynamic svg brand logo -->
-        </div>
-        <div class="logo-text-group">
-          <div id="header-tabhi-logo" onclick="window.app.goHome()" style="cursor:pointer; height:28px; display:flex; align-items:center; overflow:visible;"></div>
-          <div class="logo-divider"></div>
-          <span class="logo-active-brand" id="active-brand-title">MONDEE (B2B)</span>
-        </div>
-        <a class="back-btn" onclick="window.app.goHome()">
-          <span>←</span> Back to Ecosystem
-        </a>
-      </div>
-      <div class="header-right">
-        <div class="header-badge" id="header-badge-txt">B2B RADAR</div>
-        <div class="header-time" id="clock">-</div>
-      </div>
-    </header>
-
     <!-- ── LIVE TICKER BAR ── -->
     <div class="ticker-wrap">
       <div class="ticker-label">LIVE SECTOR SHIFTS</div>
@@ -120,12 +99,37 @@
       </div>
     </div>
 
-    <!-- ── NAV TABS ── -->
-    <nav class="nav-tabs">
-      <div class="nav-tab active" data-tab="overview" onclick="window.app.uiManager.switchTab('overview')">OVERVIEW</div>
-      <div class="nav-tab" data-tab="growth-marketing" onclick="window.app.uiManager.switchTab('growth-marketing')">GROWTH &amp; MARKETING</div>
-      <div class="nav-tab" data-tab="product-strategy" onclick="window.app.uiManager.switchTab('product-strategy')">PRODUCT &amp; STRATEGY</div>
-    </nav>
+    <!-- ── STICKY HEADER & TABS WRAPPER ── -->
+    <div class="sticky-nav-wrapper">
+      <!-- ── HEADER ── -->
+      <header>
+        <div class="logo">
+          <div class="logo-mark" onclick="window.app.goHome()" id="header-brand-logo-mark">
+            <!-- Dynamic svg brand logo -->
+          </div>
+          <div class="logo-text-group">
+            <div id="header-tabhi-logo" onclick="window.app.goHome()" style="cursor:pointer; height:28px; display:flex; align-items:center; overflow:visible;"></div>
+            <div class="logo-divider"></div>
+            <span class="logo-active-brand" id="active-brand-title">MONDEE (B2B)</span>
+          </div>
+          <a class="back-btn" onclick="window.app.goHome()">
+            <span>←</span> Back to Ecosystem
+          </a>
+        </div>
+        <div class="header-right">
+          <div class="header-badge" id="header-badge-txt">B2B RADAR</div>
+          <div class="header-time" id="clock">-</div>
+        </div>
+      </header>
+
+      <!-- ── NAV TABS ── -->
+      <nav class="nav-tabs">
+        <div class="nav-tab active" data-tab="overview" onclick="window.app.uiManager.switchTab('overview')">OVERVIEW</div>
+        <div class="nav-tab" data-tab="growth-marketing" onclick="window.app.uiManager.switchTab('growth-marketing')">GROWTH &amp; MARKETING</div>
+        <div class="nav-tab" data-tab="product-strategy" onclick="window.app.uiManager.switchTab('product-strategy')">PRODUCT &amp; STRATEGY</div>
+      </nav>
+    </div>
+
 
     <!-- ── PAGE CONTENT ── -->
     <main class="page">
