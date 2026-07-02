@@ -130,7 +130,12 @@ header {
 
 /* ── NAV TABS ─────────────────────────────── */
 .nav-tabs {
-  background: var(--surface);
+  position: sticky;
+  top: 64px;
+  z-index: 99;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
   padding: 0 32px;
   display: flex;
@@ -400,6 +405,7 @@ footer {
   }
   
   .nav-tabs {
+    top: 110px;
     padding: 0 16px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
