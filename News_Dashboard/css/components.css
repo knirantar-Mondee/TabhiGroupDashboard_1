@@ -355,6 +355,56 @@
   white-space: nowrap;
 }
 
+
+/* ── CAROUSEL SLIDER (OPTION 1) ── */
+.carousel-slider {
+  display: flex;
+  overflow-x: auto;
+  gap: 12px;
+  padding: 8px 4px;
+  margin-top: 6px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+
+.carousel-slider::-webkit-scrollbar {
+  height: 4px;
+}
+
+.carousel-slider::-webkit-scrollbar-thumb {
+  background: var(--border2);
+  border-radius: 4px;
+}
+
+.carousel-slider .flat-card {
+  flex: 0 0 280px;
+  scroll-snap-align: start;
+  margin-bottom: 0;
+}
+
+/* ── SLIDER DRAWER BUTTON (OPTION 2) ── */
+.slider-drawer-btn {
+  width: 100%;
+  background: var(--orange-glow);
+  border: 1px solid rgba(200,80,0,0.2);
+  color: var(--orange);
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  outline: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.slider-drawer-btn:hover {
+  background: var(--orange-dim);
+  border-color: var(--orange);
+}
+
 /* Responsive Components layout */
 @media (max-width: 900px) {
   .stats-strip {
