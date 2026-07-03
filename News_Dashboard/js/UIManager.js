@@ -219,7 +219,7 @@ export class UIManager {
     if (hasMore && remainingCards.length > 0) {
       sliderHtml = `
         <div class="scroll-more">
-          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnDrawer('${colId}')">
+          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnModal('${colId}')">
             View ${remainingCards.length} More Alerts →
           </button>
         </div>
@@ -689,7 +689,7 @@ export class UIManager {
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeDrawer();
-        this.closeColumnDrawer();
+        this.closeColumnModal();
         this.closeVideo();
         this.closeAdd();
       }
