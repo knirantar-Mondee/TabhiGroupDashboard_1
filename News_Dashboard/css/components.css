@@ -157,6 +157,52 @@
 
 .flat-card:hover { border-color: var(--border2); }
 
+.flat-card.card-critical {
+  border-left: 3px solid var(--red);
+  box-shadow: 0 0 8px rgba(153, 27, 27, 0.08);
+}
+.flat-card.card-critical:hover {
+  border-color: var(--red);
+}
+
+.flat-card.card-high-priority {
+  border-left: 3px solid var(--orange);
+  box-shadow: 0 0 8px rgba(200, 80, 0, 0.05);
+}
+.flat-card.card-high-priority:hover {
+  border-color: var(--orange);
+}
+
+.priority-badge-crit {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--red);
+  background: var(--surface);
+  border: 1px solid var(--red);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.priority-badge-hi {
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 600;
+  color: var(--orange);
+  background: var(--surface);
+  border: 1px solid var(--orange);
+  padding: 1px 5px;
+  border-radius: 3px;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
 .flat-card-meta {
   display: flex;
   align-items: center;

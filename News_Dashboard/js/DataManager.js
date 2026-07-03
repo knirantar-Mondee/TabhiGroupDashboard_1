@@ -42,8 +42,13 @@ export class DataManager {
   }
   
   transformRowsToDashboardData(brandId, rows) {
-    // Sort rows by Published_Date descending
+    // Sort rows by Criticality_Score descending, then by Published_Date descending
     rows.sort((a, b) => {
+      const scoreA = Number(a.Criticality_Score) || 0;
+      const scoreB = Number(b.Criticality_Score) || 0;
+      if (scoreB !== scoreA) {
+        return scoreB - scoreA;
+      }
       const dateA = a.Published_Date ? new Date(a.Published_Date) : new Date(0);
       const dateB = b.Published_Date ? new Date(b.Published_Date) : new Date(0);
       return dateB - dateA;
@@ -355,7 +360,9 @@ export class DataManager {
       tags: [topic.toUpperCase(), sentiment.toUpperCase(), threat.toUpperCase() + ' THREAT'],
       source: r.RSS_Source || 'News Source',
       body: r.News_Body || '',
-      url: r.Article_URL || '#'
+      url: r.Article_URL || '#',
+      criticalityScore: Number(r.Criticality_Score) || 0,
+      priorityTier: r.Priority_Tier || 'Tier 4 - Low'
     };
   }
   
