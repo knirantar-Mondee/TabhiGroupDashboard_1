@@ -200,7 +200,7 @@ export class UIManager {
     }).join('');
   }
   
-  renderColumn(colData, colIndex) {
+  renderColumn(colData) {
     const initialCards = colData.cards.slice(0, 3);
     const remainingCards = colData.cards.slice(3, 9); // Limit to max 6 additional news items
     const hasMore = colData.cards.length > 3;
@@ -215,28 +215,15 @@ export class UIManager {
       </div>
     ` : '';
     
-    // Demonstrate Option 1 (Carousel) for Column Index 0 and 2
-    // Demonstrate Option 2 (Drawer Panel) for Column Index 1
-    const isCarousel = (colIndex === 0 || colIndex === 2);
-    
     let sliderHtml = '';
     if (hasMore && remainingCards.length > 0) {
-      if (isCarousel) {
-        sliderHtml = `
-          <div style="font-family:var(--mono); font-size:9px; color:var(--orange); font-weight:600; text-transform:uppercase; margin: 12px 0 6px 4px; letter-spacing:0.04em;">Swipe Slider (${remainingCards.length} more) ↔</div>
-          <div class="carousel-slider">
-            ${this.renderCardsList(remainingCards)}
-          </div>
-        `;
-      } else {
-        sliderHtml = `
-          <div class="scroll-more">
-            <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnDrawer('${colId}')">
-              View ${remainingCards.length} More Alerts →
-            </button>
-          </div>
-        `;
-      }
+      sliderHtml = `
+        <div class="scroll-more">
+          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnDrawer('${colId}')">
+            View ${remainingCards.length} More Alerts →
+          </button>
+        </div>
+      `;
     }
     
     return `
@@ -312,7 +299,7 @@ export class UIManager {
   renderOverviewTab(brandData) {
     const grid = document.getElementById('overview-grid');
     if (grid && brandData.overviewCols) {
-      grid.innerHTML = brandData.overviewCols.map((col, idx) => this.renderColumn(col, idx)).join('');
+      grid.innerHTML = brandData.overviewCols.map(col => this.renderColumn(col)).join('');
     }
     
     // Stats strip
@@ -369,7 +356,7 @@ export class UIManager {
   renderGrowthTab(brandData) {
     const grid = document.getElementById('growth-grid');
     if (grid && brandData.growthCols) {
-      grid.innerHTML = brandData.growthCols.map((col, idx) => this.renderColumn(col, idx)).join('');
+      grid.innerHTML = brandData.growthCols.map(col => this.renderColumn(col)).join('');
     }
     this.renderStats(brandData.stats['growth-marketing'], 'growth-stats');
     
@@ -382,7 +369,7 @@ export class UIManager {
   renderProductTab(brandData) {
     const grid = document.getElementById('product-grid');
     if (grid && brandData.productCols) {
-      grid.innerHTML = brandData.productCols.map((col, idx) => this.renderColumn(col, idx)).join('');
+      grid.innerHTML = brandData.productCols.map(col => this.renderColumn(col)).join('');
     }
     this.renderStats(brandData.stats['product-strategy'], 'product-stats');
     
