@@ -1,5 +1,6 @@
 import re
 from src.utils import logger, clean_text
+from config.settings import EXCLUSION_KEYWORDS
 
 class KeywordMatcher:
     def __init__(self, queries_dict):
@@ -10,6 +11,20 @@ class KeywordMatcher:
         """
         self.queries_dict = queries_dict
         self.compiled_patterns = self._compile_patterns()
+        
+        # Compile global exclusion patterns
+        self.global_exclusions = [
+            re.compile(pattern, re.IGNORECASE) 
+            for pattern in EXCLUSION_KEYWORDS.get("GLOBAL", [])
+        ]
+        
+        # Compile competitor-specific exclusion patterns
+        self.competitor_exclusions = {}
+        for comp, patterns in EXCLUSION_KEYWORDS.items():
+            if comp != "GLOBAL":
+                self.competitor_exclusions[comp] = [
+                    re.compile(p, re.IGNORECASE) for p in patterns
+                ]
 
     def _compile_patterns(self):
         """Pre-compile regex patterns for performance."""
@@ -36,15 +51,33 @@ class KeywordMatcher:
 
     def match_article(self, title, summary):
         """
-        Check if article matches any competitor search queries.
+        Check if article matches any competitor search queries, applying exclusion rules first.
         Returns a tuple of (matched_competitors_str, matched_queries_str) or (None, None).
         """
         text_to_search = clean_text(title) + " " + clean_text(summary)
         
+        # Check global exclusions
+        for pattern in self.global_exclusions:
+            if pattern.search(text_to_search):
+                logger.info(f"Article '{title[:50]}...' matches global exclusion pattern '{pattern.pattern}'. Skipping.")
+                return None, None
+                
         matched_comps = []
         matched_details = []
         
         for competitor, queries in self.compiled_patterns.items():
+            # Check competitor-specific exclusions
+            comp_excl_patterns = self.competitor_exclusions.get(competitor, [])
+            has_comp_exclusion_match = False
+            for pattern in comp_excl_patterns:
+                if pattern.search(text_to_search):
+                    logger.info(f"Article '{title[:50]}...' matches competitor '{competitor}' exclusion pattern '{pattern.pattern}'. Skipping.")
+                    has_comp_exclusion_match = True
+                    break
+            
+            if has_comp_exclusion_match:
+                continue
+                
             is_comp_matched = False
             comp_matched_queries = []
             
@@ -64,3 +97,4 @@ class KeywordMatcher:
             return ", ".join(matched_comps), " | ".join(matched_details)
             
         return None, None
+
