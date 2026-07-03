@@ -91,14 +91,6 @@
   <!-- ── DASHBOARD VIEW (ACTIVE STATE) ───────── -->
   <div id="dashboard-view">
 
-    <!-- ── LIVE TICKER BAR ── -->
-    <div class="ticker-wrap">
-      <div class="ticker-label">LIVE SECTOR SHIFTS</div>
-      <div class="ticker-track" id="ticker">
-        <!-- Populated dynamically -->
-      </div>
-    </div>
-
     <!-- ── STICKY HEADER & TABS WRAPPER ── -->
     <div class="sticky-nav-wrapper">
       <!-- ── HEADER ── -->
@@ -275,6 +267,20 @@
 
   </div>
 
+
+  <!-- ── COLUMN SLIDER DRAWER ─────────────────────── -->
+  <div id="column-drawer-overlay" class="drawer-overlay" onclick="window.app.uiManager.closeColumnDrawer()"></div>
+  <div id="column-drawer" class="drawer">
+    <div style="padding-bottom:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-family:var(--mono);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--text-dim);" id="column-drawer-title">MORE ALERTS</div>
+      </div>
+      <button onclick="window.app.uiManager.closeColumnDrawer()" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px;color:var(--text-dim);outline:none;">✕</button>
+    </div>
+    <div id="column-drawer-cards" style="flex-grow:1; display:flex; flex-direction:column; overflow-y:auto; padding-right:4px;">
+      <!-- Dynamic list of up to 6 cards -->
+    </div>
+  </div>
 
   <!-- ── DRAWER OVERLAY ─────────────────────────── -->
   <div id="drawer-overlay" class="drawer-overlay" onclick="window.app.uiManager.closeDrawer()"></div>
