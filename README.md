@@ -26,7 +26,7 @@ graph TD
 The pipeline is initiated via a scheduled workflow in **n8n**:
 * **Trigger Interval**: Days
 * **Days Between Triggers**: `1` (triggers every 24 hours)
-* **Time**: Configured to run daily at **12:00 PM IST**.
+* **Time**: Configured to run daily at **2:00 PM IST**.
 * **Action**: Calls the GitHub API via an HTTP Request node to dispatch a `trigger-scraper` repository event:
   * **Endpoint**: `POST https://api.github.com/repos/pchitlangia-maker/TabhiGroupDashboard/dispatches`
   * **Headers**: Custom Github Personal Access Token for auth.
@@ -38,7 +38,7 @@ The pipeline is initiated via a scheduled workflow in **n8n**:
 The workflow [.github/workflows/scraper.yml](file:///.github/workflows/scraper.yml) controls execution and deployment:
 * **Triggers**:
   * `repository_dispatch` (triggered by n8n Webhook / `trigger-scraper` event).
-  * `schedule` (scheduled backup trigger to run daily at **12:00 PM IST / 06:30 AM UTC** via `- cron: '30 6 * * *'`).
+  * `schedule` (scheduled backup trigger to run daily at **2:00 PM IST / 08:30 AM UTC** via `- cron: '30 8 * * *'`).
   * `workflow_dispatch` (enables manual run from the GitHub Web UI).
 * **Steps**:
   1. **Checkout Repository**: Checks out the code and databases.

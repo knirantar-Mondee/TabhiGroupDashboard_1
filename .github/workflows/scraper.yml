@@ -5,7 +5,7 @@ on:
     types: [trigger-scraper]
   workflow_dispatch: # Allows manual trigger from the GitHub web UI as well
   schedule:
-    - cron: '30 6 * * *' # Runs daily at 12:00 PM IST (06:30 UTC)
+    - cron: '30 8 * * *' # Runs daily at 2:00 PM IST (08:30 UTC)
 
 jobs:
   run-scraper:
