@@ -200,10 +200,10 @@ export class UIManager {
     }).join('');
   }
   
-  renderColumn(colData) {
-    const limit = 10;
-    const hasMore = colData.cards.length > limit;
-    const initialCards = colData.cards.slice(0, limit);
+  renderColumn(colData, colIndex) {
+    const initialCards = colData.cards.slice(0, 3);
+    const remainingCards = colData.cards.slice(3, 9); // Limit to max 6 additional news items
+    const hasMore = colData.cards.length > 3;
     
     const colId = `col-${colData.title.toLowerCase().replace(/[\s\W]+/g, '-')}`;
     this.columnCards[colId] = colData.cards;
@@ -215,11 +215,29 @@ export class UIManager {
       </div>
     ` : '';
     
-    const showMoreHtml = hasMore ? `
-      <div class="scroll-more" id="${colId}-more">
-        <button onclick="window.app.uiManager.showAllColumnCards('${colId}')">SHOW MORE</button>
-      </div>
-    ` : '';
+    // Demonstrate Option 1 (Carousel) for Column Index 0 and 2
+    // Demonstrate Option 2 (Drawer Panel) for Column Index 1
+    const isCarousel = (colIndex === 0 || colIndex === 2);
+    
+    let sliderHtml = '';
+    if (hasMore && remainingCards.length > 0) {
+      if (isCarousel) {
+        sliderHtml = `
+          <div style="font-family:var(--mono); font-size:9px; color:var(--orange); font-weight:600; text-transform:uppercase; margin: 12px 0 6px 4px; letter-spacing:0.04em;">Swipe Slider (${remainingCards.length} more) ↔</div>
+          <div class="carousel-slider">
+            ${this.renderCardsList(remainingCards)}
+          </div>
+        `;
+      } else {
+        sliderHtml = `
+          <div class="scroll-more">
+            <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnDrawer('${colId}')">
+              View ${remainingCards.length} More Alerts →
+            </button>
+          </div>
+        `;
+      }
+    }
     
     return `
       <div class="grid-col-inner">
@@ -238,7 +256,7 @@ export class UIManager {
           <div id="${colId}-cards">
             ${this.renderCardsList(initialCards)}
           </div>
-          ${showMoreHtml}
+          ${sliderHtml}
         </div>
       </div>
     `;
@@ -294,7 +312,7 @@ export class UIManager {
   renderOverviewTab(brandData) {
     const grid = document.getElementById('overview-grid');
     if (grid && brandData.overviewCols) {
-      grid.innerHTML = brandData.overviewCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.overviewCols.map((col, idx) => this.renderColumn(col, idx)).join('');
     }
     
     // Stats strip
@@ -351,7 +369,7 @@ export class UIManager {
   renderGrowthTab(brandData) {
     const grid = document.getElementById('growth-grid');
     if (grid && brandData.growthCols) {
-      grid.innerHTML = brandData.growthCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.growthCols.map((col, idx) => this.renderColumn(col, idx)).join('');
     }
     this.renderStats(brandData.stats['growth-marketing'], 'growth-stats');
     
@@ -364,7 +382,7 @@ export class UIManager {
   renderProductTab(brandData) {
     const grid = document.getElementById('product-grid');
     if (grid && brandData.productCols) {
-      grid.innerHTML = brandData.productCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.productCols.map((col, idx) => this.renderColumn(col, idx)).join('');
     }
     this.renderStats(brandData.stats['product-strategy'], 'product-stats');
     
@@ -472,6 +490,49 @@ export class UIManager {
   closeDrawer() {
     const overlay = document.getElementById('drawer-overlay');
     const drawer = document.getElementById('drawer');
+    
+    drawer.style.right = '-420px';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+    }, 300);
+  }
+
+  openColumnDrawer(colId) {
+    const cards = this.columnCards[colId];
+    if (!cards) return;
+    
+    const remainingCards = cards.slice(3, 9);
+    
+    const titleEl = document.getElementById('column-drawer-title');
+    if (titleEl) {
+      const allCols = [
+        ...(this.brandData.overviewCols || []),
+        ...(this.brandData.growthCols || []),
+        ...(this.brandData.productCols || [])
+      ];
+      const match = allCols.find(c => `col-${c.title.toLowerCase().replace(/[\s\W]+/g, '-')}` === colId);
+      titleEl.textContent = match ? `MORE ${match.title.toUpperCase()}` : "MORE ALERTS";
+    }
+    
+    const cardsContainer = document.getElementById('column-drawer-cards');
+    if (cardsContainer) {
+      cardsContainer.innerHTML = this.renderCardsList(remainingCards);
+    }
+    
+    const overlay = document.getElementById('column-drawer-overlay');
+    const drawer = document.getElementById('column-drawer');
+    
+    overlay.style.display = 'block';
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+      drawer.style.right = '0';
+    }, 20);
+  }
+  
+  closeColumnDrawer() {
+    const overlay = document.getElementById('column-drawer-overlay');
+    const drawer = document.getElementById('column-drawer');
     
     drawer.style.right = '-420px';
     overlay.style.opacity = '0';
@@ -623,6 +684,7 @@ export class UIManager {
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeDrawer();
+        this.closeColumnDrawer();
         this.closeVideo();
         this.closeAdd();
       }
