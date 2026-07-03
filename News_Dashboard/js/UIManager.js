@@ -277,14 +277,29 @@ export class UIManager {
     return cardsArray.map(card => {
       const tagsHtml = card.tags.map(t => `<span class="tag ${this.tagClassMap[t] || 'tag-slate'}">${t}</span>`).join('');
       const logoSVG = getLogoSVG(card.company);
+      
+      // Determine priority styling based on tier
+      let cardClass = "flat-card";
+      let priorityBadge = "";
+      if (card.priorityTier === "Tier 1 - Critical") {
+        cardClass = "flat-card card-critical";
+        priorityBadge = `<span class="priority-badge-crit">🚨 CRITICAL (${card.criticalityScore} pts)</span>`;
+      } else if (card.priorityTier === "Tier 2 - High") {
+        cardClass = "flat-card card-high-priority";
+        priorityBadge = `<span class="priority-badge-hi">⚠️ HIGH (${card.criticalityScore} pts)</span>`;
+      }
+      
       return `
-        <div class="flat-card" onclick="window.app.uiManager.openDrawer(${card.id})">
+        <div class="${cardClass}" onclick="window.app.uiManager.openDrawer(${card.id})">
           <div class="flat-card-meta">
             <div class="flat-card-company">
               <div class="company-logo">${logoSVG}</div>
               <span class="company-name">${card.company}</span>
             </div>
-            <span class="news-time">${card.time}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${priorityBadge}
+              <span class="news-time">${card.time}</span>
+            </div>
           </div>
           <div class="flat-card-headline">${card.title}</div>
           <div class="flat-card-footer">
@@ -431,7 +446,10 @@ export class UIManager {
     if (drawerComp) drawerComp.textContent = card.company;
     
     const drawerTime = document.getElementById('drawer-time');
-    if (drawerTime) drawerTime.textContent = `Published: ${card.time} | Source: ${card.source}`;
+    if (drawerTime) {
+      const scoreTxt = card.criticalityScore ? ` | Score: ${card.criticalityScore} pts (${card.priorityTier})` : '';
+      drawerTime.textContent = `Published: ${card.time} | Source: ${card.source}${scoreTxt}`;
+    }
     
     const drawerHeadline = document.getElementById('drawer-headline');
     if (drawerHeadline) drawerHeadline.textContent = card.title;

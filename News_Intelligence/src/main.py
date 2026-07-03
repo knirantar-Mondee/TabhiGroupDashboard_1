@@ -17,6 +17,7 @@ from src.article_scraper import scrape_articles_parallel
 from src.ai_placeholders import (
     TopicClassifier, SentimentAnalyzer, IntelligenceEngine, ExecutiveSummaryGenerator
 )
+from src.rubrics_engine import RubricsScoringEngine
 
 def run_pipeline():
     logger.info("=========================================")
@@ -154,13 +155,23 @@ def run_pipeline():
     # 7. Scraping Full Article Content
     scraped_articles = scrape_articles_parallel(new_articles)
     
-    # 8. Enrich with AI Features (Topic, Sentiment, Threat Level, Actions, Summary)
-    logger.info("Enriching articles with AI intelligence classification...")
+    # 8. Enrich with AI Features (Topic, Sentiment, Threat Level, Actions, Summary) and Scoring Rubrics
+    logger.info("Enriching articles with AI intelligence classification and rubric scoring...")
     topic_classifier = TopicClassifier()
     sentiment_analyzer = SentimentAnalyzer()
     intel_engine = IntelligenceEngine()
     summary_gen = ExecutiveSummaryGenerator()
     
+    # Initialize Rubrics Engines dynamically from Context folder
+    context_dir = os.path.join(BASE_DIR, "Context")
+    rubrics_engines = {}
+    for brand in ["Miraee", "Abhee", "Mondee"]:
+        rubrics_path = os.path.join(context_dir, f"{brand.upper()}_News_Rubrics.xlsx")
+        if os.path.exists(rubrics_path):
+            rubrics_engines[brand.lower()] = RubricsScoringEngine(rubrics_path)
+        else:
+            logger.warning(f"Rubrics file not found: {rubrics_path}")
+            
     enriched_articles = []
     for art in scraped_articles:
         body = art.get("News_Body", "")
@@ -184,6 +195,24 @@ def run_pipeline():
         # 4. Executive Summary of Article
         summary = summary_gen.generate_article_summary(title, body)
         art["Executive_Summary"] = summary
+        
+        # 5. Rubrics Scoring & Priority Tier
+        target_brand_str = art.get("Target_Brand", "Miraee")
+        brands_list = [b.strip().lower() for b in target_brand_str.split(",") if b.strip()]
+        
+        max_score = 0
+        best_tier = "Tier 4 - Low"
+        
+        for brand_key in brands_list:
+            engine = rubrics_engines.get(brand_key)
+            if engine:
+                res = engine.evaluate_article(title, body)
+                if res["score"] > max_score:
+                    max_score = res["score"]
+                    best_tier = res["tier"]
+                    
+        art["Criticality_Score"] = max_score
+        art["Priority_Tier"] = best_tier
         
         enriched_articles.append(art)
         

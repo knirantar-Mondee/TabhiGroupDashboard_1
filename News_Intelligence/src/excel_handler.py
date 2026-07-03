@@ -172,7 +172,7 @@ def append_news_articles_to_file(articles, file_path, brand):
         "Article_ID", "RSS_Source", "RSS_URL", "Article_URL", "Published_Date", 
         "Competitor", "Matched_Query", "Title", "Author", "News_Body", "Scrape_Date",
         "Topic", "Sentiment", "Threat_Level", "Competitor_Action", "Strategic_Implication", "Executive_Summary",
-        "Target_Brand"
+        "Target_Brand", "Criticality_Score", "Priority_Tier"
     ]
     
     file_exists = os.path.exists(file_path)
@@ -227,7 +227,9 @@ def append_news_articles_to_file(articles, file_path, brand):
                 article.get("Competitor_Action", ""),
                 article.get("Strategic_Implication", ""),
                 article.get("Executive_Summary", ""),
-                article.get("Target_Brand", "")
+                article.get("Target_Brand", ""),
+                article.get("Criticality_Score", 0),
+                article.get("Priority_Tier", "Tier 4 - Low")
             ]
             ws.append(row_data)
             start_id += 1

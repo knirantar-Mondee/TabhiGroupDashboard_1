@@ -31,3 +31,25 @@ HTTP_HEADERS = {
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
     "Accept-Language": "en-US,en;q=0.5",
 }
+
+# Exclusion Keywords to filter out irrelevant/local news (e.g. Navan city crime/local news)
+EXCLUSION_KEYWORDS = {
+    "GLOBAL": [
+        r"\bgarda\b", r"\bgardaí\b", r"\bpolice\b", r"\bcourt\b", r"\bpleaded guilty\b", 
+        r"\bsentenced\b", r"\bobituary\b", r"\bfuneral\b", r"\bcollision\b", r"\baccident\b", 
+        r"\broad closure\b", r"\bassault\b", r"\babuse\b", r"\btheft\b", r"\bburglary\b", 
+        r"\bcannabis\b", r"\bdrugs\b", r"\bcrime\b", r"\barrested\b", r"\bcharged with\b", 
+        r"\btrial\b", r"\bprosecution\b", r"\bjail\b", r"\bprison\b", r"\bmurder\b", 
+        r"\bstabbing\b", r"\binjured\b"
+    ],
+    "Navan": [
+        r"\bmeath\b", r"\bireland\b", r"\bcounty meath\b", r"\bnavan man\b", r"\bnavan woman\b", 
+        r"\bnavan town\b", r"\btown of navan\b", r"\bnavan gaa\b", r"\bnavan rugby\b", 
+        r"\bnavan road\b", r"\bmeath chronicle\b", r"\bdrogheda\b"
+    ],
+    "Ramp": [
+        r"\bwheelchair\b", r"\bhighway\b", r"\bboat ramp\b", r"\baccess ramp\b", r"\brunway\b", 
+        r"\bairport ramp\b", r"\btraffic\b", r"\bskate\b", r"\bskating\b", r"\bramp closure\b"
+    ]
+}
+
