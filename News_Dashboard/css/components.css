@@ -356,32 +356,6 @@
 }
 
 
-/* ── CAROUSEL SLIDER (OPTION 1) ── */
-.carousel-slider {
-  display: flex;
-  overflow-x: auto;
-  gap: 12px;
-  padding: 8px 4px;
-  margin-top: 6px;
-  scroll-snap-type: x mandatory;
-  scrollbar-width: thin;
-  scrollbar-color: var(--border) transparent;
-}
-
-.carousel-slider::-webkit-scrollbar {
-  height: 4px;
-}
-
-.carousel-slider::-webkit-scrollbar-thumb {
-  background: var(--border2);
-  border-radius: 4px;
-}
-
-.carousel-slider .flat-card {
-  flex: 0 0 280px;
-  scroll-snap-align: start;
-  margin-bottom: 0;
-}
 
 /* ── SLIDER DRAWER BUTTON (OPTION 2) ── */
 .slider-drawer-btn {
