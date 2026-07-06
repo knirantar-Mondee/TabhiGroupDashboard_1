@@ -1,0 +1,252 @@
+/* ── PORTAL VIEW (LANDING PAGE) ────────────── */
+#portal-view {
+  background: var(--wine);
+  min-height: 100vh;
+  width: 100vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 150;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  padding: 40px;
+}
+
+.portal-container {
+  max-width: 1200px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.portal-left {
+  color: #fff;
+}
+
+.tabhi-logo-portal {
+  display: block;
+  margin-bottom: 60px;
+  height: 52px;
+}
+
+.tabhi-logo-portal svg {
+  height: 100%;
+  width: auto;
+}
+
+.portal-pill {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 4px 12px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+  text-transform: uppercase;
+  background: rgba(255,255,255,0.05);
+}
+
+.portal-left h1 {
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 20px;
+  letter-spacing: -0.03em;
+}
+
+.portal-left h1 span {
+  color: var(--orange);
+}
+
+.portal-left p {
+  font-size: 16px;
+  color: #CCC9C0;
+  line-height: 1.5;
+}
+
+.portal-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.brand-portal-card {
+  background: rgba(255, 255, 255, 0.03); /* transparent glassmorphism */
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px 28px;
+  cursor: pointer;
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  overflow: hidden;
+  text-decoration: none;
+}
+
+.brand-portal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: transparent;
+  transition: background 0.3s ease;
+}
+
+.brand-portal-card:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(255, 87, 34, 0.4);
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.3);
+}
+
+.brand-portal-card:hover::before {
+  background: #FF5C39; /* left edge line indicator */
+}
+
+.brand-card-logo-wrap {
+  width: 52px;
+  height: 52px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.brand-portal-card:hover .brand-card-logo-wrap {
+  transform: scale(1.08);
+  border-color: rgba(255, 87, 34, 0.3);
+}
+
+.brand-card-logo-wrap svg {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-card-content {
+  flex: 1;
+}
+
+.brand-card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.brand-card-title {
+  font-family: var(--sans);
+  font-size: 26px;
+  font-weight: 700;
+  color: #FF5C39; /* Coral orange-red */
+  line-height: 1.1;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+  transition: color 0.3s ease;
+}
+
+.brand-portal-card:hover .brand-card-title {
+  color: #FF7D60;
+}
+
+.brand-card-subtitle {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 700;
+  color: #FF7020; /* Vibrant orange */
+  margin-bottom: 10px;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.brand-card-desc {
+  font-family: var(--sans);
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.brand-card-arrow {
+  font-size: 20px;
+  color: rgba(255, 255, 255, 0.25);
+  transition: transform 0.3s ease, color 0.3s ease;
+  margin-top: 2px;
+}
+
+.brand-portal-card:hover .brand-card-arrow {
+  transform: translateX(4px);
+  color: #FF5C39;
+}
+
+/* Responsive portal styles */
+@media (max-width: 960px) {
+  #portal-view {
+    padding: 30px 20px;
+    height: auto;
+    min-height: 100vh;
+    align-items: flex-start;
+  }
+  
+  .portal-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-top: 20px;
+  }
+  
+  .tabhi-logo-portal {
+    margin-bottom: 30px;
+    height: 44px;
+  }
+  
+  .portal-left h1 {
+    font-size: 36px;
+  }
+  
+  .portal-left p {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .brand-portal-card {
+    padding: 16px 20px;
+    gap: 16px;
+  }
+  
+  .brand-card-title {
+    font-size: 20px;
+  }
+  
+  .brand-card-subtitle {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+  
+  .brand-card-desc {
+    font-size: 12px;
+  }
+  
+  .brand-card-logo-wrap {
+    width: 44px;
+    height: 44px;
+  }
+  
+  .brand-card-logo-wrap svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
