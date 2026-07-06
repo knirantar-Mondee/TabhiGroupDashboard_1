@@ -275,21 +275,42 @@ export class DataManager {
       'product-strategy': productInsights
     };
     
-    // 7. Video Briefs (based on 3 highest threat articles)
-    const videoArticles = rows.filter(r => r.Threat_Level === 'High' || r.Threat_Level === 'Medium').slice(0, 3);
+    // 7. Video Briefs / Keynotes (filter for keynotes, interviews, calls, or video links)
+    let videoArticles = rows.filter(r => {
+      const title = (r.Title || '').toLowerCase();
+      const url = (r.Article_URL || '').toLowerCase();
+      const body = (r.News_Body || '').toLowerCase();
+      const topic = (r.Topic || '').toLowerCase();
+      
+      return title.includes('keynote') || title.includes('interview') || title.includes('presentation') || 
+             title.includes('earnings call') || title.includes('podcast') || title.includes('cxo') ||
+             url.includes('youtube.com') || url.includes('/video/') || url.includes('vimeo.com') ||
+             topic.includes('executive');
+    }).slice(0, 3);
+    
+    // Fallback to high/medium threat strategic briefs if no specific keynotes are found
+    if (videoArticles.length === 0) {
+      videoArticles = rows.filter(r => r.Threat_Level === 'High' || r.Threat_Level === 'Medium').slice(0, 3);
+    }
+    
     const videos = [];
     const brandVideoData = [];
     
     videoArticles.forEach((r, idx) => {
       videos.push({ idx: idx });
+      
+      const speaker = r.Author ? r.Author.trim() : '';
+      const source = r.RSS_Source || 'Presentation Source';
+      const metaText = speaker ? `${speaker} · ${source}` : source;
+      
       brandVideoData.push({
         company: (r.Competitor || 'Market').split(',')[0].trim(),
-        title: `Strategy Brief: ${r.Title}`,
+        title: r.Title,
         duration: Math.max(2, Math.round((r.News_Body || '').split(' ').length / 150)),
-        badge: r.Threat_Level.toUpperCase() + ' THREAT',
-        meta: r.Executive_Summary || r.Title,
+        badge: (r.Topic || 'CXO Keynote').toUpperCase(),
+        meta: metaText,
         body: r.News_Body || 'No text extracted.',
-        source: r.RSS_Source || 'RSS Feed',
+        source: source,
         url: r.Article_URL || '#'
       });
     });
