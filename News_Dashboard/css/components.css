@@ -425,6 +425,18 @@
   border-color: var(--orange);
 }
 
+/* ── VIDEO MODAL & BRIEF SCROLL FIX ── */
+#video-modal {
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+}
+
+#video-modal-brief-body {
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
 /* Responsive Components layout */
 @media (max-width: 900px) {
   .stats-strip {
