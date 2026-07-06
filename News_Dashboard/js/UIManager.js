@@ -201,9 +201,9 @@ export class UIManager {
   }
   
   renderColumn(colData) {
-    const limit = 10;
-    const hasMore = colData.cards.length > limit;
-    const initialCards = colData.cards.slice(0, limit);
+    const initialCards = colData.cards.slice(0, 3);
+    const remainingCards = colData.cards.slice(3, 9); // Limit to max 6 additional news items
+    const hasMore = colData.cards.length > 3;
     
     const colId = `col-${colData.title.toLowerCase().replace(/[\s\W]+/g, '-')}`;
     this.columnCards[colId] = colData.cards;
@@ -215,11 +215,16 @@ export class UIManager {
       </div>
     ` : '';
     
-    const showMoreHtml = hasMore ? `
-      <div class="scroll-more" id="${colId}-more">
-        <button onclick="window.app.uiManager.showAllColumnCards('${colId}')">SHOW MORE</button>
-      </div>
-    ` : '';
+    let sliderHtml = '';
+    if (hasMore && remainingCards.length > 0) {
+      sliderHtml = `
+        <div class="scroll-more">
+          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnModal('${colId}')">
+            View ${remainingCards.length} More Alerts →
+          </button>
+        </div>
+      `;
+    }
     
     return `
       <div class="grid-col-inner">
@@ -238,7 +243,7 @@ export class UIManager {
           <div id="${colId}-cards">
             ${this.renderCardsList(initialCards)}
           </div>
-          ${showMoreHtml}
+          ${sliderHtml}
         </div>
       </div>
     `;
@@ -272,29 +277,14 @@ export class UIManager {
     return cardsArray.map(card => {
       const tagsHtml = card.tags.map(t => `<span class="tag ${this.tagClassMap[t] || 'tag-slate'}">${t}</span>`).join('');
       const logoSVG = getLogoSVG(card.company);
-      
-      // Determine priority styling based on tier
-      let cardClass = "flat-card";
-      let priorityBadge = "";
-      if (card.priorityTier === "Tier 1 - Critical") {
-        cardClass = "flat-card card-critical";
-        priorityBadge = `<span class="priority-badge-crit">🚨 CRITICAL (${card.criticalityScore} pts)</span>`;
-      } else if (card.priorityTier === "Tier 2 - High") {
-        cardClass = "flat-card card-high-priority";
-        priorityBadge = `<span class="priority-badge-hi">⚠️ HIGH (${card.criticalityScore} pts)</span>`;
-      }
-      
       return `
-        <div class="${cardClass}" onclick="window.app.uiManager.openDrawer(${card.id})">
+        <div class="flat-card" onclick="window.app.uiManager.openDrawer(${card.id})">
           <div class="flat-card-meta">
             <div class="flat-card-company">
               <div class="company-logo">${logoSVG}</div>
               <span class="company-name">${card.company}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              ${priorityBadge}
-              <span class="news-time">${card.time}</span>
-            </div>
+            <span class="news-time">${card.time}</span>
           </div>
           <div class="flat-card-headline">${card.title}</div>
           <div class="flat-card-footer">
@@ -441,10 +431,7 @@ export class UIManager {
     if (drawerComp) drawerComp.textContent = card.company;
     
     const drawerTime = document.getElementById('drawer-time');
-    if (drawerTime) {
-      const scoreTxt = card.criticalityScore ? ` | Score: ${card.criticalityScore} pts (${card.priorityTier})` : '';
-      drawerTime.textContent = `Published: ${card.time} | Source: ${card.source}${scoreTxt}`;
-    }
+    if (drawerTime) drawerTime.textContent = `Published: ${card.time} | Source: ${card.source}`;
     
     const drawerHeadline = document.getElementById('drawer-headline');
     if (drawerHeadline) drawerHeadline.textContent = card.title;
@@ -495,6 +482,53 @@ export class UIManager {
     overlay.style.opacity = '0';
     setTimeout(() => {
       overlay.style.display = 'none';
+    }, 300);
+  }
+
+  openColumnModal(colId) {
+    const cards = this.columnCards[colId];
+    if (!cards) return;
+    
+    const remainingCards = cards.slice(3, 9);
+    
+    const titleEl = document.getElementById('column-modal-title');
+    if (titleEl) {
+      const allCols = [
+        ...(this.brandData.overviewCols || []),
+        ...(this.brandData.growthCols || []),
+        ...(this.brandData.productCols || [])
+      ];
+      const match = allCols.find(c => `col-${c.title.toLowerCase().replace(/[\s\W]+/g, '-')}` === colId);
+      titleEl.textContent = match ? `MORE ${match.title.toUpperCase()}` : "MORE ALERTS";
+    }
+    
+    const cardsContainer = document.getElementById('column-modal-cards');
+    if (cardsContainer) {
+      cardsContainer.innerHTML = this.renderCardsList(remainingCards);
+    }
+    
+    const overlay = document.getElementById('column-modal-overlay');
+    const modal = document.getElementById('column-modal');
+    
+    overlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+      modal.style.opacity = '1';
+      modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 20);
+  }
+  
+  closeColumnModal() {
+    const overlay = document.getElementById('column-modal-overlay');
+    const modal = document.getElementById('column-modal');
+    
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -45%) scale(0.95)';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      modal.style.display = 'none';
     }, 300);
   }
   
@@ -641,6 +675,7 @@ export class UIManager {
     window.addEventListener('keydown', (e) => {
       if (e.key === 'Escape') {
         this.closeDrawer();
+        this.closeColumnModal();
         this.closeVideo();
         this.closeAdd();
       }
