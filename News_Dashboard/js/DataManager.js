@@ -44,11 +44,13 @@ export class DataManager {
   transformRowsToDashboardData(brandId, rows) {
     // Sort rows by Criticality_Score descending, then by Published_Date descending
     rows.sort((a, b) => {
+      // Sort by Criticality_Score descending
       const scoreA = Number(a.Criticality_Score) || 0;
       const scoreB = Number(b.Criticality_Score) || 0;
       if (scoreB !== scoreA) {
         return scoreB - scoreA;
       }
+      // Then by Published_Date descending
       const dateA = a.Published_Date ? new Date(a.Published_Date) : new Date(0);
       const dateB = b.Published_Date ? new Date(b.Published_Date) : new Date(0);
       return dateB - dateA;
