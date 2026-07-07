@@ -120,7 +120,7 @@ export class DataManager {
     // Get top topic (most frequent)
     const topicCounts = {};
     rows.forEach(r => {
-      const t = r.Topic || 'General Travel News';
+      const t = r.News_Category || 'General Industry News';
       topicCounts[t] = (topicCounts[t] || 0) + 1;
     });
     let topTheme = 'General Travel News';
@@ -148,14 +148,14 @@ export class DataManager {
         { label: "Top Strategic Theme", value: topTheme, change: "", sub: "Dominant discussion topic" }
       ],
       'growth-marketing': [
-        { label: "Partnerships Tracked", value: rows.filter(r => r.Topic === 'Partnership').length.toString(), change: "", sub: "Joint venture & alliance moves" },
-        { label: "M&A Activity", value: rows.filter(r => r.Topic === 'M&A').length.toString(), change: "", sub: "Acquisitions & consolidations" },
+        { label: "Partnerships Tracked", value: rows.filter(r => r.News_Category === 'Partnership and Acquisitions').length.toString(), change: "", sub: "Joint venture & alliance moves" },
+        { label: "Funding & Capital", value: rows.filter(r => r.News_Category === 'Funding').length.toString(), change: "", sub: "Acquisitions & consolidations" },
         { label: "Positive Sentiment Impact", value: `${posPercent}%`, change: "", sub: "High positive competitor press" },
         { label: "Negative Sentiment Vulnerability", value: `${negPercent}%`, change: "", sub: "Under-performing competitors" }
       ],
       'product-strategy': [
-        { label: "Product Launches", value: rows.filter(r => r.Topic === 'Product Launch').length.toString(), change: "", sub: "Digital features & API releases" },
-        { label: "Restructuring Moves", value: rows.filter(r => r.Topic === 'Restructuring & Finance').length.toString(), change: "", sub: "Liquidity & corporate stress" },
+        { label: "Product Launches", value: rows.filter(r => r.News_Category === 'Product Announcement').length.toString(), change: "", sub: "Digital features & API releases" },
+        { label: "Strategic Shifts", value: rows.filter(r => r.News_Category === 'Strategic Expansion or Changes').length.toString(), change: "", sub: "Liquidity & corporate stress" },
         { label: "Low Threat Alerts", value: lowThreatCount.toString(), change: "", sub: "Standard industry updates" },
         { label: "Dominant Market Outlook", value: posCount >= negCount ? "Positive Growth" : "Market Correction", change: "", sub: "Overall sentiment direction" }
       ]
@@ -204,8 +204,8 @@ export class DataManager {
     ];
     
     // Growth tab
-    const growth1Cards = rows.filter(r => ['M&A', 'Funding', 'Restructuring & Finance'].includes(r.Topic)).map(r => this.mapRowToCard(r));
-    const growth2Cards = rows.filter(r => ['Partnership', 'Regulatory & Legal', 'Executive Move'].includes(r.Topic)).map(r => this.mapRowToCard(r));
+    const growth1Cards = rows.filter(r => ['Funding', 'Strategic Expansion or Changes'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
+    const growth2Cards = rows.filter(r => ['Partnership and Acquisitions', 'Leadership Changes'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
     
     const growthCols = [
       {
@@ -227,8 +227,8 @@ export class DataManager {
     ];
     
     // Product Strategy tab
-    const prod1Cards = rows.filter(r => r.Topic === 'Product Launch').map(r => this.mapRowToCard(r));
-    const prod2Cards = rows.filter(r => ['General Travel News', 'General Industry News', 'General'].includes(r.Topic) || !r.Topic).map(r => this.mapRowToCard(r));
+    const prod1Cards = rows.filter(r => ['Product Announcement', 'Tech Updates'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
+    const prod2Cards = rows.filter(r => ['General Industry News', 'General'].includes(r.News_Category) || !r.News_Category).map(r => this.mapRowToCard(r));
     
     const productCols = [
       {
@@ -257,14 +257,14 @@ export class DataManager {
       overviewInsights.push("No strategic insights available in this dataset. Run scraper to pull updates.");
     }
     
-    const growthInsights = rows.filter(r => ['M&A', 'Partnership', 'Funding'].includes(r.Topic)).slice(0, 2).map(r => {
+    const growthInsights = rows.filter(r => ['Partnership and Acquisitions', 'Funding'].includes(r.News_Category)).slice(0, 2).map(r => {
       return `<strong>${r.Competitor}:</strong> ${r.Strategic_Implication || r.Title}`;
     });
     if (growthInsights.length === 0) {
       growthInsights.push("Standard corporate volumes recorded. No high impact alliances reported.");
     }
     
-    const productInsights = rows.filter(r => r.Topic === 'Product Launch').slice(0, 2).map(r => {
+    const productInsights = rows.filter(r => r.News_Category === 'Product Announcement').slice(0, 2).map(r => {
       return `<strong>${r.Competitor}:</strong> ${r.Competitor_Action || r.Title}`;
     });
     if (productInsights.length === 0) {
@@ -282,12 +282,12 @@ export class DataManager {
       const title = (r.Title || '').toLowerCase();
       const url = (r.Article_URL || '').toLowerCase();
       const body = (r.News_Body || '').toLowerCase();
-      const topic = (r.Topic || '').toLowerCase();
+      const category = (r.News_Category || '').toLowerCase();
       
       return title.includes('keynote') || title.includes('interview') || title.includes('presentation') || 
              title.includes('earnings call') || title.includes('podcast') || title.includes('cxo') ||
              url.includes('youtube.com') || url.includes('/video/') || url.includes('vimeo.com') ||
-             topic.includes('executive');
+             category.includes('leadership');
     }).slice(0, 3);
     
     // Fallback to high/medium threat strategic briefs if no specific keynotes are found
@@ -309,7 +309,7 @@ export class DataManager {
         company: (r.Competitor || 'Market').split(',')[0].trim(),
         title: r.Title,
         duration: Math.max(2, Math.round((r.News_Body || '').split(' ').length / 150)),
-        badge: (r.Topic || 'CXO Keynote').toUpperCase(),
+        badge: (r.News_Category || 'CXO Keynote').toUpperCase(),
         meta: metaText,
         body: r.News_Body || 'No text extracted.',
         source: source,
@@ -351,7 +351,7 @@ export class DataManager {
   }
   
   mapRowToCard(r) {
-    const topic = r.Topic || 'General';
+    const topic = r.News_Category || 'General Industry News';
     const sentiment = r.Sentiment || 'Neutral';
     const threat = r.Threat_Level || 'Low';
     

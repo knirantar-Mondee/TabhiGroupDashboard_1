@@ -15,7 +15,7 @@ from src.keyword_matcher import KeywordMatcher
 from src.deduplicator import Deduplicator
 from src.article_scraper import scrape_articles_parallel
 from src.ai_placeholders import (
-    TopicClassifier, SentimentAnalyzer, IntelligenceEngine, ExecutiveSummaryGenerator
+    SentimentAnalyzer, ExecutiveSummaryGenerator
 )
 
 def run_pipeline():
@@ -156,9 +156,7 @@ def run_pipeline():
     
     # 8. Enrich with AI Features (Topic, Sentiment, Threat Level, Actions, Summary)
     logger.info("Enriching articles with AI intelligence classification...")
-    topic_classifier = TopicClassifier()
     sentiment_analyzer = SentimentAnalyzer()
-    intel_engine = IntelligenceEngine()
     summary_gen = ExecutiveSummaryGenerator()
     
     enriched_articles = []
@@ -167,19 +165,13 @@ def run_pipeline():
         title = art.get("Title", "")
         comp = art.get("Competitor", "")
         
-        # 1. Topic
-        topic = topic_classifier.classify(body)
-        art["Topic"] = topic
+
         
         # 2. Sentiment
         sentiment = sentiment_analyzer.analyze(body, comp)
         art["Sentiment"] = sentiment
         
-        # 3. Insights (Threat Level, Action, Strategic Implication)
-        insights = intel_engine.extract_insights(art)
-        art["Threat_Level"] = insights["threat_level"]
-        art["Competitor_Action"] = insights["competitor_action"]
-        art["Strategic_Implication"] = insights["strategic_implication"]
+
         
         # 4. Executive Summary of Article
         summary = summary_gen.generate_article_summary(title, body)
