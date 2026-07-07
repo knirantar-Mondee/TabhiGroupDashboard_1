@@ -14,9 +14,7 @@ from src.rss_reader import aggregate_all_feeds
 from src.keyword_matcher import KeywordMatcher
 from src.deduplicator import Deduplicator
 from src.article_scraper import scrape_articles_parallel
-from src.ai_placeholders import (
-    SentimentAnalyzer, ExecutiveSummaryGenerator
-)
+from src.ai_placeholders import ExecutiveSummaryGenerator
 
 def run_pipeline():
     logger.info("=========================================")
@@ -156,7 +154,6 @@ def run_pipeline():
     
     # 8. Enrich with AI Features (Topic, Sentiment, Threat Level, Actions, Summary)
     logger.info("Enriching articles with AI intelligence classification...")
-    sentiment_analyzer = SentimentAnalyzer()
     summary_gen = ExecutiveSummaryGenerator()
     
     enriched_articles = []
@@ -167,9 +164,8 @@ def run_pipeline():
         
 
         
-        # 2. Sentiment
-        sentiment = sentiment_analyzer.analyze(body, comp)
-        art["Sentiment"] = sentiment
+        # 2. Sentiment (Left blank for LLM to fill)
+        art["Sentiment"] = ""
         
 
         

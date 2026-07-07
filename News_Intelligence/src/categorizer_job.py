@@ -11,6 +11,9 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from config.settings import OUTPUT_DIR
 from src.utils import logger
+from src.rubric_scorer import RubricScorer
+import json
+import re
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"))
@@ -22,17 +25,15 @@ client = OpenAI(
 )
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-oss:20b-cloud")
 
-SYSTEM_PROMPT = """You are an intelligence analyst. Read the following news article and categorize it into EXACTLY ONE of the following buckets:
+def get_dynamic_prompt(categories_list):
+    categories_str = "\n".join(categories_list)
+    return f"""You are an intelligence analyst. Read the following news article and categorize it into EXACTLY ONE of the following buckets:
 
-Product Announcement
-Tech Updates
-Funding
-Partnership and Acquisitions
-Leadership Changes
-Strategic Expansion or Changes
-General Industry News
+{categories_str}
 
-Return ONLY the category name, with no extra text."""
+Also determine the sentiment of the article as one of: Positive, Negative, or Neutral.
+Return ONLY a valid JSON object in this exact format:
+{{"category": "Funding", "sentiment": "Positive"}}"""
 
 class IntelligenceEngine:
     """Identifies key competitive actions, threat level, and strategic implications based on LLM category."""
@@ -85,33 +86,50 @@ class IntelligenceEngine:
         }
 
 
-def categorize_article(title, body):
+def categorize_article(title, body, scorer):
     text = f"Title: {title}\n\nBody: {body}"
+    categories = scorer.get_dynamic_categories()
+    prompt = get_dynamic_prompt(categories)
+    
     try:
         response = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": prompt},
                 {"role": "user", "content": text[:3000]} # Limit text length to avoid token limits
             ],
             temperature=0.1
         )
-        category = response.choices[0].message.content.strip()
+        content = response.choices[0].message.content.strip()
+        
+        # Clean markdown tags if present
+        if content.startswith("```json"):
+            content = content[7:]
+        if content.startswith("```"):
+            content = content[3:]
+        if content.endswith("```"):
+            content = content[:-3]
+        content = content.strip()
+        
+        data = json.loads(content)
+        category = data.get("category", "General Industry News")
+        sentiment = data.get("sentiment", "Neutral")
         
         # Validate category
-        valid_categories = [
-            "Product Announcement", "Tech Updates", "Funding", 
-            "Partnership and Acquisitions", "Leadership Changes", 
-            "Strategic Expansion or Changes", "General Industry News"
-        ]
-        for valid in valid_categories:
+        valid_found = False
+        for valid in categories:
             if valid.lower() in category.lower():
-                return valid
-        return "General Industry News"
+                category = valid
+                valid_found = True
+                break
+        if not valid_found:
+            category = "General Industry News"
+            
+        return category, sentiment
         
     except Exception as e:
-        logger.error(f"Error calling LLM: {e}")
-        return "General Industry News"
+        logger.error(f"Error calling LLM or parsing JSON: {e}")
+        return "General Industry News", "Neutral"
 
 def run_categorization():
     logger.info("=========================================")
@@ -119,6 +137,7 @@ def run_categorization():
     logger.info("=========================================")
     
     intel_engine = IntelligenceEngine()
+    scorer = RubricScorer()
     db_pattern = os.path.join(OUTPUT_DIR, "raw_news_database_*.xlsx")
     db_files = glob.glob(db_pattern)
     
@@ -147,6 +166,18 @@ def run_categorization():
                 comp_idx = header_list.index("Competitor")
                 sent_idx = header_list.index("Sentiment")
                 target_idx = header_list.index("Target_Brand")
+                pub_idx = header_list.index("Published_Date")
+                
+                # Check for new columns, create if missing
+                if "Criticality_Score" not in header_list:
+                    ws.cell(row=1, column=len(header_list) + 1).value = "Criticality_Score"
+                    header_list.append("Criticality_Score")
+                if "UI_Tab_Mapping" not in header_list:
+                    ws.cell(row=1, column=len(header_list) + 1).value = "UI_Tab_Mapping"
+                    header_list.append("UI_Tab_Mapping")
+                    
+                crit_idx = header_list.index("Criticality_Score")
+                ui_idx = header_list.index("UI_Tab_Mapping")
                 
                 threat_idx = header_list.index("Threat_Level")
                 action_idx = header_list.index("Competitor_Action")
@@ -169,17 +200,32 @@ def run_categorization():
                         continue
                         
                     logger.info(f"Categorizing article: {title[:50]}...")
-                    category = categorize_article(title, body)
+                    category, sentiment = categorize_article(title, body, scorer)
                     
-                    # Update category cell
+                    # Update category and sentiment cells
                     row[cat_idx].value = category
+                    row[sent_idx].value = sentiment
+                    
+                    competitor = row[comp_idx].value or ""
+                    target_brand = row[target_idx].value or "Miraee"
+                    pub_date = row[pub_idx].value
+                    
+                    is_own_brand = any(b.lower() in competitor.lower() for b in ["mondee", "miraee", "abhee", "abhi"])
+                    
+                    # Calculate Rubric Score
+                    crit_score = scorer.calculate_score(category, sentiment, title, competitor, pub_date, is_own_brand)
+                    row[crit_idx].value = crit_score
+                    
+                    # Calculate UI Tab Mapping
+                    ui_tab = scorer.get_ui_mapping(category)
+                    row[ui_idx].value = ui_tab
                     
                     # Run Intelligence Engine
                     art_dict = {
                         "News_Category": category,
-                        "Competitor": row[comp_idx].value,
-                        "Sentiment": row[sent_idx].value,
-                        "Target_Brand": row[target_idx].value
+                        "Competitor": competitor,
+                        "Sentiment": sentiment,
+                        "Target_Brand": target_brand
                     }
                     insights = intel_engine.extract_insights(art_dict)
                     

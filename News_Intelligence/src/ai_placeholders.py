@@ -3,28 +3,7 @@ from src.utils import logger
 
 
 
-class SentimentAnalyzer:
-    """Analyzes sentiment of article body content relative to competitors."""
-    def __init__(self):
-        logger.debug("SentimentAnalyzer initialized")
-
-    def analyze(self, text, competitor):
-        text_lower = text.lower() if text else ""
-        if not text_lower:
-            return "Neutral"
-            
-        positive_words = ["growth", "success", "profit", "win", "expand", "expansion", "partnership", "gain", "strengthen", "boost", "innovation", "innovative", "growing", "positive", "valuable", "leader"]
-        negative_words = ["bankruptcy", "chapter 11", "fail", "decline", "drop", "lawsuit", "debt", "restructuring", "loss", "layoff", "fired", "sued", "struggle", "negative", "warns"]
-        
-        pos_count = sum(1 for w in positive_words if w in text_lower)
-        neg_count = sum(1 for w in negative_words if w in text_lower)
-        
-        if pos_count > neg_count:
-            return "Positive"
-        elif neg_count > pos_count:
-            return "Negative"
-        else:
-            return "Neutral"
+# SentimentAnalyzer has been removed. Sentiment is now calculated by LLM in categorizer_job.py
 
 
 

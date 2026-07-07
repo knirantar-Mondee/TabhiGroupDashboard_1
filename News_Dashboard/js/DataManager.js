@@ -203,10 +203,10 @@ export class DataManager {
       }
     ];
     
-    // Growth tab
-    const growth1Cards = rows.filter(r => ['Funding', 'Strategic Expansion or Changes'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
-    const growth2Cards = rows.filter(r => ['Partnership and Acquisitions', 'Leadership Changes'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
-    
+    // Growth tab (Dynamically routed via UI_Tab_Mapping)
+    const growthRows = rows.filter(r => r.UI_Tab_Mapping === 'Growth');
+    const growth1Cards = growthRows.slice(0, Math.ceil(growthRows.length / 2)).map(r => this.mapRowToCard(r));
+    const growth2Cards = growthRows.slice(Math.ceil(growthRows.length / 2)).map(r => this.mapRowToCard(r));
     const growthCols = [
       {
         title: "Funding & Corporate Restructure",
@@ -226,10 +226,10 @@ export class DataManager {
       }
     ];
     
-    // Product Strategy tab
-    const prod1Cards = rows.filter(r => ['Product Announcement', 'Tech Updates'].includes(r.News_Category)).map(r => this.mapRowToCard(r));
-    const prod2Cards = rows.filter(r => ['General Industry News', 'General'].includes(r.News_Category) || !r.News_Category).map(r => this.mapRowToCard(r));
-    
+    // Product Strategy tab (Dynamically routed via UI_Tab_Mapping)
+    const prodRows = rows.filter(r => r.UI_Tab_Mapping === 'Product');
+    const prod1Cards = prodRows.slice(0, Math.ceil(prodRows.length / 2)).map(r => this.mapRowToCard(r));
+    const prod2Cards = prodRows.slice(Math.ceil(prodRows.length / 2)).map(r => this.mapRowToCard(r));
     const productCols = [
       {
         title: "Feature Releases & Tech Launches",
