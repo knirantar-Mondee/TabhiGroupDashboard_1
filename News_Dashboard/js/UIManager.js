@@ -72,6 +72,7 @@ export class UIManager {
     this.columnCards = {};
     this.initClock();
     this.bindGlobalEvents();
+    this.activeFilter = 'ALL';
   }
   
   showLoading() {
@@ -108,34 +109,48 @@ export class UIManager {
   
   renderBrandDashboard(brandId, brandData) {
     this.activeBrand = brandId;
-    this.brandData = brandData;
+    const filter = this.activeFilter || 'ALL';
+    this.brandData = this.app.dataManager.filterBrandData(brandId, filter);
+    const useBrandData = this.brandData;
     
     // Update header logo & titles
     const headerMark = document.getElementById('header-brand-logo-mark');
     if (headerMark) headerMark.innerHTML = getLogoSVG(brandId);
     
     const activeTitle = document.getElementById('active-brand-title');
-    if (activeTitle) activeTitle.textContent = brandData.title;
+    if (activeTitle) activeTitle.textContent = useBrandData.title;
     
     const badgeTxt = document.getElementById('header-badge-txt');
-    if (badgeTxt) badgeTxt.textContent = brandData.headerBadge;
+    if (badgeTxt) badgeTxt.textContent = useBrandData.headerBadge;
     
     const heroTitle = document.getElementById('hero-title');
-    if (heroTitle) heroTitle.textContent = brandData.heroTitle;
+    if (heroTitle) heroTitle.textContent = useBrandData.heroTitle;
     
     const heroDesc = document.getElementById('hero-description');
-    if (heroDesc) heroDesc.textContent = brandData.heroDesc;
+    if (heroDesc) heroDesc.textContent = useBrandData.heroDesc;
     
     const footerTxt = document.getElementById('footer-left-txt');
-    if (footerTxt) footerTxt.textContent = brandData.footerLeft;
+    if (footerTxt) footerTxt.textContent = useBrandData.footerLeft;
     
     // Render dynamic ticker
-    this.renderTicker(brandData.ticker);
+    this.renderTicker(useBrandData.ticker);
+    
+    // Make sure correct filter chip is active in UI
+    const filterRow = document.querySelector('.filter-row');
+    if (filterRow) {
+      filterRow.querySelectorAll('.filter-chip').forEach(chip => {
+        if (chip.textContent.trim() === filter) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
     
     // Render tab views
-    this.renderOverviewTab(brandData);
-    this.renderGrowthTab(brandData);
-    this.renderProductTab(brandData);
+    this.renderOverviewTab(useBrandData);
+    this.renderGrowthTab(useBrandData);
+    this.renderProductTab(useBrandData);
     
     // Transition Portal -> Dashboard
     const portal = document.getElementById('portal-view');
@@ -200,9 +215,10 @@ export class UIManager {
     }).join('');
   }
   
-  renderColumn(colData) {
+  renderColumn(colData, isOverview) {
+    const maxItems = isOverview ? 24 : 48;
     const initialCards = colData.cards.slice(0, 3);
-    const remainingCards = colData.cards.slice(3, 9); // Limit to max 6 additional news items
+    const remainingCards = colData.cards.slice(3, maxItems);
     const hasMore = colData.cards.length > 3;
     
     const colId = `col-${colData.title.toLowerCase().replace(/[\s\W]+/g, '-')}`;
@@ -219,7 +235,7 @@ export class UIManager {
     if (hasMore && remainingCards.length > 0) {
       sliderHtml = `
         <div class="scroll-more">
-          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnModal('${colId}')">
+          <button class="slider-drawer-btn" onclick="window.app.uiManager.openColumnModal('${colId}', ${isOverview})">
             View ${remainingCards.length} More Alerts →
           </button>
         </div>
@@ -299,7 +315,7 @@ export class UIManager {
   renderOverviewTab(brandData) {
     const grid = document.getElementById('overview-grid');
     if (grid && brandData.overviewCols) {
-      grid.innerHTML = brandData.overviewCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.overviewCols.map(col => this.renderColumn(col, true)).join('');
     }
     
     // Stats strip
@@ -356,7 +372,7 @@ export class UIManager {
   renderGrowthTab(brandData) {
     const grid = document.getElementById('growth-grid');
     if (grid && brandData.growthCols) {
-      grid.innerHTML = brandData.growthCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.growthCols.map(col => this.renderColumn(col, false)).join('');
     }
     this.renderStats(brandData.stats['growth-marketing'], 'growth-stats');
     
@@ -369,7 +385,7 @@ export class UIManager {
   renderProductTab(brandData) {
     const grid = document.getElementById('product-grid');
     if (grid && brandData.productCols) {
-      grid.innerHTML = brandData.productCols.map(col => this.renderColumn(col)).join('');
+      grid.innerHTML = brandData.productCols.map(col => this.renderColumn(col, false)).join('');
     }
     this.renderStats(brandData.stats['product-strategy'], 'product-stats');
     
@@ -485,11 +501,12 @@ export class UIManager {
     }, 300);
   }
 
-  openColumnModal(colId) {
+  openColumnModal(colId, isOverview) {
     const cards = this.columnCards[colId];
     if (!cards) return;
     
-    const remainingCards = cards.slice(3, 9);
+    const maxItems = isOverview ? 24 : 48;
+    const remainingCards = cards.slice(3, maxItems);
     
     const titleEl = document.getElementById('column-modal-title');
     if (titleEl) {
@@ -670,6 +687,39 @@ export class UIManager {
     setInterval(updateTime, 1000);
   }
   
+  setFilter(filterType) {
+    this.activeFilter = filterType;
+    
+    // Update active filter chip classes
+    const filterRow = document.querySelector('.filter-row');
+    if (filterRow) {
+      filterRow.querySelectorAll('.filter-chip').forEach(chip => {
+        if (chip.textContent.trim() === filterType) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
+    
+    if (this.activeBrand) {
+      const brandData = this.app.dataManager.filterBrandData(this.activeBrand, filterType);
+      this.brandData = brandData;
+      
+      this.renderOverviewTab(brandData);
+      this.renderGrowthTab(brandData);
+      this.renderProductTab(brandData);
+      
+      const filterLabelMap = {
+        'ALL': 'ALL HISTORICAL ALERTS',
+        'TODAY': 'TODAY\'S RE-SCORED NEWS',
+        '7D': '7-DAY TRENDS & DECAYED ALERTS',
+        '30D': '30-DAY COMPETITIVE SIGNALS'
+      };
+      this.showToast(`FILTERED BY: ${filterLabelMap[filterType] || filterType}`);
+    }
+  }
+
   bindGlobalEvents() {
     // Esc key support to close open items
     window.addEventListener('keydown', (e) => {

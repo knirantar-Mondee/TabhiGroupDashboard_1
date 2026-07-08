@@ -133,10 +133,10 @@
           <p id="hero-description">GDS, wholesale consolidators, agency OTAs, and direct supplier portals competing with Mondee</p>
         </div>
         <div class="filter-row">
-          <div class="filter-chip active">ALL</div>
-          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR LATEST SCRAPED ALERTS')">TODAY</div>
-          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR PAST 7 DAYS')">7D</div>
-          <div class="filter-chip" onclick="window.app.uiManager.showToast('FILTERING FOR PAST 30 DAYS')">30D</div>
+          <div class="filter-chip active" onclick="window.app.uiManager.setFilter('ALL')">ALL</div>
+          <div class="filter-chip" onclick="window.app.uiManager.setFilter('TODAY')">TODAY</div>
+          <div class="filter-chip" onclick="window.app.uiManager.setFilter('7D')">7D</div>
+          <div class="filter-chip" onclick="window.app.uiManager.setFilter('30D')">30D</div>
         </div>
       </div>
 

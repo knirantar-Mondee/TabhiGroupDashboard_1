@@ -6,8 +6,15 @@ export class DataManager {
   }
   
   async loadAllBrandsData() {
+    this.rawJsonData = {};
     for (const brand of this.brands) {
-      this.data[brand] = await this.loadBrandExcel(brand);
+      const rows = await this.loadBrandExcel(brand);
+      this.rawJsonData[brand] = rows;
+      if (rows && rows.length > 0) {
+        this.data[brand] = this.transformRowsToDashboardData(brand, rows, 'ALL');
+      } else {
+        this.data[brand] = this.getEmptyBrandDataset(brand);
+      }
     }
   }
   
@@ -31,26 +38,40 @@ export class DataManager {
       
       const sheetName = workbook.SheetNames.includes("Raw_News") ? "Raw_News" : workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-      
-      return this.transformRowsToDashboardData(brandId, jsonData);
+      return XLSX.utils.sheet_to_json(worksheet);
     } catch (err) {
       console.error(`Error loading database for brand ${brandId}:`, err);
-      // Return a structured empty dataset so the UI doesn't crash
-      return this.getEmptyBrandDataset(brandId);
+      return [];
     }
   }
   
-  transformRowsToDashboardData(brandId, rows) {
+  transformRowsToDashboardData(brandId, rows, filterType = 'ALL') {
+    // Clone and score
+    const scoredRows = rows.map(r => {
+      const cloned = { ...r };
+      const { score, daysOld } = this.calculateDecayedScore(r, filterType);
+      cloned.Criticality_Score = score;
+      cloned.computedDaysOld = daysOld;
+      return cloned;
+    });
+    
+    // Filter by age
+    let filteredRows = scoredRows;
+    if (filterType === 'TODAY') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 1);
+    } else if (filterType === '7D') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 7);
+    } else if (filterType === '30D') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 30);
+    }
+    
     // Sort rows by Criticality_Score descending, then by Published_Date descending
-    rows.sort((a, b) => {
-      // Sort by Criticality_Score descending
+    filteredRows.sort((a, b) => {
       const scoreA = Number(a.Criticality_Score) || 0;
       const scoreB = Number(b.Criticality_Score) || 0;
       if (scoreB !== scoreA) {
         return scoreB - scoreA;
       }
-      // Then by Published_Date descending
       const dateA = a.Published_Date ? new Date(a.Published_Date) : new Date(0);
       const dateB = b.Published_Date ? new Date(b.Published_Date) : new Date(0);
       return dateB - dateA;
@@ -61,7 +82,7 @@ export class DataManager {
     const seenUrls = new Set();
     const seenTitles = new Set();
     
-    rows.forEach(r => {
+    filteredRows.forEach(r => {
       const rawUrl = r.Article_URL ? r.Article_URL.trim().toLowerCase() : "";
       const rawTitle = r.Title ? r.Title.trim().toLowerCase() : "";
       
@@ -417,5 +438,70 @@ export class DataManager {
     } catch(e) {
       return false;
     }
+  }
+
+  calculateDecayedScore(r, filterType) {
+    const critScore = Number(r.Criticality_Score) || 0;
+    const pubDateStr = r.Published_Date;
+    const scrapeDateStr = r.Scrape_Date;
+    
+    if (!pubDateStr || !scrapeDateStr) return { score: critScore, daysOld: 0 };
+    
+    const pubDate = new Date(pubDateStr);
+    const scrapeDate = new Date(scrapeDateStr);
+    const now = new Date();
+    
+    // 1. Calculate age at scrape time (in days) to find the original decay multiplier used
+    const diffScrapeMs = scrapeDate - pubDate;
+    const scrapeDaysOld = Math.max(0, diffScrapeMs / (1000 * 60 * 60 * 24));
+    
+    let origMultiplier = 1.0;
+    if (scrapeDaysOld >= 365) origMultiplier = 0.0;
+    else if (scrapeDaysOld >= 30) origMultiplier = 0.2;
+    else if (scrapeDaysOld >= 14) origMultiplier = 0.5;
+    else if (scrapeDaysOld >= 7) origMultiplier = 0.8;
+    else if (scrapeDaysOld >= 3) origMultiplier = 1.0;
+    else if (scrapeDaysOld >= 1) origMultiplier = 1.2;
+    else origMultiplier = 1.5;
+    
+    // 2. Back out the base score
+    const baseScore = origMultiplier > 0 ? Math.round(critScore / origMultiplier) : critScore;
+    
+    // 3. Calculate current age (relative to right now) in days and hours
+    const diffNowMs = now - pubDate;
+    const daysOld = Math.max(0, diffNowMs / (1000 * 60 * 60 * 24));
+    const hoursOld = Math.max(0, diffNowMs / (1000 * 60 * 60));
+    
+    // 4. Calculate new multiplier based on active filterType
+    let newMultiplier = 1.0;
+    if (filterType === 'TODAY') {
+      newMultiplier = hoursOld <= 24 ? 1.5 - (hoursOld / 24.0) * 1.0 : 0.0;
+    } else if (filterType === '7D') {
+      newMultiplier = daysOld <= 7 ? 1.5 - (daysOld / 7.0) * 1.3 : 0.0;
+    } else if (filterType === '30D') {
+      newMultiplier = daysOld <= 30 ? 1.5 - (daysOld / 30.0) * 1.4 : 0.0;
+    } else {
+      // ALL
+      if (daysOld >= 365) newMultiplier = 0.0;
+      else if (daysOld >= 30) newMultiplier = 0.2;
+      else if (daysOld >= 14) newMultiplier = 0.5;
+      else if (daysOld >= 7) newMultiplier = 0.8;
+      else if (daysOld >= 3) newMultiplier = 1.0;
+      else if (daysOld >= 1) newMultiplier = 1.2;
+      else newMultiplier = 1.5;
+    }
+    
+    return {
+      score: Math.min(100, Math.round(baseScore * newMultiplier)),
+      daysOld: daysOld
+    };
+  }
+
+  filterBrandData(brandId, filterType) {
+    const rows = this.rawJsonData[brandId];
+    if (!rows || rows.length === 0) {
+      return this.getEmptyBrandDataset(brandId);
+    }
+    return this.transformRowsToDashboardData(brandId, rows, filterType);
   }
 }
