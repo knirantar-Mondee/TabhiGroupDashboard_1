@@ -3,6 +3,7 @@ import sys
 import glob
 import pandas as pd
 import openpyxl
+from datetime import datetime
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -131,6 +132,172 @@ def categorize_article(title, body, scorer):
         logger.error(f"Error calling LLM or parsing JSON: {e}")
         return "General Industry News", "Neutral"
 
+def get_insights_prompt(brand, filter_type, tab, articles_text):
+    tab_focus = {
+        "overview": "general corporate threats, strategic competitor movements, and general market developments",
+        "growth-marketing": "alliances, joint ventures, funding rounds, capital raises, and corporate restructuring",
+        "product-strategy": "product launches, digital releases, feature updates, and technology advancements"
+    }[tab]
+    
+    brand_label = brand.upper()
+    
+    return f"""You are the Chief Strategy Officer advising the CEO of {brand_label}.
+Review the following list of competitor news events from the past {filter_type} relating to {tab_focus}:
+
+{articles_text}
+
+Based on these specific events, write EXACTLY 3 highly actionable, distinct next-step recommendations for our CEO to counter these movements or exploit market opportunities. 
+Each recommendation MUST:
+1. Be specific to the news presented (do not give generic business advice).
+2. Propose a concrete action {brand_label} should take next.
+3. Be concise and professional (maximum 2 sentences per recommendation).
+
+Return your response ONLY as a JSON list of strings, like this:
+["Recommendation 1...", "Recommendation 2...", "Recommendation 3..."]"""
+
+def generate_ceo_insights(db_file, brand, scorer):
+    logger.info(f"Generating synthesized CEO insights for {brand}...")
+    try:
+        wb = openpyxl.load_workbook(db_file)
+        ws = wb["Raw_News"]
+        
+        # Read worksheet into list of dicts
+        header_list = [cell.value for cell in ws[1]]
+        rows = []
+        for row in ws.iter_rows(min_row=2, values_only=True):
+            if any(row):
+                rows.append(dict(zip(header_list, row)))
+        
+        now = datetime.now()
+        
+        def get_days_old(pub_date):
+            if not pub_date:
+                return 9999
+            try:
+                if isinstance(pub_date, str):
+                    from dateutil import parser
+                    d = parser.parse(pub_date, fuzzy=True).replace(tzinfo=None)
+                else:
+                    d = pub_date.replace(tzinfo=None)
+                return max(0, (now - d).days)
+            except Exception:
+                return 9999
+        
+        # Precompute computed days old
+        for r in rows:
+            r["computed_days_old"] = get_days_old(r.get("Published_Date"))
+            
+        timeframes = {
+            "TODAY": [r for r in rows if r["computed_days_old"] <= 1],
+            "7D": [r for r in rows if r["computed_days_old"] <= 7],
+            "30D": [r for r in rows if r["computed_days_old"] <= 30],
+            "ALL": rows
+        }
+        
+        fallbacks = {
+            "overview": [
+                "Market conditions are currently stable.",
+                "No high-priority competitor moves detected in this timeframe.",
+                "Continue tracking standard sector intelligence."
+            ],
+            "growth-marketing": [
+                "No competitor partnerships or alliances reported.",
+                "Venture funding and capital movements are currently quiet.",
+                "Monitor standard press channels for upcoming deals."
+            ],
+            "product-strategy": [
+                "No competitor product launches or API releases cataloged.",
+                "Digital feature velocity remains normal.",
+                "Continue monitoring competitor release notes."
+            ]
+        }
+        
+        all_results = []
+        
+        for filter_type, tf_rows in timeframes.items():
+            for tab in ["overview", "growth-marketing", "product-strategy"]:
+                # Filter rows by tab categories
+                if tab == "overview":
+                    tab_rows = tf_rows
+                elif tab == "growth-marketing":
+                    tab_rows = [r for r in tf_rows if r.get("News_Category") in ["Partnership and Acquisitions", "Funding"]]
+                else: # product-strategy
+                    tab_rows = [r for r in tf_rows if r.get("News_Category") in ["Product Announcement"]]
+                
+                # Sort by score descending and limit to top 10
+                tab_rows = sorted(tab_rows, key=lambda x: int(x.get("Criticality_Score") or 0), reverse=True)[:10]
+                
+                # Avoid calling LLM if no news is present
+                if not tab_rows:
+                    insights = fallbacks[tab]
+                    logger.info(f"Skipping LLM for {brand} - {filter_type} - {tab} (0 articles). Using fallback.")
+                else:
+                    # Format articles text
+                    articles_text_list = []
+                    for r in tab_rows:
+                        comp = r.get("Competitor") or "Unknown"
+                        title = r.get("Title") or "No Title"
+                        cat = r.get("News_Category") or "General"
+                        sent = r.get("Sentiment") or "Neutral"
+                        score = r.get("Criticality_Score") or 0
+                        articles_text_list.append(f"- [{comp}] {title} (Category: {cat}, Sentiment: {sent}, Criticality: {score})")
+                    
+                    articles_text = "\n".join(articles_text_list)
+                    prompt = get_insights_prompt(brand, filter_type, tab, articles_text)
+                    
+                    try:
+                        response = client.chat.completions.create(
+                            model=MODEL_NAME,
+                            messages=[
+                                {"role": "system", "content": prompt}
+                            ],
+                            temperature=0.1
+                        )
+                        content = response.choices[0].message.content.strip()
+                        
+                        # Clean json wrapping
+                        if content.startswith("```json"):
+                            content = content[7:]
+                        if content.startswith("```"):
+                            content = content[3:]
+                        if content.endswith("```"):
+                            content = content[:-3]
+                        content = content.strip()
+                        
+                        bullets = json.loads(content)
+                        if isinstance(bullets, list) and len(bullets) >= 3:
+                            insights = bullets[:3]
+                        else:
+                            raise ValueError("Invalid format from LLM")
+                    except Exception as e:
+                        logger.error(f"Error generating LLM insights for {brand} {filter_type} {tab}: {e}")
+                        bullets = re.findall(r'"([^"]+)"', content) if 'content' in locals() else []
+                        if len(bullets) >= 3:
+                            insights = bullets[:3]
+                        else:
+                            insights = fallbacks[tab]
+                
+                # We save exactly 3 insights (pad with empty strings if necessary)
+                ins1 = insights[0] if len(insights) > 0 else ""
+                ins2 = insights[1] if len(insights) > 1 else ""
+                ins3 = insights[2] if len(insights) > 2 else ""
+                all_results.append([filter_type, tab, ins1, ins2, ins3])
+        
+        # Overwrite the sheet entirely
+        if "CEO_Insights" in wb.sheetnames:
+            del wb["CEO_Insights"]
+        
+        ws_ins = wb.create_sheet("CEO_Insights")
+        ws_ins.append(["Filter_Type", "Tab_ID", "Insight_1", "Insight_2", "Insight_3"])
+        for data in all_results:
+            ws_ins.append(data)
+            
+        wb.save(db_file)
+        wb.close()
+        logger.info(f"Successfully saved CEO insights to {db_file}")
+    except Exception as e:
+        logger.error(f"Failed to generate CEO insights for {db_file}: {e}")
+
 def run_categorization():
     logger.info("=========================================")
     logger.info("Starting LLM News Categorization Job")
@@ -239,19 +406,25 @@ def run_categorization():
             if updates_made > 0:
                 wb.save(db_file)
                 logger.info(f"Saved {updates_made} updates to {db_file}")
-                
-                # Copy the updated file to the dashboard directory
-                import shutil
-                dashboard_dir = os.path.join(os.path.dirname(os.path.dirname(OUTPUT_DIR)), "News_Dashboard", "data")
-                if os.path.exists(dashboard_dir):
-                    filename = os.path.basename(db_file)
-                    dashboard_file_path = os.path.join(dashboard_dir, filename)
-                    shutil.copy2(db_file, dashboard_file_path)
-                    logger.info(f"Synced {filename} to dashboard data folder.")
             else:
                 logger.info("No uncategorized rows found.")
                 
             wb.close()
+            
+            # Extract brand name from file name
+            brand_id = os.path.basename(db_file).split('_')[-1].replace('.xlsx', '').lower()
+            
+            # Generate or refresh CEO insights sheet in the database
+            generate_ceo_insights(db_file, brand_id, scorer)
+            
+            # Sync the updated file (containing the CEO insights) to the dashboard directory
+            import shutil
+            dashboard_dir = os.path.join(os.path.dirname(os.path.dirname(OUTPUT_DIR)), "News_Dashboard", "data")
+            if os.path.exists(dashboard_dir):
+                filename = os.path.basename(db_file)
+                dashboard_file_path = os.path.join(dashboard_dir, filename)
+                shutil.copy2(db_file, dashboard_file_path)
+                logger.info(f"Synced {filename} with CEO insights to dashboard data folder.")
             
         except Exception as e:
             logger.error(f"Error processing {db_file}: {e}")

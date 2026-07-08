@@ -7,9 +7,11 @@ export class DataManager {
   
   async loadAllBrandsData() {
     this.rawJsonData = {};
+    this.ceoInsightsData = {};
     for (const brand of this.brands) {
-      const rows = await this.loadBrandExcel(brand);
+      const { rows, ceoInsights } = await this.loadBrandExcel(brand);
       this.rawJsonData[brand] = rows;
+      this.ceoInsightsData[brand] = ceoInsights;
       if (rows && rows.length > 0) {
         this.data[brand] = this.transformRowsToDashboardData(brand, rows, 'ALL');
       } else {
@@ -38,10 +40,27 @@ export class DataManager {
       
       const sheetName = workbook.SheetNames.includes("Raw_News") ? "Raw_News" : workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      return XLSX.utils.sheet_to_json(worksheet);
+      const rows = XLSX.utils.sheet_to_json(worksheet);
+      
+      const ceoInsights = {};
+      if (workbook.SheetNames.includes("CEO_Insights")) {
+        const insightsSheet = workbook.Sheets["CEO_Insights"];
+        const insightsRows = XLSX.utils.sheet_to_json(insightsSheet);
+        insightsRows.forEach(row => {
+          const filter = row.Filter_Type || 'ALL';
+          const tab = row.Tab_ID || 'overview';
+          ceoInsights[`${filter}_${tab}`] = [
+            row.Insight_1,
+            row.Insight_2,
+            row.Insight_3
+          ].filter(Boolean);
+        });
+      }
+      
+      return { rows, ceoInsights };
     } catch (err) {
       console.error(`Error loading database for brand ${brandId}:`, err);
-      return [];
+      return { rows: [], ceoInsights: {} };
     }
   }
   
@@ -270,32 +289,24 @@ export class DataManager {
       }
     ];
     
-    // 6. Dynamic Insights bullet points
-    const overviewInsights = rows.slice(0, 3).map(r => {
-      return `<strong>${(r.Competitor || 'Competitor').split(',')[0].trim()}:</strong> ${r.Strategic_Implication || r.Competitor_Action || r.Title}`;
-    });
-    if (overviewInsights.length === 0) {
-      overviewInsights.push("No strategic insights available in this dataset. Run scraper to pull updates.");
-    }
-    
-    const growthInsights = rows.filter(r => ['Partnership and Acquisitions', 'Funding'].includes(r.News_Category)).slice(0, 2).map(r => {
-      return `<strong>${r.Competitor}:</strong> ${r.Strategic_Implication || r.Title}`;
-    });
-    if (growthInsights.length === 0) {
-      growthInsights.push("Standard corporate volumes recorded. No high impact alliances reported.");
-    }
-    
-    const productInsights = rows.filter(r => r.News_Category === 'Product Announcement').slice(0, 2).map(r => {
-      return `<strong>${r.Competitor}:</strong> ${r.Competitor_Action || r.Title}`;
-    });
-    if (productInsights.length === 0) {
-      productInsights.push("Feature release velocity is normal. Track digital updates.");
-    }
-    
+    // 6. Dynamic Insights bullet points loaded from Excel sheet
+    const brandCeoInsights = this.ceoInsightsData[brandId] || {};
     const insights = {
-      overview: overviewInsights,
-      'growth-marketing': growthInsights,
-      'product-strategy': productInsights
+      overview: brandCeoInsights[`${filterType}_overview`] || [
+        "Market conditions are currently stable.",
+        "No high-priority competitor moves detected in this timeframe.",
+        "Continue tracking standard sector intelligence."
+      ],
+      'growth-marketing': brandCeoInsights[`${filterType}_growth-marketing`] || [
+        "No competitor partnerships or alliances reported.",
+        "Venture funding and capital movements are currently quiet.",
+        "Monitor standard press channels for upcoming deals."
+      ],
+      'product-strategy': brandCeoInsights[`${filterType}_product-strategy`] || [
+        "No competitor product launches or API releases cataloged.",
+        "Digital feature velocity remains normal.",
+        "Continue monitoring competitor release notes."
+      ]
     };
     
     // 7. Video Briefs / Keynotes (filter for keynotes, interviews, calls, or video links)
