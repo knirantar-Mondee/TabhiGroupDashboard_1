@@ -6,8 +6,17 @@ export class DataManager {
   }
   
   async loadAllBrandsData() {
+    this.rawJsonData = {};
+    this.ceoInsightsData = {};
     for (const brand of this.brands) {
-      this.data[brand] = await this.loadBrandExcel(brand);
+      const { rows, ceoInsights } = await this.loadBrandExcel(brand);
+      this.rawJsonData[brand] = rows;
+      this.ceoInsightsData[brand] = ceoInsights;
+      if (rows && rows.length > 0) {
+        this.data[brand] = this.transformRowsToDashboardData(brand, rows, 'ALL');
+      } else {
+        this.data[brand] = this.getEmptyBrandDataset(brand);
+      }
     }
   }
   
@@ -31,19 +40,52 @@ export class DataManager {
       
       const sheetName = workbook.SheetNames.includes("Raw_News") ? "Raw_News" : workbook.SheetNames[0];
       const worksheet = workbook.Sheets[sheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+      const rows = XLSX.utils.sheet_to_json(worksheet);
       
-      return this.transformRowsToDashboardData(brandId, jsonData);
+      const ceoInsights = {};
+      if (workbook.SheetNames.includes("CEO_Insights")) {
+        const insightsSheet = workbook.Sheets["CEO_Insights"];
+        const insightsRows = XLSX.utils.sheet_to_json(insightsSheet);
+        insightsRows.forEach(row => {
+          const filter = row.Filter_Type || 'ALL';
+          const tab = row.Tab_ID || 'overview';
+          ceoInsights[`${filter}_${tab}`] = [
+            row.Insight_1,
+            row.Insight_2,
+            row.Insight_3
+          ].filter(Boolean);
+        });
+      }
+      
+      return { rows, ceoInsights };
     } catch (err) {
       console.error(`Error loading database for brand ${brandId}:`, err);
-      // Return a structured empty dataset so the UI doesn't crash
-      return this.getEmptyBrandDataset(brandId);
+      return { rows: [], ceoInsights: {} };
     }
   }
   
-  transformRowsToDashboardData(brandId, rows) {
+  transformRowsToDashboardData(brandId, rows, filterType = 'ALL') {
+    // Clone and score
+    const scoredRows = rows.map(r => {
+      const cloned = { ...r };
+      const { score, daysOld } = this.calculateDecayedScore(r, filterType);
+      cloned.Criticality_Score = score;
+      cloned.computedDaysOld = daysOld;
+      return cloned;
+    });
+    
+    // Filter by age
+    let filteredRows = scoredRows;
+    if (filterType === 'TODAY') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 1);
+    } else if (filterType === '7D') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 7);
+    } else if (filterType === '30D') {
+      filteredRows = scoredRows.filter(r => r.computedDaysOld <= 30);
+    }
+    
     // Sort rows by Criticality_Score descending, then by Published_Date descending
-    rows.sort((a, b) => {
+    filteredRows.sort((a, b) => {
       const scoreA = Number(a.Criticality_Score) || 0;
       const scoreB = Number(b.Criticality_Score) || 0;
       if (scoreB !== scoreA) {
@@ -59,7 +101,7 @@ export class DataManager {
     const seenUrls = new Set();
     const seenTitles = new Set();
     
-    rows.forEach(r => {
+    filteredRows.forEach(r => {
       const rawUrl = r.Article_URL ? r.Article_URL.trim().toLowerCase() : "";
       const rawTitle = r.Title ? r.Title.trim().toLowerCase() : "";
       
@@ -118,7 +160,7 @@ export class DataManager {
     // Get top topic (most frequent)
     const topicCounts = {};
     rows.forEach(r => {
-      const t = r.Topic || 'General Travel News';
+      const t = r.News_Category || 'General Industry News';
       topicCounts[t] = (topicCounts[t] || 0) + 1;
     });
     let topTheme = 'General Travel News';
@@ -146,14 +188,14 @@ export class DataManager {
         { label: "Top Strategic Theme", value: topTheme, change: "", sub: "Dominant discussion topic" }
       ],
       'growth-marketing': [
-        { label: "Partnerships Tracked", value: rows.filter(r => r.Topic === 'Partnership').length.toString(), change: "", sub: "Joint venture & alliance moves" },
-        { label: "M&A Activity", value: rows.filter(r => r.Topic === 'M&A').length.toString(), change: "", sub: "Acquisitions & consolidations" },
+        { label: "Partnerships Tracked", value: rows.filter(r => r.News_Category === 'Partnership and Acquisitions').length.toString(), change: "", sub: "Joint venture & alliance moves" },
+        { label: "Funding & Capital", value: rows.filter(r => r.News_Category === 'Funding').length.toString(), change: "", sub: "Acquisitions & consolidations" },
         { label: "Positive Sentiment Impact", value: `${posPercent}%`, change: "", sub: "High positive competitor press" },
         { label: "Negative Sentiment Vulnerability", value: `${negPercent}%`, change: "", sub: "Under-performing competitors" }
       ],
       'product-strategy': [
-        { label: "Product Launches", value: rows.filter(r => r.Topic === 'Product Launch').length.toString(), change: "", sub: "Digital features & API releases" },
-        { label: "Restructuring Moves", value: rows.filter(r => r.Topic === 'Restructuring & Finance').length.toString(), change: "", sub: "Liquidity & corporate stress" },
+        { label: "Product Launches", value: rows.filter(r => r.News_Category === 'Product Announcement').length.toString(), change: "", sub: "Digital features & API releases" },
+        { label: "Strategic Shifts", value: rows.filter(r => r.News_Category === 'Strategic Expansion or Changes').length.toString(), change: "", sub: "Liquidity & corporate stress" },
         { label: "Low Threat Alerts", value: lowThreatCount.toString(), change: "", sub: "Standard industry updates" },
         { label: "Dominant Market Outlook", value: posCount >= negCount ? "Positive Growth" : "Market Correction", change: "", sub: "Overall sentiment direction" }
       ]
@@ -201,10 +243,10 @@ export class DataManager {
       }
     ];
     
-    // Growth tab
-    const growth1Cards = rows.filter(r => ['M&A', 'Funding', 'Restructuring & Finance'].includes(r.Topic)).map(r => this.mapRowToCard(r));
-    const growth2Cards = rows.filter(r => ['Partnership', 'Regulatory & Legal', 'Executive Move'].includes(r.Topic)).map(r => this.mapRowToCard(r));
-    
+    // Growth tab (Dynamically routed via UI_Tab_Mapping)
+    const growthRows = rows.filter(r => r.UI_Tab_Mapping === 'Growth');
+    const growth1Cards = growthRows.slice(0, Math.ceil(growthRows.length / 2)).map(r => this.mapRowToCard(r));
+    const growth2Cards = growthRows.slice(Math.ceil(growthRows.length / 2)).map(r => this.mapRowToCard(r));
     const growthCols = [
       {
         title: "Funding & Corporate Restructure",
@@ -224,10 +266,10 @@ export class DataManager {
       }
     ];
     
-    // Product Strategy tab
-    const prod1Cards = rows.filter(r => r.Topic === 'Product Launch').map(r => this.mapRowToCard(r));
-    const prod2Cards = rows.filter(r => ['General Travel News', 'General Industry News', 'General'].includes(r.Topic) || !r.Topic).map(r => this.mapRowToCard(r));
-    
+    // Product Strategy tab (Dynamically routed via UI_Tab_Mapping)
+    const prodRows = rows.filter(r => r.UI_Tab_Mapping === 'Product');
+    const prod1Cards = prodRows.slice(0, Math.ceil(prodRows.length / 2)).map(r => this.mapRowToCard(r));
+    const prod2Cards = prodRows.slice(Math.ceil(prodRows.length / 2)).map(r => this.mapRowToCard(r));
     const productCols = [
       {
         title: "Feature Releases & Tech Launches",
@@ -247,32 +289,24 @@ export class DataManager {
       }
     ];
     
-    // 6. Dynamic Insights bullet points
-    const overviewInsights = rows.slice(0, 3).map(r => {
-      return `<strong>${(r.Competitor || 'Competitor').split(',')[0].trim()}:</strong> ${r.Strategic_Implication || r.Competitor_Action || r.Title}`;
-    });
-    if (overviewInsights.length === 0) {
-      overviewInsights.push("No strategic insights available in this dataset. Run scraper to pull updates.");
-    }
-    
-    const growthInsights = rows.filter(r => ['M&A', 'Partnership', 'Funding'].includes(r.Topic)).slice(0, 2).map(r => {
-      return `<strong>${r.Competitor}:</strong> ${r.Strategic_Implication || r.Title}`;
-    });
-    if (growthInsights.length === 0) {
-      growthInsights.push("Standard corporate volumes recorded. No high impact alliances reported.");
-    }
-    
-    const productInsights = rows.filter(r => r.Topic === 'Product Launch').slice(0, 2).map(r => {
-      return `<strong>${r.Competitor}:</strong> ${r.Competitor_Action || r.Title}`;
-    });
-    if (productInsights.length === 0) {
-      productInsights.push("Feature release velocity is normal. Track digital updates.");
-    }
-    
+    // 6. Dynamic Insights bullet points loaded from Excel sheet
+    const brandCeoInsights = this.ceoInsightsData[brandId] || {};
     const insights = {
-      overview: overviewInsights,
-      'growth-marketing': growthInsights,
-      'product-strategy': productInsights
+      overview: brandCeoInsights[`${filterType}_overview`] || [
+        "Market conditions are currently stable.",
+        "No high-priority competitor moves detected in this timeframe.",
+        "Continue tracking standard sector intelligence."
+      ],
+      'growth-marketing': brandCeoInsights[`${filterType}_growth-marketing`] || [
+        "No competitor partnerships or alliances reported.",
+        "Venture funding and capital movements are currently quiet.",
+        "Monitor standard press channels for upcoming deals."
+      ],
+      'product-strategy': brandCeoInsights[`${filterType}_product-strategy`] || [
+        "No competitor product launches or API releases cataloged.",
+        "Digital feature velocity remains normal.",
+        "Continue monitoring competitor release notes."
+      ]
     };
     
     // 7. Video Briefs / Keynotes (filter for keynotes, interviews, calls, or video links)
@@ -280,12 +314,12 @@ export class DataManager {
       const title = (r.Title || '').toLowerCase();
       const url = (r.Article_URL || '').toLowerCase();
       const body = (r.News_Body || '').toLowerCase();
-      const topic = (r.Topic || '').toLowerCase();
+      const category = (r.News_Category || '').toLowerCase();
       
       return title.includes('keynote') || title.includes('interview') || title.includes('presentation') || 
              title.includes('earnings call') || title.includes('podcast') || title.includes('cxo') ||
              url.includes('youtube.com') || url.includes('/video/') || url.includes('vimeo.com') ||
-             topic.includes('executive');
+             category.includes('leadership');
     }).slice(0, 3);
     
     // Fallback to high/medium threat strategic briefs if no specific keynotes are found
@@ -307,7 +341,7 @@ export class DataManager {
         company: (r.Competitor || 'Market').split(',')[0].trim(),
         title: r.Title,
         duration: Math.max(2, Math.round((r.News_Body || '').split(' ').length / 150)),
-        badge: (r.Topic || 'CXO Keynote').toUpperCase(),
+        badge: (r.News_Category || 'CXO Keynote').toUpperCase(),
         meta: metaText,
         body: r.News_Body || 'No text extracted.',
         source: source,
@@ -349,7 +383,7 @@ export class DataManager {
   }
   
   mapRowToCard(r) {
-    const topic = r.Topic || 'General';
+    const topic = r.News_Category || 'General Industry News';
     const sentiment = r.Sentiment || 'Neutral';
     const threat = r.Threat_Level || 'Low';
     
@@ -415,5 +449,70 @@ export class DataManager {
     } catch(e) {
       return false;
     }
+  }
+
+  calculateDecayedScore(r, filterType) {
+    const critScore = Number(r.Criticality_Score) || 0;
+    const pubDateStr = r.Published_Date;
+    const scrapeDateStr = r.Scrape_Date;
+    
+    if (!pubDateStr || !scrapeDateStr) return { score: critScore, daysOld: 0 };
+    
+    const pubDate = new Date(pubDateStr);
+    const scrapeDate = new Date(scrapeDateStr);
+    const now = new Date();
+    
+    // 1. Calculate age at scrape time (in days) to find the original decay multiplier used
+    const diffScrapeMs = scrapeDate - pubDate;
+    const scrapeDaysOld = Math.max(0, diffScrapeMs / (1000 * 60 * 60 * 24));
+    
+    let origMultiplier = 1.0;
+    if (scrapeDaysOld >= 365) origMultiplier = 0.0;
+    else if (scrapeDaysOld >= 30) origMultiplier = 0.2;
+    else if (scrapeDaysOld >= 14) origMultiplier = 0.5;
+    else if (scrapeDaysOld >= 7) origMultiplier = 0.8;
+    else if (scrapeDaysOld >= 3) origMultiplier = 1.0;
+    else if (scrapeDaysOld >= 1) origMultiplier = 1.2;
+    else origMultiplier = 1.5;
+    
+    // 2. Back out the base score
+    const baseScore = origMultiplier > 0 ? Math.round(critScore / origMultiplier) : critScore;
+    
+    // 3. Calculate current age (relative to right now) in days and hours
+    const diffNowMs = now - pubDate;
+    const daysOld = Math.max(0, diffNowMs / (1000 * 60 * 60 * 24));
+    const hoursOld = Math.max(0, diffNowMs / (1000 * 60 * 60));
+    
+    // 4. Calculate new multiplier based on active filterType
+    let newMultiplier = 1.0;
+    if (filterType === 'TODAY') {
+      newMultiplier = hoursOld <= 24 ? 1.5 - (hoursOld / 24.0) * 1.0 : 0.0;
+    } else if (filterType === '7D') {
+      newMultiplier = daysOld <= 7 ? 1.5 - (daysOld / 7.0) * 1.3 : 0.0;
+    } else if (filterType === '30D') {
+      newMultiplier = daysOld <= 30 ? 1.5 - (daysOld / 30.0) * 1.4 : 0.0;
+    } else {
+      // ALL
+      if (daysOld >= 365) newMultiplier = 0.0;
+      else if (daysOld >= 30) newMultiplier = 0.2;
+      else if (daysOld >= 14) newMultiplier = 0.5;
+      else if (daysOld >= 7) newMultiplier = 0.8;
+      else if (daysOld >= 3) newMultiplier = 1.0;
+      else if (daysOld >= 1) newMultiplier = 1.2;
+      else newMultiplier = 1.5;
+    }
+    
+    return {
+      score: Math.min(100, Math.round(baseScore * newMultiplier)),
+      daysOld: daysOld
+    };
+  }
+
+  filterBrandData(brandId, filterType) {
+    const rows = this.rawJsonData[brandId];
+    if (!rows || rows.length === 0) {
+      return this.getEmptyBrandDataset(brandId);
+    }
+    return this.transformRowsToDashboardData(brandId, rows, filterType);
   }
 }

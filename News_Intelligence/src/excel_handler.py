@@ -171,7 +171,7 @@ def append_news_articles_to_file(articles, file_path, brand):
     headers = [
         "Article_ID", "RSS_Source", "RSS_URL", "Article_URL", "Published_Date", 
         "Competitor", "Matched_Query", "Title", "Author", "News_Body", "Scrape_Date",
-        "Topic", "Sentiment", "Threat_Level", "Competitor_Action", "Strategic_Implication", "Executive_Summary",
+        "News_Category", "Sentiment", "Threat_Level", "Competitor_Action", "Strategic_Implication", "Executive_Summary",
         "Target_Brand", "Criticality_Score", "Priority_Tier"
     ]
     
@@ -221,7 +221,7 @@ def append_news_articles_to_file(articles, file_path, brand):
                 article.get("Author", ""),
                 article.get("News_Body", ""),
                 article.get("Scrape_Date", ""),
-                article.get("Topic", ""),
+                article.get("News_Category", ""),
                 article.get("Sentiment", ""),
                 article.get("Threat_Level", ""),
                 article.get("Competitor_Action", ""),

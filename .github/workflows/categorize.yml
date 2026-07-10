@@ -1,42 +1,40 @@
-name: Tabhi Group Competitor News Scraper
+name: Categorize News
 
 on:
   repository_dispatch:
-    types: [trigger-scraper]
-  workflow_dispatch: # Allows manual trigger from the GitHub web UI as well
-  schedule:
-    - cron: '30 8 * * *' # Runs daily at 2:00 PM IST (08:30 UTC)
+    types: [trigger-categorizer]
+  workflow_dispatch:
 
 jobs:
-  run-scraper:
+  categorize:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+        uses: actions/checkout@v4
+        
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install Scraper Dependencies
+          
+      - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r News_Intelligence/requirements.txt
-
-      - name: Run Scraper Pipeline
+          
+      - name: Run Categorizer Job
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          MODEL_NAME: ${{ vars.MODEL_NAME || 'gpt-oss:20b-cloud' }}
         run: |
-          cd News_Intelligence
-          python src/main.py
-
+          python News_Intelligence/src/categorizer_job.py
+          
       - name: Commit and Push Updated Excel Databases
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add News_Dashboard/data/ News_Intelligence/output/
-          git diff-index --quiet HEAD || git commit -m "Auto-update competitor news databases"
+          git diff-index --quiet HEAD || git commit -m "Auto-categorize news databases"
           git pull --rebase
           git push

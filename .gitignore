@@ -42,3 +42,5 @@ News_Intelligence/logs/*.log
 antigravity-ide/
 .DS_Store
 Thumbs.db
+.env  
+ 
