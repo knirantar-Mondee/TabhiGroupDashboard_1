@@ -620,13 +620,11 @@ export class UIManager {
     const v = briefs[idx];
     if (!v) return;
     
-    const modalThumb = document.getElementById('video-modal-thumb');
-    if (modalThumb) {
-      const modalEmoji = document.getElementById('video-modal-emoji');
-      if (modalEmoji) {
-        modalEmoji.textContent = v.company === 'TABHI ENGINE' ? '📊' : '🎯';
-      }
-    }
+    const compLogoEl = document.getElementById('video-modal-company-logo');
+    if (compLogoEl) compLogoEl.innerHTML = getLogoSVG(v.company);
+    
+    const platformLogoEl = document.getElementById('video-modal-platform-logo');
+    if (platformLogoEl) platformLogoEl.innerHTML = getLogoSVG(v.source);
     
     const modalBadge = document.getElementById('video-modal-badge');
     if (modalBadge) {
@@ -641,7 +639,7 @@ export class UIManager {
       }
       modalBadge.textContent = v.badge;
       modalBadge.className = '';
-      modalBadge.style.cssText = `font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:12px;color:${badgeColor};background:${badgeBg};border:1px solid ${badgeColor}33;`;
+      modalBadge.style.cssText = `font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:4px;display:inline-block;color:${badgeColor};background:${badgeBg};border:1px solid ${badgeColor}33;`;
     }
     
     const modalTitle = document.getElementById('video-modal-title');
@@ -659,6 +657,13 @@ export class UIManager {
     if (modalLink) {
       modalLink.href = v.url;
       modalLink.style.display = v.url === '#' ? 'none' : 'inline-block';
+      
+      let btnColor = 'var(--orange)';
+      if (v.source.toLowerCase().includes('linkedin')) btnColor = '#0077B5';
+      else if (v.source.toLowerCase().includes('youtube')) btnColor = '#FF0000';
+      else if (v.source.toLowerCase().includes('instagram')) btnColor = '#E1306C';
+      else if (v.source.toLowerCase().includes('x (twitter)') || v.source.toLowerCase() === 'x') btnColor = '#111111';
+      modalLink.style.backgroundColor = btnColor;
     }
     
     const overlay = document.getElementById('video-overlay');
