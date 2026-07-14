@@ -40,7 +40,11 @@ export const logoSVGs = {
   gtt: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0D47A1" /><path d="M7 6h10v3H7zm0 5h7v3H7zm0 5h10v3H7z" fill="#FFF" /></svg>`,
   downtowntravel: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#E65100" /><path d="M6 18V9h3v9zm4 0V6h3v12zm4 0v-7h3v7z" fill="#FFF" /></svg>`,
   skybird: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#039BE5" /><path d="M6 14s4-8 8-8 4 6 4 6-2 1-6 1-6 1-6 1z" fill="#FFF" /></svg>`,
-  default: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#555" /><path d="M12 7c-2.7 0-5 2.3-5 5s2.3 5 5 5 5-2.3 5-5-2.3-5-5-5z" fill="none" stroke="#FFF" stroke-width="2" /></svg>`
+  default: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#555" /><path d="M12 7c-2.7 0-5 2.3-5 5s2.3 5 5 5 5-2.3 5-5-2.3-5-5-5z" fill="none" stroke="#FFF" stroke-width="2" /></svg>`,
+  xtwitter: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#000" /><path d="M18.2 5h2.1L15.6 10.3 21 17.5h-4.3l-3.3-4.4L9.5 17.5H7.4l5.1-5.8L7.5 5h4.4l3.1 4.1L18.2 5zm-.7 11.2h1.2L11 6.2H9.7l7.8 10z" fill="#FFF" /></svg>`,
+  instagram: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#E1306C" /><circle cx="12" cy="12" r="5" fill="none" stroke="#FFF" stroke-width="2" /><circle cx="17.5" cy="6.5" r="1.5" fill="#FFF" /></svg>`,
+  linkedin: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#0077B5" /><path d="M9 19v-6H7v6h2zm-1-7c.7 0 1.2-.5 1.2-1.2s-.5-1.2-1.2-1.2-1.2.5-1.2 1.2.5 1.2 1.2 1.2zm10 7v-3.5c0-1.7-.9-2.5-2.2-2.5-1 0-1.5.5-1.8.9V13h-2v6h2v-3.5c0-.9.2-1.8 1.3-1.8s1 .9 1 1.8V19h2z" fill="#FFF" /></svg>`,
+  youtube: `<svg viewBox="0 0 24 24" style="width:100%;height:100%;"><rect width="24" height="24" rx="4" fill="#FF0000" /><path d="M7 9l7 3-7 3V9z" fill="#FFF" /></svg>`
 };
 
 export function getLogoSVG(brandKey) {
@@ -88,5 +92,9 @@ export function getLogoSVG(brandKey) {
   if (key.includes('mondee')) return logoSVGs.mondee;
   if (key.includes('miraee')) return logoSVGs.miraee;
   if (key.includes('abhee')) return logoSVGs.abhee;
+  if (key.includes('twitter') || key.includes('xtwitter') || key === 'x') return logoSVGs.xtwitter;
+  if (key.includes('instagram')) return logoSVGs.instagram;
+  if (key.includes('linkedin')) return logoSVGs.linkedin;
+  if (key.includes('youtube')) return logoSVGs.youtube;
   return logoSVGs.default;
 }

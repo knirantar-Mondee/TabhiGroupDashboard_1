@@ -73,6 +73,7 @@ export class UIManager {
     this.initClock();
     this.bindGlobalEvents();
     this.activeFilter = 'ALL';
+    this.activeSocialPlatformFilter = 'ALL';
   }
   
   showLoading() {
@@ -328,45 +329,7 @@ export class UIManager {
     }
     
     // Render dynamic video briefs
-    const videoSection = document.getElementById('video-section-title');
-    if (videoSection) {
-      videoSection.textContent = `${brandData.title} Strategy Presentation Briefs`;
-    }
-    
-    const videoGrid = document.getElementById('video-grid-container');
-    if (videoGrid && brandData.videos) {
-      videoGrid.innerHTML = '';
-      const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
-      brandData.videos.forEach(v => {
-        const fullV = briefs[v.idx];
-        if (!fullV) return;
-        const card = document.createElement('div');
-        card.className = 'flat-card';
-        card.style.cssText = 'cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;';
-        card.setAttribute('onclick', `window.app.uiManager.openVideo(${v.idx})`);
-        
-        const logoSVG = getLogoSVG(fullV.company);
-        
-        card.innerHTML = `
-          <div class="flat-card-meta">
-            <div class="flat-card-company">
-              <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
-              <span class="company-name">${fullV.company}</span>
-            </div>
-            <span class="news-time">${fullV.duration} min</span>
-          </div>
-          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${fullV.title}</div>
-          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
-            <strong>Brief:</strong> ${fullV.meta}
-          </div>
-          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
-            <div class="news-tags"><span class="tag tag-orange">${fullV.badge}</span></div>
-            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH BRIEF →</span>
-          </div>
-        `;
-        videoGrid.appendChild(card);
-      });
-    }
+    this.renderSocialSignals();
   }
   
   renderGrowthTab(brandData) {
@@ -548,33 +511,204 @@ export class UIManager {
       modal.style.display = 'none';
     }, 300);
   }
+
+  openSocialModal() {
+    const briefs = this.filteredSocialBriefs || [];
+    const remainingBriefs = briefs.slice(3, 24);
+    
+    const cardsContainer = document.getElementById('social-modal-cards');
+    if (cardsContainer) {
+      cardsContainer.innerHTML = remainingBriefs.map((v, i) => {
+        const logoSVG = getLogoSVG(v.company);
+        return `
+          <div class="flat-card" onclick="window.app.uiManager.closeSocialModal(); window.app.uiManager.openVideo(${v.originalIndex})">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo">${logoSVG}</div>
+                <span class="company-name">${v.company}</span>
+              </div>
+              <span class="news-time">${v.date}</span>
+            </div>
+            <div class="flat-card-headline" style="font-size:12px; font-weight:600; color:var(--white);">${v.title}</div>
+            <div class="flat-card-footer">
+              <div class="news-tags">
+                <span class="tag tag-orange">${v.badge}</span>
+                <span class="tag tag-slate">${v.category.toUpperCase()}</span>
+              </div>
+              <span class="news-source">${v.source}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    const overlay = document.getElementById('social-modal-overlay');
+    const modal = document.getElementById('social-modal');
+    
+    overlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+      modal.style.opacity = '1';
+      modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 20);
+  }
+  
+  closeSocialModal() {
+    const overlay = document.getElementById('social-modal-overlay');
+    const modal = document.getElementById('social-modal');
+    
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -45%) scale(0.95)';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      modal.style.display = 'none';
+    }, 300);
+  }
+
+  renderSocialSignals() {
+    const videoSection = document.getElementById('video-section-title');
+    if (videoSection && this.brandData) {
+      videoSection.textContent = `${this.brandData.title} Social Signals`;
+    }
+    
+    const videoGrid = document.getElementById('video-grid-container');
+    const viewMoreContainer = document.getElementById('view-more-posts-container');
+    if (!videoGrid || !this.brandData) return;
+    
+    videoGrid.innerHTML = '';
+    
+    const allBriefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
+    
+    // Map with original indices for safe routing in openVideo
+    const mappedBriefs = allBriefs.map((b, originalIndex) => ({ ...b, originalIndex }));
+    
+    // Filter
+    let filteredBriefs = mappedBriefs;
+    if (this.activeSocialPlatformFilter !== 'ALL') {
+      filteredBriefs = mappedBriefs.filter(b => b.source.toLowerCase().includes(this.activeSocialPlatformFilter.toLowerCase()) || (this.activeSocialPlatformFilter.toLowerCase() === 'x (twitter)' && b.source.toLowerCase() === 'x (twitter)'));
+    }
+    
+    this.filteredSocialBriefs = filteredBriefs;
+    
+    const mainBriefs = filteredBriefs.slice(0, 3);
+    
+    if (mainBriefs.length === 0) {
+      videoGrid.innerHTML = `
+        <div style="grid-column: span 3; font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 40px 16px;">
+          No social signals matching this platform filter
+        </div>
+      `;
+    } else {
+      mainBriefs.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'flat-card';
+        card.style.cssText = 'cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;';
+        card.setAttribute('onclick', `window.app.uiManager.openVideo(${v.originalIndex})`);
+        
+        const logoSVG = getLogoSVG(v.company);
+        
+        card.innerHTML = `
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
+              <span class="company-name">${v.company}</span>
+            </div>
+            <span class="news-time">${v.date}</span>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${v.title}</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Snippet:</strong> ${v.body.length > 120 ? v.body.slice(0, 120) + '...' : v.body}
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags">
+              <span class="tag tag-orange">${v.badge}</span>
+              <span class="tag tag-slate">${v.category.toUpperCase()}</span>
+            </div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">VIEW BRIEF →</span>
+          </div>
+        `;
+        videoGrid.appendChild(card);
+      });
+    }
+
+    if (viewMoreContainer) {
+      if (filteredBriefs.length > 3) {
+        viewMoreContainer.style.display = 'block';
+        const btn = document.getElementById('view-more-posts-btn');
+        if (btn) {
+          btn.textContent = `View ${filteredBriefs.length - 3} More Posts →`;
+        }
+      } else {
+        viewMoreContainer.style.display = 'none';
+      }
+    }
+  }
+
+  setSocialPlatformFilter(platform) {
+    this.activeSocialPlatformFilter = platform;
+    
+    const row = document.querySelector('.social-filter-row');
+    if (row) {
+      row.querySelectorAll('.filter-chip').forEach(chip => {
+        const chipText = chip.textContent.trim().toUpperCase();
+        const activeText = platform.toUpperCase();
+        
+        if (activeText === 'ALL' && chipText === 'ALL') {
+          chip.classList.add('active');
+        } else if (activeText.includes('TWITTER') && chipText.includes('TWITTER')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('LINKEDIN') && chipText.includes('LINKEDIN')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('INSTAGRAM') && chipText.includes('INSTAGRAM')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('YOUTUBE') && chipText.includes('YOUTUBE')) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
+    
+    this.renderSocialSignals();
+    this.showToast(`FILTERED SOCIAL SIGNALS: ${platform.toUpperCase()}`);
+  }
   
   openVideo(idx) {
     const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
     const v = briefs[idx];
     if (!v) return;
     
-    const modalThumb = document.getElementById('video-modal-thumb');
-    if (modalThumb) {
-      const modalEmoji = document.getElementById('video-modal-emoji');
-      if (modalEmoji) {
-        modalEmoji.textContent = v.company === 'TABHI ENGINE' ? '📊' : '🎯';
-      }
-    }
+    const compLogoEl = document.getElementById('video-modal-company-logo');
+    if (compLogoEl) compLogoEl.innerHTML = getLogoSVG(v.company);
+    
+    const platformLogoEl = document.getElementById('video-modal-platform-logo');
+    if (platformLogoEl) platformLogoEl.innerHTML = getLogoSVG(v.source);
     
     const modalBadge = document.getElementById('video-modal-badge');
     if (modalBadge) {
+      let badgeColor = '#ff6b00';
+      let badgeBg = 'rgba(255, 107, 0, 0.12)';
+      if (v.badge.includes('HIGH')) {
+        badgeColor = '#ff3b30';
+        badgeBg = 'rgba(255, 59, 48, 0.12)';
+      } else if (v.badge.includes('LOW')) {
+        badgeColor = '#34c759';
+        badgeBg = 'rgba(52, 199, 89, 0.12)';
+      }
       modalBadge.textContent = v.badge;
       modalBadge.className = '';
-      modalBadge.classList.add(v.badge.includes('HIGH') ? 'tag-red' : 'tag-amber');
-      modalBadge.style.cssText = 'font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;color:#fff;';
+      modalBadge.style.cssText = `font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:4px;display:inline-block;color:${badgeColor};background:${badgeBg};border:1px solid ${badgeColor}33;`;
     }
     
     const modalTitle = document.getElementById('video-modal-title');
     if (modalTitle) modalTitle.textContent = v.title;
     
     const modalMeta = document.getElementById('video-modal-meta');
-    if (modalMeta) modalMeta.textContent = `DURATION: ${v.duration} MIN · SOURCE: ${v.source}`;
+    if (modalMeta) {
+      modalMeta.innerHTML = `<span style="color:var(--text-dim);">COMPANY:</span> <strong style="color:var(--white);">${v.company}</strong> &nbsp;·&nbsp; <span style="color:var(--text-dim);">CATEGORY:</span> <strong style="color:var(--white);">${v.category}</strong> &nbsp;·&nbsp; <span style="color:var(--text-dim);">SOURCE:</span> <strong style="color:var(--white);">${v.source}</strong>`;
+    }
     
     const modalBrief = document.getElementById('video-modal-brief-body');
     if (modalBrief) modalBrief.textContent = v.body;
@@ -583,6 +717,13 @@ export class UIManager {
     if (modalLink) {
       modalLink.href = v.url;
       modalLink.style.display = v.url === '#' ? 'none' : 'inline-block';
+      
+      let btnColor = 'var(--orange)';
+      if (v.source.toLowerCase().includes('linkedin')) btnColor = '#0077B5';
+      else if (v.source.toLowerCase().includes('youtube')) btnColor = '#FF0000';
+      else if (v.source.toLowerCase().includes('instagram')) btnColor = '#E1306C';
+      else if (v.source.toLowerCase().includes('x (twitter)') || v.source.toLowerCase() === 'x') btnColor = '#111111';
+      modalLink.style.backgroundColor = btnColor;
     }
     
     const overlay = document.getElementById('video-overlay');
@@ -728,6 +869,7 @@ export class UIManager {
         this.closeColumnModal();
         this.closeVideo();
         this.closeAdd();
+        this.closeSocialModal();
       }
     });
   }

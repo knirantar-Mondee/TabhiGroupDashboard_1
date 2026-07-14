@@ -176,13 +176,25 @@
         <div class="video-section">
           <div class="section-header">
             <div class="section-title">
-              <div class="col-icon">▶️</div>
-              <span class="section-name" id="video-section-title">B2B &amp; GDS Strategy Presentation Briefs</span>
+              <div class="col-icon">📱</div>
+              <span class="section-name" id="video-section-title">Social Signals</span>
             </div>
-            <a class="section-link" onclick="window.app.uiManager.openAdd()">+ CONFIGURE NEW WATCHLIST</a>
+          </div>
+          <!-- Platform Filter Row -->
+          <div class="social-filter-row" style="display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap;">
+            <div class="filter-chip active" id="social-filter-ALL" onclick="window.app.uiManager.setSocialPlatformFilter('ALL')">ALL</div>
+            <div class="filter-chip" id="social-filter-X" onclick="window.app.uiManager.setSocialPlatformFilter('X (Twitter)')">𝕏 (TWITTER)</div>
+            <div class="filter-chip" id="social-filter-LINKEDIN" onclick="window.app.uiManager.setSocialPlatformFilter('LinkedIn')">💼 LINKEDIN</div>
+            <div class="filter-chip" id="social-filter-INSTAGRAM" onclick="window.app.uiManager.setSocialPlatformFilter('Instagram')">📸 INSTAGRAM</div>
+            <div class="filter-chip" id="social-filter-YOUTUBE" onclick="window.app.uiManager.setSocialPlatformFilter('YouTube')">🎥 YOUTUBE</div>
           </div>
           <div class="video-grid" id="video-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <!-- Dynamic videos -->
+          </div>
+          <div class="scroll-more" id="view-more-posts-container" style="text-align: center; margin-top: 24px; display: none;">
+            <button class="slider-drawer-btn" id="view-more-posts-btn" onclick="window.app.uiManager.openSocialModal()">
+              View More Posts →
+            </button>
           </div>
         </div>
       </div>
@@ -282,6 +294,20 @@
     </div>
   </div>
 
+  <!-- ── SOCIAL POSTS MODAL ─────────────────────── -->
+  <div id="social-modal-overlay" class="modal-overlay" onclick="window.app.uiManager.closeSocialModal()"></div>
+  <div id="social-modal" class="modal" style="width: 760px; max-width: 95vw; max-height: 85vh; display: none; flex-direction: column; padding: 24px; overflow: hidden; background: var(--surface2);">
+    <div style="padding-bottom:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.06em; color:var(--text-dim);" id="social-modal-title">MORE STRATEGIC BRIEFS</div>
+      </div>
+      <button onclick="window.app.uiManager.closeSocialModal()" style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:6px 10px; cursor:pointer; font-size:13px; color:var(--text-dim); outline:none;">✕</button>
+    </div>
+    <div id="social-modal-cards" style="flex-grow: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-right: 4px;">
+      <!-- Up to 21 social cards rendered dynamically -->
+    </div>
+  </div>
+
 
   <!-- ── DRAWER OVERLAY ─────────────────────────── -->
   <div id="drawer-overlay" class="drawer-overlay" onclick="window.app.uiManager.closeDrawer()"></div>
@@ -324,21 +350,29 @@
   <div id="video-overlay" class="modal-overlay" onclick="window.app.uiManager.closeVideo()"></div>
   
   <!-- ── VIDEO BRIEF MODAL ── -->
-  <div id="video-modal" class="modal" style="width:720px; max-width:95vw; padding:0;">
-    <div style="border-radius:12px;overflow:hidden;background:var(--surface2);">
-      <div id="video-modal-thumb" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;font-size:80px;position:relative;background:#1e1b18;">
-        <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
-        <div style="position:relative;z-index:1;text-align:center;">
-          <div style="font-size:72px;margin-bottom:8px;" id="video-modal-emoji">🎬</div>
-          <div style="font-family:var(--mono);font-size:11px;color:rgba(255,255,255,.6);letter-spacing:.08em;">INTELLIGENCE ENGINE STRATEGIC BRIEF</div>
+  <div id="video-modal" class="modal" style="width:720px; max-width:95vw; padding:0; border: 1px solid var(--border); overflow: hidden; border-radius: 12px; background: var(--surface2);">
+    <div style="padding: 24px 28px;">
+      <!-- Header row containing logos and badge -->
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <!-- Competitor Logo -->
+          <div id="video-modal-company-logo" style="width: 32px; height: 32px; border-radius: 6px; padding: 2px; background: var(--surface);"></div>
+          <!-- Connection arrow -->
+          <span style="color: var(--muted); font-size: 14px;">→</span>
+          <!-- Platform Logo -->
+          <div id="video-modal-platform-logo" style="width: 32px; height: 32px; border-radius: 6px; padding: 2px; background: var(--surface); display: flex; align-items: center; justify-content: center;"></div>
         </div>
+        <div id="video-modal-badge" style="font-family: var(--mono); font-size: 9.5px; font-weight: 700; letter-spacing: 0.08em; padding: 4px 10px; border-radius: 4px; display: inline-block;"></div>
       </div>
-      <div style="padding:22px 24px;">
-        <div id="video-modal-badge" style="font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;"></div>
-        <h3 id="video-modal-title" style="font-size:16px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:8px;"></h3>
-        <div id="video-modal-meta" style="font-family:var(--mono);font-size:10px;color:var(--muted);margin-bottom:14px;border-bottom:1px solid var(--border);padding-bottom:12px;"></div>
+      <h3 id="video-modal-title" style="font-size:16px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:8px;"></h3>
+        <div id="video-modal-meta" style="font-family: var(--mono); font-size: 10.5px; color: var(--text-dim); margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 12px; display: flex; flex-wrap: wrap; gap: 10px; font-weight: 500;"></div>
         
-        <p id="video-modal-brief-body" style="font-size:13px; color:var(--slate); line-height:1.65; margin-bottom:22px; white-space:pre-line;"></p>
+        <div id="video-modal-ai-summary-container" style="background: rgba(255, 107, 0, 0.05); border-left: 3px solid var(--orange); padding: 14px 18px; border-radius: 4px; margin-bottom: 22px;">
+          <div style="font-family: var(--mono); font-size: 9.5px; font-weight: 700; color: var(--orange); letter-spacing: 0.08em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+            <span>✨ AI ANALYSIS SUMMARY</span>
+          </div>
+          <p id="video-modal-brief-body" style="font-size: 13.5px; color: var(--text); line-height: 1.65; margin: 0; white-space: pre-line;"></p>
+        </div>
         
         <div style="display:flex;gap:10px;align-items:center;">
           <a id="video-modal-link" href="#" target="_blank" style="
@@ -350,7 +384,6 @@
             font-family:var(--mono);font-size:11px;color:var(--muted);padding:8px 14px;cursor:pointer;
           ">CLOSE ✕</button>
         </div>
-      </div>
     </div>
   </div>
 
