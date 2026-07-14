@@ -179,10 +179,14 @@
               <div class="col-icon">▶️</div>
               <span class="section-name" id="video-section-title">B2B &amp; GDS Strategy Presentation Briefs</span>
             </div>
-            <a class="section-link" onclick="window.app.uiManager.openAdd()">+ CONFIGURE NEW WATCHLIST</a>
           </div>
           <div class="video-grid" id="video-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <!-- Dynamic videos -->
+          </div>
+          <div class="scroll-more" id="view-more-posts-container" style="text-align: center; margin-top: 24px; display: none;">
+            <button class="slider-drawer-btn" id="view-more-posts-btn" onclick="window.app.uiManager.openSocialModal()">
+              View More Posts →
+            </button>
           </div>
         </div>
       </div>
@@ -279,6 +283,20 @@
     </div>
     <div id="column-modal-cards" style="flex-grow: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-right: 4px;">
       <!-- Up to 6 news cards rendered dynamically -->
+    </div>
+  </div>
+
+  <!-- ── SOCIAL POSTS MODAL ─────────────────────── -->
+  <div id="social-modal-overlay" class="modal-overlay" onclick="window.app.uiManager.closeSocialModal()"></div>
+  <div id="social-modal" class="modal" style="width: 760px; max-width: 95vw; max-height: 85vh; display: none; flex-direction: column; padding: 24px; overflow: hidden; background: var(--surface2);">
+    <div style="padding-bottom:16px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-shrink:0;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.06em; color:var(--text-dim);" id="social-modal-title">MORE STRATEGIC BRIEFS</div>
+      </div>
+      <button onclick="window.app.uiManager.closeSocialModal()" style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; padding:6px 10px; cursor:pointer; font-size:13px; color:var(--text-dim); outline:none;">✕</button>
+    </div>
+    <div id="social-modal-cards" style="flex-grow: 1; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-right: 4px;">
+      <!-- Up to 21 social cards rendered dynamically -->
     </div>
   </div>
 

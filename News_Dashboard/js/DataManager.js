@@ -350,7 +350,7 @@ export class DataManager {
       return dateB - dateA;
     });
 
-    const topPosts = brandSocialPosts.slice(0, 3);
+    const topPosts = brandSocialPosts.slice(0, 24);
     const videos = [];
     const brandVideoData = [];
 

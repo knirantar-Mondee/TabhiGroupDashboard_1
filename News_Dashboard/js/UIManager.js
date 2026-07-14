@@ -334,10 +334,12 @@ export class UIManager {
     }
     
     const videoGrid = document.getElementById('video-grid-container');
+    const viewMoreContainer = document.getElementById('view-more-posts-container');
     if (videoGrid && brandData.videos) {
       videoGrid.innerHTML = '';
       const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
-      brandData.videos.forEach(v => {
+      const mainVideos = brandData.videos.slice(0, 3);
+      mainVideos.forEach(v => {
         const fullV = briefs[v.idx];
         if (!fullV) return;
         const card = document.createElement('div');
@@ -353,19 +355,32 @@ export class UIManager {
               <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
               <span class="company-name">${fullV.company}</span>
             </div>
-            <span class="news-time">${fullV.duration} min</span>
+            <span class="news-time">${fullV.duration} min read</span>
           </div>
           <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${fullV.title}</div>
           <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
-            <strong>Brief:</strong> ${fullV.meta}
+            <strong>Snippet:</strong> ${fullV.body.split('\n\n')[1] || fullV.body}
           </div>
           <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
             <div class="news-tags"><span class="tag tag-orange">${fullV.badge}</span></div>
-            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">WATCH BRIEF →</span>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">VIEW BRIEF →</span>
           </div>
         `;
         videoGrid.appendChild(card);
       });
+
+      // Show/hide View More Posts button
+      if (viewMoreContainer) {
+        if (brandData.videos.length > 3) {
+          viewMoreContainer.style.display = 'block';
+          const btn = document.getElementById('view-more-posts-btn');
+          if (btn) {
+            btn.textContent = `View ${brandData.videos.length - 3} More Posts →`;
+          }
+        } else {
+          viewMoreContainer.style.display = 'none';
+        }
+      }
     }
   }
   
@@ -539,6 +554,59 @@ export class UIManager {
   closeColumnModal() {
     const overlay = document.getElementById('column-modal-overlay');
     const modal = document.getElementById('column-modal');
+    
+    modal.style.opacity = '0';
+    modal.style.transform = 'translate(-50%, -45%) scale(0.95)';
+    overlay.style.opacity = '0';
+    setTimeout(() => {
+      overlay.style.display = 'none';
+      modal.style.display = 'none';
+    }, 300);
+  }
+
+  openSocialModal() {
+    const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
+    const remainingBriefs = briefs.slice(3, 24);
+    
+    const cardsContainer = document.getElementById('social-modal-cards');
+    if (cardsContainer) {
+      cardsContainer.innerHTML = remainingBriefs.map((v, i) => {
+        const actualIdx = i + 3;
+        const logoSVG = getLogoSVG(v.company);
+        return `
+          <div class="flat-card" onclick="window.app.uiManager.closeSocialModal(); window.app.uiManager.openVideo(${actualIdx})">
+            <div class="flat-card-meta">
+              <div class="flat-card-company">
+                <div class="company-logo">${logoSVG}</div>
+                <span class="company-name">${v.company}</span>
+              </div>
+              <span class="news-time">${v.duration} min read</span>
+            </div>
+            <div class="flat-card-headline" style="font-size:12px; font-weight:600; color:var(--white);">${v.title}</div>
+            <div class="flat-card-footer">
+              <div class="news-tags"><span class="tag tag-orange">${v.badge}</span></div>
+              <span class="news-source">${v.source}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    const overlay = document.getElementById('social-modal-overlay');
+    const modal = document.getElementById('social-modal');
+    
+    overlay.style.display = 'block';
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      overlay.style.opacity = '1';
+      modal.style.opacity = '1';
+      modal.style.transform = 'translate(-50%, -50%) scale(1)';
+    }, 20);
+  }
+  
+  closeSocialModal() {
+    const overlay = document.getElementById('social-modal-overlay');
+    const modal = document.getElementById('social-modal');
     
     modal.style.opacity = '0';
     modal.style.transform = 'translate(-50%, -45%) scale(0.95)';
@@ -728,6 +796,7 @@ export class UIManager {
         this.closeColumnModal();
         this.closeVideo();
         this.closeAdd();
+        this.closeSocialModal();
       }
     });
   }
