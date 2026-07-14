@@ -355,11 +355,10 @@ export class UIManager {
               <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
               <span class="company-name">${fullV.company}</span>
             </div>
-            <span class="news-time">${fullV.duration} min read</span>
           </div>
           <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${fullV.title}</div>
           <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
-            <strong>Snippet:</strong> ${fullV.body.split('\n\n')[1] || fullV.body}
+            <strong>Snippet:</strong> ${fullV.body.length > 120 ? fullV.body.slice(0, 120) + '...' : fullV.body}
           </div>
           <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
             <div class="news-tags"><span class="tag tag-orange">${fullV.badge}</span></div>
@@ -580,7 +579,6 @@ export class UIManager {
                 <div class="company-logo">${logoSVG}</div>
                 <span class="company-name">${v.company}</span>
               </div>
-              <span class="news-time">${v.duration} min read</span>
             </div>
             <div class="flat-card-headline" style="font-size:12px; font-weight:600; color:var(--white);">${v.title}</div>
             <div class="flat-card-footer">
@@ -632,17 +630,27 @@ export class UIManager {
     
     const modalBadge = document.getElementById('video-modal-badge');
     if (modalBadge) {
+      let badgeColor = '#ff6b00';
+      let badgeBg = 'rgba(255, 107, 0, 0.12)';
+      if (v.badge.includes('HIGH')) {
+        badgeColor = '#ff3b30';
+        badgeBg = 'rgba(255, 59, 48, 0.12)';
+      } else if (v.badge.includes('LOW')) {
+        badgeColor = '#34c759';
+        badgeBg = 'rgba(52, 199, 89, 0.12)';
+      }
       modalBadge.textContent = v.badge;
       modalBadge.className = '';
-      modalBadge.classList.add(v.badge.includes('HIGH') ? 'tag-red' : 'tag-amber');
-      modalBadge.style.cssText = 'font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.08em;padding:2px 8px;border-radius:3px;display:inline-block;margin-bottom:10px;color:#fff;';
+      modalBadge.style.cssText = `font-family:var(--mono);font-size:9.5px;font-weight:700;letter-spacing:.08em;padding:4px 10px;border-radius:4px;display:inline-block;margin-bottom:12px;color:${badgeColor};background:${badgeBg};border:1px solid ${badgeColor}33;`;
     }
     
     const modalTitle = document.getElementById('video-modal-title');
     if (modalTitle) modalTitle.textContent = v.title;
     
     const modalMeta = document.getElementById('video-modal-meta');
-    if (modalMeta) modalMeta.textContent = `DURATION: ${v.duration} MIN · SOURCE: ${v.source}`;
+    if (modalMeta) {
+      modalMeta.innerHTML = `<span style="color:var(--text-dim);">COMPANY:</span> <strong style="color:var(--white);">${v.company}</strong> &nbsp;·&nbsp; <span style="color:var(--text-dim);">CATEGORY:</span> <strong style="color:var(--white);">${v.category}</strong> &nbsp;·&nbsp; <span style="color:var(--text-dim);">SOURCE:</span> <strong style="color:var(--white);">${v.source}</strong>`;
+    }
     
     const modalBrief = document.getElementById('video-modal-brief-body');
     if (modalBrief) modalBrief.textContent = v.body;

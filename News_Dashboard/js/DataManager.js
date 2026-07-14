@@ -362,22 +362,15 @@ export class DataManager {
       const metaText = `${handle} · ${platform}`;
       
       let summaryText = p['AI Summary'] || 'No summary available.';
-      let fullText = p['Post Text'] || '';
-      let transcriptText = p['Video Transcript'] || p['Image Text'] || '';
-      
-      let bodyText = `[AI SUMMARY]\n${summaryText}\n\n[POST CONTENT]\n${fullText}`;
-      if (transcriptText) {
-        bodyText += `\n\n[OCR / TRANSCRIPT]\n${transcriptText}`;
-      }
 
       brandVideoData.push({
         company: (p['Competitor'] || 'Market').toUpperCase().split(',')[0].trim(),
         title: (p['Post Text'] || '').slice(0, 85).trim() + ((p['Post Text'] || '').length > 85 ? '...' : ''),
-        duration: 2,
         badge: `${p['Platform'] ? p['Platform'].toUpperCase() : 'SOCIAL'} · ${p['Alert Level'] ? p['Alert Level'].toUpperCase() : 'LOW'} ALERT`,
         meta: metaText,
-        body: bodyText,
+        body: summaryText,
         source: platform,
+        category: p['Category'] || 'General Industry News',
         url: p['Post URL'] || '#'
       });
     });
@@ -387,11 +380,11 @@ export class DataManager {
       brandVideoData.push({
         company: "TABHI ENGINE",
         title: "Competitor Market Summary Brief",
-        duration: 3,
         badge: "INFO BRIEF",
         meta: "Summary of market shifts across monitored brands.",
         body: "No critical competitor threat actions detected. Sector trends remain within predicted boundaries.",
         source: "Tabhi Analytics",
+        category: "General Industry News",
         url: "#"
       });
     }
