@@ -527,10 +527,14 @@ export class UIManager {
                 <div class="company-logo">${logoSVG}</div>
                 <span class="company-name">${v.company}</span>
               </div>
+              <span class="news-time">${v.date}</span>
             </div>
             <div class="flat-card-headline" style="font-size:12px; font-weight:600; color:var(--white);">${v.title}</div>
             <div class="flat-card-footer">
-              <div class="news-tags"><span class="tag tag-orange">${v.badge}</span></div>
+              <div class="news-tags">
+                <span class="tag tag-orange">${v.badge}</span>
+                <span class="tag tag-slate">${v.category.toUpperCase()}</span>
+              </div>
               <span class="news-source">${v.source}</span>
             </div>
           </div>
@@ -611,13 +615,17 @@ export class UIManager {
               <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
               <span class="company-name">${v.company}</span>
             </div>
+            <span class="news-time">${v.date}</span>
           </div>
           <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${v.title}</div>
           <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
             <strong>Snippet:</strong> ${v.body.length > 120 ? v.body.slice(0, 120) + '...' : v.body}
           </div>
           <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
-            <div class="news-tags"><span class="tag tag-orange">${v.badge}</span></div>
+            <div class="news-tags">
+              <span class="tag tag-orange">${v.badge}</span>
+              <span class="tag tag-slate">${v.category.toUpperCase()}</span>
+            </div>
             <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">VIEW BRIEF →</span>
           </div>
         `;

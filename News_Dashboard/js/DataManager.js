@@ -362,6 +362,21 @@ export class DataManager {
       const metaText = `${handle} · ${platform}`;
       
       let summaryText = p['AI Summary'] || 'No summary available.';
+      
+      let dateVal = p['Date Created'] || p['timestamp'] || 'Recently';
+      let cleanDate = 'Recently';
+      if (dateVal && dateVal !== 'Recently') {
+        try {
+          const d = new Date(dateVal);
+          if (!isNaN(d.getTime())) {
+            cleanDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          } else {
+            cleanDate = dateVal;
+          }
+        } catch(e) {
+          cleanDate = dateVal;
+        }
+      }
 
       brandVideoData.push({
         company: (p['Competitor'] || 'Market').toUpperCase().split(',')[0].trim(),
@@ -371,6 +386,7 @@ export class DataManager {
         body: summaryText,
         source: platform,
         category: p['Category'] || 'General Industry News',
+        date: cleanDate,
         url: p['Post URL'] || '#'
       });
     });
@@ -385,6 +401,7 @@ export class DataManager {
         body: "No critical competitor threat actions detected. Sector trends remain within predicted boundaries.",
         source: "Tabhi Analytics",
         category: "General Industry News",
+        date: "Recently",
         url: "#"
       });
     }
