@@ -176,9 +176,17 @@
         <div class="video-section">
           <div class="section-header">
             <div class="section-title">
-              <div class="col-icon">▶️</div>
-              <span class="section-name" id="video-section-title">B2B &amp; GDS Strategy Presentation Briefs</span>
+              <div class="col-icon">📱</div>
+              <span class="section-name" id="video-section-title">Social Signals</span>
             </div>
+          </div>
+          <!-- Platform Filter Row -->
+          <div class="social-filter-row" style="display: flex; gap: 8px; margin: 16px 0; flex-wrap: wrap;">
+            <div class="filter-chip active" id="social-filter-ALL" onclick="window.app.uiManager.setSocialPlatformFilter('ALL')">ALL</div>
+            <div class="filter-chip" id="social-filter-X" onclick="window.app.uiManager.setSocialPlatformFilter('X (Twitter)')">𝕏 (TWITTER)</div>
+            <div class="filter-chip" id="social-filter-LINKEDIN" onclick="window.app.uiManager.setSocialPlatformFilter('LinkedIn')">💼 LINKEDIN</div>
+            <div class="filter-chip" id="social-filter-INSTAGRAM" onclick="window.app.uiManager.setSocialPlatformFilter('Instagram')">📸 INSTAGRAM</div>
+            <div class="filter-chip" id="social-filter-YOUTUBE" onclick="window.app.uiManager.setSocialPlatformFilter('YouTube')">🎥 YOUTUBE</div>
           </div>
           <div class="video-grid" id="video-grid-container" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
             <!-- Dynamic videos -->

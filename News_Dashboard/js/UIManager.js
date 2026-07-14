@@ -73,6 +73,7 @@ export class UIManager {
     this.initClock();
     this.bindGlobalEvents();
     this.activeFilter = 'ALL';
+    this.activeSocialPlatformFilter = 'ALL';
   }
   
   showLoading() {
@@ -328,59 +329,7 @@ export class UIManager {
     }
     
     // Render dynamic video briefs
-    const videoSection = document.getElementById('video-section-title');
-    if (videoSection) {
-      videoSection.textContent = `${brandData.title} Strategy Presentation Briefs`;
-    }
-    
-    const videoGrid = document.getElementById('video-grid-container');
-    const viewMoreContainer = document.getElementById('view-more-posts-container');
-    if (videoGrid && brandData.videos) {
-      videoGrid.innerHTML = '';
-      const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
-      const mainVideos = brandData.videos.slice(0, 3);
-      mainVideos.forEach(v => {
-        const fullV = briefs[v.idx];
-        if (!fullV) return;
-        const card = document.createElement('div');
-        card.className = 'flat-card';
-        card.style.cssText = 'cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;';
-        card.setAttribute('onclick', `window.app.uiManager.openVideo(${v.idx})`);
-        
-        const logoSVG = getLogoSVG(fullV.company);
-        
-        card.innerHTML = `
-          <div class="flat-card-meta">
-            <div class="flat-card-company">
-              <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
-              <span class="company-name">${fullV.company}</span>
-            </div>
-          </div>
-          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${fullV.title}</div>
-          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
-            <strong>Snippet:</strong> ${fullV.body.length > 120 ? fullV.body.slice(0, 120) + '...' : fullV.body}
-          </div>
-          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
-            <div class="news-tags"><span class="tag tag-orange">${fullV.badge}</span></div>
-            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">VIEW BRIEF →</span>
-          </div>
-        `;
-        videoGrid.appendChild(card);
-      });
-
-      // Show/hide View More Posts button
-      if (viewMoreContainer) {
-        if (brandData.videos.length > 3) {
-          viewMoreContainer.style.display = 'block';
-          const btn = document.getElementById('view-more-posts-btn');
-          if (btn) {
-            btn.textContent = `View ${brandData.videos.length - 3} More Posts →`;
-          }
-        } else {
-          viewMoreContainer.style.display = 'none';
-        }
-      }
-    }
+    this.renderSocialSignals();
   }
   
   renderGrowthTab(brandData) {
@@ -564,16 +513,15 @@ export class UIManager {
   }
 
   openSocialModal() {
-    const briefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
+    const briefs = this.filteredSocialBriefs || [];
     const remainingBriefs = briefs.slice(3, 24);
     
     const cardsContainer = document.getElementById('social-modal-cards');
     if (cardsContainer) {
       cardsContainer.innerHTML = remainingBriefs.map((v, i) => {
-        const actualIdx = i + 3;
         const logoSVG = getLogoSVG(v.company);
         return `
-          <div class="flat-card" onclick="window.app.uiManager.closeSocialModal(); window.app.uiManager.openVideo(${actualIdx})">
+          <div class="flat-card" onclick="window.app.uiManager.closeSocialModal(); window.app.uiManager.openVideo(${v.originalIndex})">
             <div class="flat-card-meta">
               <div class="flat-card-company">
                 <div class="company-logo">${logoSVG}</div>
@@ -613,6 +561,110 @@ export class UIManager {
       overlay.style.display = 'none';
       modal.style.display = 'none';
     }, 300);
+  }
+
+  renderSocialSignals() {
+    const videoSection = document.getElementById('video-section-title');
+    if (videoSection && this.brandData) {
+      videoSection.textContent = `${this.brandData.title} Social Signals`;
+    }
+    
+    const videoGrid = document.getElementById('video-grid-container');
+    const viewMoreContainer = document.getElementById('view-more-posts-container');
+    if (!videoGrid || !this.brandData) return;
+    
+    videoGrid.innerHTML = '';
+    
+    const allBriefs = this.app.dataManager.brandVideoData[this.activeBrand] || [];
+    
+    // Map with original indices for safe routing in openVideo
+    const mappedBriefs = allBriefs.map((b, originalIndex) => ({ ...b, originalIndex }));
+    
+    // Filter
+    let filteredBriefs = mappedBriefs;
+    if (this.activeSocialPlatformFilter !== 'ALL') {
+      filteredBriefs = mappedBriefs.filter(b => b.source.toLowerCase().includes(this.activeSocialPlatformFilter.toLowerCase()) || (this.activeSocialPlatformFilter.toLowerCase() === 'x (twitter)' && b.source.toLowerCase() === 'x (twitter)'));
+    }
+    
+    this.filteredSocialBriefs = filteredBriefs;
+    
+    const mainBriefs = filteredBriefs.slice(0, 3);
+    
+    if (mainBriefs.length === 0) {
+      videoGrid.innerHTML = `
+        <div style="grid-column: span 3; font-family: var(--mono); font-size: 11px; color: var(--muted); text-align: center; padding: 40px 16px;">
+          No social signals matching this platform filter
+        </div>
+      `;
+    } else {
+      mainBriefs.forEach(v => {
+        const card = document.createElement('div');
+        card.className = 'flat-card';
+        card.style.cssText = 'cursor:pointer; display: flex; flex-direction: column; gap: 8px; justify-content: space-between; min-height: 180px;';
+        card.setAttribute('onclick', `window.app.uiManager.openVideo(${v.originalIndex})`);
+        
+        const logoSVG = getLogoSVG(v.company);
+        
+        card.innerHTML = `
+          <div class="flat-card-meta">
+            <div class="flat-card-company">
+              <div class="company-logo" style="width:18px;height:18px;">${logoSVG}</div>
+              <span class="company-name">${v.company}</span>
+            </div>
+          </div>
+          <div class="flat-card-headline" style="font-weight:600; font-size:12px; line-height:1.4; color:var(--white);">${v.title}</div>
+          <div style="font-size:11px; color:var(--slate); line-height:1.45; flex-grow:1;">
+            <strong>Snippet:</strong> ${v.body.length > 120 ? v.body.slice(0, 120) + '...' : v.body}
+          </div>
+          <div class="flat-card-footer" style="margin-top:auto; padding-top:4px; border-top:1px solid rgba(0,0,0,0.05);">
+            <div class="news-tags"><span class="tag tag-orange">${v.badge}</span></div>
+            <span style="font-family:var(--mono); font-size:10px; color:var(--orange); font-weight:600;">VIEW BRIEF →</span>
+          </div>
+        `;
+        videoGrid.appendChild(card);
+      });
+    }
+
+    if (viewMoreContainer) {
+      if (filteredBriefs.length > 3) {
+        viewMoreContainer.style.display = 'block';
+        const btn = document.getElementById('view-more-posts-btn');
+        if (btn) {
+          btn.textContent = `View ${filteredBriefs.length - 3} More Posts →`;
+        }
+      } else {
+        viewMoreContainer.style.display = 'none';
+      }
+    }
+  }
+
+  setSocialPlatformFilter(platform) {
+    this.activeSocialPlatformFilter = platform;
+    
+    const row = document.querySelector('.social-filter-row');
+    if (row) {
+      row.querySelectorAll('.filter-chip').forEach(chip => {
+        const chipText = chip.textContent.trim().toUpperCase();
+        const activeText = platform.toUpperCase();
+        
+        if (activeText === 'ALL' && chipText === 'ALL') {
+          chip.classList.add('active');
+        } else if (activeText.includes('TWITTER') && chipText.includes('TWITTER')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('LINKEDIN') && chipText.includes('LINKEDIN')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('INSTAGRAM') && chipText.includes('INSTAGRAM')) {
+          chip.classList.add('active');
+        } else if (activeText.includes('YOUTUBE') && chipText.includes('YOUTUBE')) {
+          chip.classList.add('active');
+        } else {
+          chip.classList.remove('active');
+        }
+      });
+    }
+    
+    this.renderSocialSignals();
+    this.showToast(`FILTERED SOCIAL SIGNALS: ${platform.toUpperCase()}`);
   }
   
   openVideo(idx) {
