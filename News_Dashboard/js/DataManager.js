@@ -3,11 +3,13 @@ export class DataManager {
     this.brands = ['mondee', 'miraee', 'abhee'];
     this.data = {};
     this.brandVideoData = {};
+    this.socialMediaPosts = [];
   }
   
   async loadAllBrandsData() {
     this.rawJsonData = {};
     this.ceoInsightsData = {};
+    await this.loadSocialMediaData();
     for (const brand of this.brands) {
       const { rows, ceoInsights } = await this.loadBrandExcel(brand);
       this.rawJsonData[brand] = rows;
@@ -17,6 +19,26 @@ export class DataManager {
       } else {
         this.data[brand] = this.getEmptyBrandDataset(brand);
       }
+    }
+  }
+
+  async loadSocialMediaData() {
+    const url = `./data/social_media_posts.xlsx`;
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${url}`);
+      }
+      const arrayBuffer = await response.arrayBuffer();
+      const data = new Uint8Array(arrayBuffer);
+      const workbook = XLSX.read(data, { type: 'array' });
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      this.socialMediaPosts = XLSX.utils.sheet_to_json(worksheet);
+      console.log(`Successfully loaded ${this.socialMediaPosts.length} social media posts from database.`);
+    } catch (err) {
+      console.error("Error loading social media database:", err);
+      this.socialMediaPosts = [];
     }
   }
   
@@ -309,43 +331,54 @@ export class DataManager {
       ]
     };
     
-    // 7. Video Briefs / Keynotes (filter for keynotes, interviews, calls, or video links)
-    let videoArticles = rows.filter(r => {
-      const title = (r.Title || '').toLowerCase();
-      const url = (r.Article_URL || '').toLowerCase();
-      const body = (r.News_Body || '').toLowerCase();
-      const category = (r.News_Category || '').toLowerCase();
-      
-      return title.includes('keynote') || title.includes('interview') || title.includes('presentation') || 
-             title.includes('earnings call') || title.includes('podcast') || title.includes('cxo') ||
-             url.includes('youtube.com') || url.includes('/video/') || url.includes('vimeo.com') ||
-             category.includes('leadership');
-    }).slice(0, 3);
-    
-    // Fallback to high/medium threat strategic briefs if no specific keynotes are found
-    if (videoArticles.length === 0) {
-      videoArticles = rows.filter(r => r.Threat_Level === 'High' || r.Threat_Level === 'Medium').slice(0, 3);
-    }
-    
+    // 7. Video Briefs / Keynotes (dynamically populated from competitor social media posts database, sorted by highest alert level)
+    const brandSocialPosts = (this.socialMediaPosts || []).filter(p => {
+      const baseComp = (p.Base_Company || '').trim().toLowerCase();
+      // Match base company (miraee, mondee, abhee)
+      return baseComp === brandId.trim().toLowerCase();
+    });
+
+    // Helper map for sorting threat level priority
+    const threatOrder = { 'High': 3, 'Medium': 2, 'Low': 1 };
+    brandSocialPosts.sort((a, b) => {
+      const levelA = threatOrder[a['Alert Level']] || 0;
+      const levelB = threatOrder[b['Alert Level']] || 0;
+      if (levelB !== levelA) return levelB - levelA;
+      // Secondary sort by date
+      const dateA = a['Date Created'] ? new Date(a['Date Created']) : new Date(0);
+      const dateB = b['Date Created'] ? new Date(b['Date Created']) : new Date(0);
+      return dateB - dateA;
+    });
+
+    const topPosts = brandSocialPosts.slice(0, 3);
     const videos = [];
     const brandVideoData = [];
-    
-    videoArticles.forEach((r, idx) => {
+
+    topPosts.forEach((p, idx) => {
       videos.push({ idx: idx });
       
-      const speaker = r.Author ? r.Author.trim() : '';
-      const source = r.RSS_Source || 'Presentation Source';
-      const metaText = speaker ? `${speaker} · ${source}` : source;
+      const handle = p['Author/Handle'] || p['Competitor'];
+      const platform = p['Platform'] || 'Social Media';
+      const metaText = `${handle} · ${platform}`;
       
+      let summaryText = p['AI Summary'] || 'No summary available.';
+      let fullText = p['Post Text'] || '';
+      let transcriptText = p['Video Transcript'] || p['Image Text'] || '';
+      
+      let bodyText = `[AI SUMMARY]\n${summaryText}\n\n[POST CONTENT]\n${fullText}`;
+      if (transcriptText) {
+        bodyText += `\n\n[OCR / TRANSCRIPT]\n${transcriptText}`;
+      }
+
       brandVideoData.push({
-        company: (r.Competitor || 'Market').split(',')[0].trim(),
-        title: r.Title,
-        duration: Math.max(2, Math.round((r.News_Body || '').split(' ').length / 150)),
-        badge: (r.News_Category || 'CXO Keynote').toUpperCase(),
+        company: (p['Competitor'] || 'Market').toUpperCase().split(',')[0].trim(),
+        title: (p['Post Text'] || '').slice(0, 85).trim() + ((p['Post Text'] || '').length > 85 ? '...' : ''),
+        duration: 2,
+        badge: `${p['Platform'] ? p['Platform'].toUpperCase() : 'SOCIAL'} · ${p['Alert Level'] ? p['Alert Level'].toUpperCase() : 'LOW'} ALERT`,
         meta: metaText,
-        body: r.News_Body || 'No text extracted.',
-        source: source,
-        url: r.Article_URL || '#'
+        body: bodyText,
+        source: platform,
+        url: p['Post URL'] || '#'
       });
     });
     
