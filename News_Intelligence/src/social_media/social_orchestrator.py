@@ -24,8 +24,8 @@ COMPETITORS_EXCEL_PATH = os.path.join(BASE_DIR, "input", "competitors.xlsx")
 RUBRIC_EXCEL_PATH = os.path.join(BASE_DIR, "config", "scoring_rubric.xlsx")
 OUTPUT_EXCEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "News_Dashboard", "data", "social_media_posts.xlsx")
 
-APIFY_API_TOKEN = "apify_api_VJxWA3U9RTuHIkQWlAcnK9sxWyXvmo1TubK1"
-
+#APIFY_API_TOKEN = "apify_api_VJxWA3U9RTuHIkQWlAcnK9sxWyXvmo1TubK1"
+APIFY_API_TOKEN = os.getenv("APIFY_API_KEY")
 # Target handles map
 COMPETITOR_HANDLES = {
     "Navan": {
