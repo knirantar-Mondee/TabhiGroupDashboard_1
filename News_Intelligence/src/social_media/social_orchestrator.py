@@ -2,6 +2,7 @@ import os
 import sys
 import pandas as pd
 from apify_client import ApifyClient
+from dotenv import load_dotenv
 
 # Add src parent folder to python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
@@ -18,6 +19,9 @@ from src.social_media.youtube_scraper import scrape_youtube
 
 # Import LLM insights engine
 from src.social_media.insights_engine import analyze_post_with_llm, analyze_video_with_llm
+
+# Load environment variables
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"))
 
 # Config Paths
 COMPETITORS_EXCEL_PATH = os.path.join(BASE_DIR, "input", "competitors.xlsx")
