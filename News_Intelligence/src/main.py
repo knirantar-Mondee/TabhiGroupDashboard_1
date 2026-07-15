@@ -182,6 +182,13 @@ def run_pipeline():
     # 9. Write to Excel Database
     append_news_articles(enriched_articles)
     
+    # 10. Run Competitor Social Media Pipeline
+    try:
+        from src.social_media.social_orchestrator import run_social_pipeline
+        run_social_pipeline()
+    except Exception as e:
+        logger.error(f"Failed to execute social media pipeline: {str(e)}")
+
     # Summary Log
     logger.info("=========================================")
     logger.info("Pipeline Run Summary:")
@@ -191,20 +198,9 @@ def run_pipeline():
     logger.info(f" - Articles Matched Competitors: {total_matched}")
     logger.info(f" - Articles Skipped (Duplicates): {total_skipped}")
     logger.info(f" - Articles Enriched & Appended: {len(enriched_articles)}")
-    logger.info("News Pipeline completed successfully.")
+    logger.info("Pipeline completed successfully.")
     logger.info("=========================================")
 
 if __name__ == "__main__":
-    # 1. Run News Pipeline
-    try:
-        run_pipeline()
-    except Exception as e:
-        logger.error(f"News pipeline failed: {str(e)}")
-        
-    # 2. Run Social Media Pipeline independently (avoids being bypassed by news early returns)
-    try:
-        from src.social_media.social_orchestrator import run_social_pipeline
-        run_social_pipeline()
-    except Exception as e:
-        logger.error(f"Failed to execute social media pipeline: {str(e)}")
+    run_pipeline()
 
