@@ -28,6 +28,9 @@ jobs:
           pip install -r News_Intelligence/requirements.txt
 
       - name: Run Scraper Pipeline
+        env:
+          OLLAMA_API_KEY: ${{ secrets.OLLAMA_API_KEY }}
+          MODEL_NAME: ${{ vars.MODEL_NAME || 'gpt-oss:20b-cloud' }}
         run: |
           cd News_Intelligence
           python src/main.py
