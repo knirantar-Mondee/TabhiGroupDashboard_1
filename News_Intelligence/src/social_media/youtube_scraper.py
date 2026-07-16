@@ -13,10 +13,11 @@ def scrape_youtube(client, channel_handle, limit=5):
     
     try:
         run = client.actor("streamers/youtube-scraper").call(run_input=run_input)
-        if run.status != "SUCCEEDED":
-            print(f"⚠️ Warning: YouTube run finished with status '{run.status}'.")
+        run_status = run.get("status")
+        if run_status != "SUCCEEDED":
+            print(f"⚠️ Warning: YouTube run finished with status '{run_status}'.")
         
-        raw_items = list(client.dataset(run.default_dataset_id).iterate_items())
+        raw_items = list(client.dataset(run.get("defaultDatasetId")).iterate_items())
         print(f"✅ Successfully retrieved {len(raw_items)} videos from YouTube ({clean_handle}).")
         
         processed_videos = []

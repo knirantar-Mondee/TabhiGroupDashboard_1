@@ -10,10 +10,11 @@ def scrape_instagram(client, username, limit=5):
     
     try:
         run = client.actor("apify/instagram-scraper").call(run_input=run_input)
-        if run.status != "SUCCEEDED":
-            print(f"⚠️ Warning: Instagram run finished with status '{run.status}'.")
+        run_status = run.get("status")
+        if run_status != "SUCCEEDED":
+            print(f"⚠️ Warning: Instagram run finished with status '{run_status}'.")
         
-        raw_items = list(client.dataset(run.default_dataset_id).iterate_items())
+        raw_items = list(client.dataset(run.get("defaultDatasetId")).iterate_items())
         print(f"✅ Successfully retrieved {len(raw_items)} posts from Instagram (@{username}).")
         
         processed_posts = []
