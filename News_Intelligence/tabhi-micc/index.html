@@ -1890,8 +1890,72 @@
 
     function loadBrand(brandId) {
       activeBrand = brandId;
-      const bData = brandData[brandId];
+      activeFilter = 'ALL';
       
+      // Reset filter chips
+      document.querySelectorAll('.filter-row .filter-chip').forEach(c => {
+        if (c.textContent.trim() === 'ALL') {
+          c.classList.add('active');
+        } else {
+          c.classList.remove('active');
+        }
+      });
+      
+      renderBrandWithFilter(brandId, 'ALL');
+
+      // Transition Portal -> Dashboard
+      const portal = document.getElementById('portal-view');
+      const dashboard = document.getElementById('dashboard-view');
+      
+      portal.style.opacity = '0';
+      setTimeout(() => {
+        portal.style.display = 'none';
+        dashboard.style.display = 'block';
+        setTimeout(() => {
+          dashboard.style.opacity = '1';
+          switchTab('overview');
+        }, 50);
+      }, 400);
+
+      showToast(`LAUNCHED ${brandData[brandId].title.toUpperCase()} CI PLATFORM`);
+    }
+
+    function renderBrandWithFilter(brandId, filterType) {
+      const bData = JSON.parse(JSON.stringify(brandData[brandId]));
+      
+      const filterCardFn = (card) => {
+        const time = card.time.toLowerCase();
+        if (filterType === 'TODAY') {
+          return time.includes('h ago') || time.includes('today') || time.includes('yesterday') || time.includes('just now');
+        } else if (filterType === '7D') {
+          if (time.includes('days ago')) {
+            const days = parseInt(time);
+            return !isNaN(days) && days <= 7;
+          }
+          return !time.includes('week') && !time.includes('month') && !time.includes('q3') && !time.includes('active 30');
+        } else if (filterType === '30D') {
+          if (time.includes('days ago')) {
+            const days = parseInt(time);
+            return !isNaN(days) && days <= 30;
+          }
+          return !time.includes('month') && !time.includes('q3') && !time.includes('active 45');
+        }
+        return true;
+      };
+
+      bData.overviewCols.forEach(col => {
+        col.cards = col.cards.filter(filterCardFn);
+        col.count = col.cards.length + " ITEMS";
+      });
+      bData.growthCols.forEach(col => {
+        col.cards = col.cards.filter(filterCardFn);
+        col.count = col.cards.length + " ITEMS";
+      });
+      bData.productCols.forEach(col => {
+        col.cards = col.cards.filter(filterCardFn);
+        col.count = col.cards.length + " ITEMS";
+      });
+
       // Update header logo & titles
       document.getElementById('header-brand-logo-mark').innerHTML = getLogoSVG(brandId);
       document.getElementById('active-brand-title').textContent = bData.title;
@@ -2306,6 +2370,21 @@
       
       window.scrollTo({top:0,behavior:'smooth'});
     }
+
+    // Bind filter chip events
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.filter-row .filter-chip').forEach(chip => {
+        chip.addEventListener('click', function() {
+          if (!activeBrand) return;
+          document.querySelectorAll('.filter-row .filter-chip').forEach(c => c.classList.remove('active'));
+          this.classList.add('active');
+          const filterVal = this.textContent.trim();
+          activeFilter = filterVal;
+          renderBrandWithFilter(activeBrand, filterVal);
+          showToast(`FILTERED BY: ${filterVal}`);
+        });
+      });
+    });
   </script>
 
 </body>

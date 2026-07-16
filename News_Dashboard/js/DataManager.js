@@ -4,6 +4,7 @@ export class DataManager {
     this.data = {};
     this.brandVideoData = {};
     this.socialMediaPosts = [];
+    this.referenceDate = new Date();
   }
   
   async loadAllBrandsData() {
@@ -14,6 +15,34 @@ export class DataManager {
       const { rows, ceoInsights } = await this.loadBrandExcel(brand);
       this.rawJsonData[brand] = rows;
       this.ceoInsightsData[brand] = ceoInsights;
+    }
+    
+    // Determine the reference date (latest published/scrape date in the loaded datasets)
+    let maxMs = 0;
+    for (const brand of this.brands) {
+      const rows = this.rawJsonData[brand] || [];
+      rows.forEach(r => {
+        if (r.Published_Date) {
+          const d = new Date(r.Published_Date);
+          if (!isNaN(d.getTime()) && d.getTime() > maxMs) {
+            maxMs = d.getTime();
+          }
+        }
+        if (r.Scrape_Date) {
+          const d = new Date(r.Scrape_Date);
+          if (!isNaN(d.getTime()) && d.getTime() > maxMs) {
+            maxMs = d.getTime();
+          }
+        }
+      });
+    }
+    if (maxMs > 0) {
+      this.referenceDate = new Date(maxMs);
+      console.log("Setting dashboard reference date to latest article date:", this.referenceDate);
+    }
+
+    for (const brand of this.brands) {
+      const rows = this.rawJsonData[brand];
       if (rows && rows.length > 0) {
         this.data[brand] = this.transformRowsToDashboardData(brand, rows, 'ALL');
       } else {
@@ -435,7 +464,7 @@ export class DataManager {
     if (r.Published_Date) {
       try {
         const pubDate = new Date(r.Published_Date);
-        const diffMs = new Date() - pubDate;
+        const diffMs = this.referenceDate - pubDate;
         const diffHrs = Math.floor(diffMs / (1000 * 60 * 60));
         if (diffHrs < 1) {
           timeStr = 'Just now';
@@ -487,7 +516,7 @@ export class DataManager {
     if (!dateStr) return false;
     try {
       const d = new Date(dateStr);
-      const today = new Date();
+      const today = this.referenceDate;
       return d.getDate() === today.getDate() && d.getMonth() === today.getMonth() && d.getFullYear() === today.getFullYear();
     } catch(e) {
       return false;
@@ -503,7 +532,7 @@ export class DataManager {
     
     const pubDate = new Date(pubDateStr);
     const scrapeDate = new Date(scrapeDateStr);
-    const now = new Date();
+    const now = this.referenceDate;
     
     // 1. Calculate age at scrape time (in days) to find the original decay multiplier used
     const diffScrapeMs = scrapeDate - pubDate;
