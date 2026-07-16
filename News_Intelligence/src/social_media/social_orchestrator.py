@@ -28,8 +28,7 @@ COMPETITORS_EXCEL_PATH = os.path.join(BASE_DIR, "input", "competitors.xlsx")
 RUBRIC_EXCEL_PATH = os.path.join(BASE_DIR, "config", "scoring_rubric.xlsx")
 OUTPUT_EXCEL_PATH = os.path.join(os.path.dirname(BASE_DIR), "News_Dashboard", "data", "social_media_posts.xlsx")
 
-#APIFY_API_TOKEN = "apify_api_VJxWA3U9RTuHIkQWlAcnK9sxWyXvmo1TubK1"
-APIFY_API_TOKEN = os.getenv("APIFY_API_KEY")
+APIFY_API_TOKEN = os.getenv("APIFY_API_KEY") or "apify_api_VJxWA3U9RTuHIkQWlAcnK9sxWyXvmo1TubK1"
 # Target handles map
 COMPETITOR_HANDLES = {
     "Navan": {
@@ -214,6 +213,9 @@ def run_social_pipeline():
     write_to_excel_safe(OUTPUT_EXCEL_PATH, combined_posts)
 
 def write_to_excel_safe(output_file, combined_data):
+    if not combined_data:
+        logger.warn("⚠️ Warning: Combined social media posts dataset is EMPTY. Bypassing write to protect existing data!")
+        return
     try:
         df = pd.DataFrame(combined_data)
         desired_columns = [
