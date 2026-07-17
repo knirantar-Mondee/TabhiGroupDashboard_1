@@ -18,7 +18,19 @@ def scrape_instagram(client, username, limit=5):
         print(f"✅ Successfully retrieved {len(raw_items)} posts from Instagram (@{username}).")
         
         processed_posts = []
+        import pandas as pd
         for item in raw_items:
+            timestamp = item.get("timestamp")
+            if timestamp:
+                try:
+                    dt = pd.to_datetime(timestamp).tz_localize(None)
+                    cutoff = pd.Timestamp.now().tz_localize(None) - pd.Timedelta(days=1)
+                    if dt < cutoff:
+                        print("Reached Instagram post older than 24 hours. Stopping scraper loop.")
+                        break
+                except Exception:
+                    pass
+
             image_url = item.get("displayUrl")
             video_url = item.get("videoUrl")
 

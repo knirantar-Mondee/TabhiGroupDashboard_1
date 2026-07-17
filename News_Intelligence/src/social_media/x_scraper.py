@@ -1,10 +1,13 @@
+from datetime import datetime, timedelta
 from src.social_media.media import extract_text_from_image, transcribe_video
 
 def scrape_x(client, username, limit=5):
     """Scrapes Twitter/X posts using kaitoeasyapi/twitter-x-data-tweet-scraper-pay-per-result-cheapest."""
     print(f"Running scraper for X (@{username})...")
+    yesterday = datetime.now() - timedelta(days=1)
+    since_date = yesterday.strftime("%Y-%m-%d")
     run_input = {
-        "searchTerms": [f"from:{username}"],
+        "searchTerms": [f"from:{username} since:{since_date}"],
         "maxItems": limit,
     }
     
