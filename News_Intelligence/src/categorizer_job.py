@@ -22,7 +22,7 @@ load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path
 # Initialize OpenAI client
 client = OpenAI(
     base_url=os.getenv("OLLAMA_BASE_URL", "https://ollama.com/v1"),
-    api_key=os.getenv("OLLAMA_API_KEY")
+    api_key=os.getenv("OLLAMA_API_KEY") or "6427f435b8204883b26fa358d90a475a.W9G2TsCKRCPLNzBDLCNg1K5W"
 )
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-oss:20b-cloud")
 
@@ -255,7 +255,12 @@ def generate_ceo_insights(db_file, brand, scorer):
                         )
                         content = response.choices[0].message.content.strip()
                         
-                        # Clean json wrapping
+                        # Clean json wrapping and extract raw JSON list/object
+                        content = content.strip()
+                        match = re.search(r"\[.*\]|\{.*\}", content, re.DOTALL)
+                        if match:
+                            content = match.group(0)
+                            
                         if content.startswith("```json"):
                             content = content[7:]
                         if content.startswith("```"):
