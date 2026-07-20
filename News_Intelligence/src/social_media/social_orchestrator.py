@@ -3,13 +3,23 @@ import sys
 import pandas as pd
 from apify_client import ApifyClient
 from dotenv import load_dotenv
+from openai import OpenAI
 
 # Add src parent folder to python path for imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
+# 1. Load environment variables FIRST to ensure API keys are populated
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"))
+
 from config.settings import BASE_DIR
-from src.categorizer_job import client as openai_client, MODEL_NAME as llm_model
 from src.utils import logger
+
+# 2. Initialize OpenAI client directly
+openai_client = OpenAI(
+    base_url=os.getenv("OLLAMA_BASE_URL", "https://ollama.com/v1"),
+    api_key=os.getenv("OLLAMA_API_KEY")
+)
+llm_model = os.getenv("MODEL_NAME", "gpt-oss:20b-cloud")
 
 # Import platform scrapers
 from src.social_media.x_scraper import scrape_x
@@ -19,9 +29,6 @@ from src.social_media.youtube_scraper import scrape_youtube
 
 # Import LLM insights engine
 from src.social_media.insights_engine import analyze_post_with_llm, analyze_video_with_llm
-
-# Load environment variables
-load_dotenv(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".env"))
 
 # Config Paths
 COMPETITORS_EXCEL_PATH = os.path.join(BASE_DIR, "input", "competitors.xlsx")
